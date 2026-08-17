@@ -1,0 +1,85 @@
+Controller(
+		input signal pusherRetracted,pusherExtended,WPgripped,armAtSource,armAtDest,empty,request;
+		output signal pusherExtend,vacOn,armSource,armDest;
+		input Integer signal mode;
+		input signal pusherExtendM,vacOnM,armSourceM,armDestM;
+		)
+->{
+
+	signal auto, manual;
+
+	{
+		int modeVal = 0;
+		loop {
+			present (mode) {
+				modeVal = (Integer)#mode;
+			}
+			if (modeVal == 1) {
+				emit manual;
+			}
+			else {
+				emit auto;
+			}
+			pause;
+		}
+	}
+	||
+	{
+		System.out.printf("main loop entered%n");
+		loop {
+			abort (manual) {
+				System.out.printf("Auto: %d%n", 1);
+				// 1. The arm swivels to the position extended if a new workpiece is requested (request).
+				await (request);
+				System.out.printf("request received%n");
+				abort (armAtDest) {
+					sustain armDest;
+				}
+				// 2. The pusher extends and pushes a workpiece out of the magazine.
+
+				abort (pusherExtended) {
+					sustain pusherExtend;
+				}
+				// 3. The pusher retracts back once it is fully extended.
+				await (pusherRetracted);
+				// 4. The arm swivels back to the position retracted
+				abort (armAtSource) {
+					sustain armSource;
+				}
+
+				// 5 & 6. Vacuum on, hold until gripped, then hold the grip while the arm swivels to destination.
+				abort (WPgripped && armAtDest) {
+					{sustain vacOn;}
+					||
+					{sustain armDest;}
+				}
+				// 7. The vacuum is switched off (wait until the workpiece is released, e.g. via !WPgripped).
+				await(!WPgripped);
+				// 8. The arm swivels to the position retracted so that the cup can be picked up by other machine.
+				abort (armAtSource) {
+					sustain armSource;
+				}
+			}
+			await (manual);
+			System.out.printf("Manual: %d%n", 1);
+			abort (auto) {
+				while (true) {
+					present (pusherExtendM) {
+						emit pusherExtend;
+					}
+					present (vacOnM) {
+						emit vacOn;
+					}
+					present (armSourceM) {
+						emit armSource;
+					}
+					present (armDestM) {
+						emit armDest;
+					}
+					pause;
+				}
+			}
+			await (auto);
+		}
+	}
+}
