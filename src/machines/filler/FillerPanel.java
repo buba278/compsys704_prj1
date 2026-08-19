@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.compsys704.Ports;
+import org.compsys704.SignalLevelClient;
 import org.compsys704.SignalRadioClient;
 import org.compsys704.SignalServer;
 
@@ -22,22 +23,26 @@ public class FillerPanel extends JFrame {
 
       public FillerPanel() {
               FillerCanvas canvas = new FillerCanvas();
-              canvas.setPreferredSize(new Dimension(200, 260));
+              canvas.setPreferredSize(new Dimension(260, 260));
               canvas.setBackground(Color.WHITE);
 
-              SignalRadioClient bottleControllerClient = new SignalRadioClient(Ports.PORT_FILLER_CONTROLLER, Ports.FILLER_BOTTLE_AT_POS2_CONTROLLER);
-              SignalRadioClient bottlePlantClient = new SignalRadioClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_BOTTLE_AT_POS2_PLANT);
-              bottleControllerClient.setCheckBoxComponent(new JPanel());
-              bottlePlantClient.setCheckBoxComponent(new JPanel());
+              final SignalLevelClient bottleControllerClient = new SignalLevelClient(Ports.PORT_FILLER_CONTROLLER, Ports.FILLER_BOTTLE_AT_POS2_CONTROLLER);
+              final SignalLevelClient bottlePlantClient = new SignalLevelClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_BOTTLE_AT_POS2_PLANT);
 
               JRadioButton bottlePresent = new JRadioButton("bottleAtPos2");
-              bottlePresent.setActionCommand("1");
-              bottlePresent.addActionListener(bottleControllerClient);
-              bottlePresent.addActionListener(bottlePlantClient);
+              bottlePresent.addActionListener(new java.awt.event.ActionListener() {
+                      public void actionPerformed(java.awt.event.ActionEvent e) {
+                              bottleControllerClient.send(true);
+                              bottlePlantClient.send(true);
+                      }
+              });
               JRadioButton bottleAbsent = new JRadioButton("no bottle");
-              bottleAbsent.setActionCommand("0");
-              bottleAbsent.addActionListener(bottleControllerClient);
-              bottleAbsent.addActionListener(bottlePlantClient);
+              bottleAbsent.addActionListener(new java.awt.event.ActionListener() {
+                      public void actionPerformed(java.awt.event.ActionEvent e) {
+                              bottleControllerClient.send(false);
+                              bottlePlantClient.send(false);
+                      }
+              });
               bottleAbsent.setSelected(true);
               ButtonGroup bottleGroup = new ButtonGroup();
               bottleGroup.add(bottlePresent);
@@ -65,10 +70,15 @@ public class FillerPanel extends JFrame {
               JPanel volumePanel = new JPanel();
               ButtonGroup volumeGroup = new ButtonGroup();
               String[] volumes = { "200", "330", "500" };
-              for (String v : volumes) {
+              for (final String v : volumes) {
                       JRadioButton rb = new JRadioButton(v + "ml");
                       rb.setActionCommand(v);
                       rb.addActionListener(volumeClient);
+                      rb.addActionListener(new java.awt.event.ActionListener() {
+                              public void actionPerformed(java.awt.event.ActionEvent e) {
+                                      FillerState.TARGET_VOLUME_ML = Integer.parseInt(v);
+                              }
+                      });
                       if (v.equals("330")) defaultVolumeButton = rb;
                       volumeGroup.add(rb);
                       volumePanel.add(rb);
