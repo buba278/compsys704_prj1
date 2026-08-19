@@ -1,0 +1,40 @@
+Filler(
+    input signal bottleAtPos2;
+    input Integer signal liquidARatio, targetVolumeMl;
+    input signal levelAtTarget;
+    output signal valve1Open, valve2Open, fillDone, fillDoneE;
+    output Integer signal doseTargetMl;
+)
+
+-> {
+	{
+		loop {
+			await (bottleAtPos2);
+			// scale liquids by ratios
+			int aTarget = ((Integer)#targetVolumeMl * (Integer)#liquidARatio / 100);
+			int bTarget = (Integer)#targetVolumeMl; // just check total for last liquid
+			
+			emit doseTargetMl(aTarget);
+			abort (levelAtTarget) {
+				sustain valve1Open;
+			}
+			emit doseTargetMl(bTarget);
+			abort (levelAtTarget) {
+				sustain valve2Open;
+			}
+			
+			emit fillDone;
+			await (!bottleAtPos2);
+		}
+	}
+	||
+	{
+		loop {
+			{
+				present (fillDone) {
+					emit fillDoneE;
+				}
+			}
+		}
+	}
+}
