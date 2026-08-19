@@ -1,10 +1,10 @@
 Filler(
-    input signal bottleAtPos2; 								// turntable -> filler
-    input Integer signal liquidARatio, targetVolumeMl;		// orchestrator -> filler
-    input signal levelAtTarget;								// fillerPlant -> filler
-    output Integer signal doseTargetMl;						// filler -> fillerPlant
-    output signal valve1Open, valve2Open, fillDone;			// filler -> fillerPlant
-    output signal fillDoneE; 								// filler -> turntable
+    input signal bottleAtPos2; 								// turntable -> fillerController
+    input Integer signal liquidARatio, targetVolumeMl;		// orchestrator -> fillerController
+    input signal levelAtTarget;								// fillerPlant -> fillerController
+    output Integer signal doseTargetMl;						// fillerController -> fillerPlant
+    output signal valve1Open, valve2Open, fillDone;			// fillerController -> fillerPlant
+    output signal fillDoneE; 								// fillerController -> turntable
 )
 -> 
 {

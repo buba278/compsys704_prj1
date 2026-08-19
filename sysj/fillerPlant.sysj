@@ -1,10 +1,10 @@
 import run.FillerGUI;
 
 FillerPlant(
-		input signal valve1Open, valve2Open;					// filler -> fillerPlant
-		input Integer signal doseTargetMl;						// filler -> fillerPlant
+		input signal valve1Open, valve2Open;					// fillerController -> fillerPlant
+		input Integer signal doseTargetMl;						// fillerController -> fillerPlant
 		input signal bottleAtPos2;								// turntable -> fillerPlant (allowed?)
-		output signal levelAtTarget;							// fillerPlant -> filler
+		output signal levelAtTarget;							// fillerPlant -> fillerController
 		output signal valve1OpenE, valve2OpenE;					// fillerPlant -> fillerGUI
 		output Integer signal fillLevelE;						// fillerPlant -> fillerGUI
 )
