@@ -10,14 +10,14 @@ FillerPlant(
 )
 ->
 {
-	// new Thread(new FillerGUI()).start();
+	new Thread(new FillerGUI()).start();
 	
 	int signal fillLevel;
 	emit fillLevel(0);
 	
 	{
 		loop {
-			present(!bottleAtPost2) {
+			present(!bottleAtPos2) {
 				emit fillLevel(0);
 				emit fillLevelE(0);
 			}
@@ -30,6 +30,7 @@ FillerPlant(
 					emit levelAtTarget;
 				}
 			}
+			pause;
 		}
 	}
 	||
@@ -41,6 +42,7 @@ FillerPlant(
             present (valve2Open) { 
             	emit valve2OpenE; 
             }
+            pause;
 		}
 	}
 }

@@ -35,6 +35,7 @@ FillerController(
 				present (fillDone) {
 					emit fillDoneE;
 				}
+				pause;
 			}
 		}
 	}

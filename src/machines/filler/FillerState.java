@@ -1,4 +1,4 @@
-package stations.filler;
+package machines.filler;
 
 // shared states written by VizWorker, read by Panel
 public class FillerState {
