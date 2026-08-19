@@ -1,12 +1,13 @@
 Filler(
-    input signal bottleAtPos2;
-    input Integer signal liquidARatio, targetVolumeMl;
-    input signal levelAtTarget;
-    output signal valve1Open, valve2Open, fillDone, fillDoneE;
-    output Integer signal doseTargetMl;
+    input signal bottleAtPos2; 								// turntable -> filler
+    input Integer signal liquidARatio, targetVolumeMl;		// orchestrator -> filler
+    input signal levelAtTarget;								// fillerPlant -> filler
+    output Integer signal doseTargetMl;						// filler -> fillerPlant
+    output signal valve1Open, valve2Open, fillDone;			// filler -> fillerPlant
+    output signal fillDoneE; 								// filler -> turntable
 )
-
--> {
+-> 
+{
 	{
 		loop {
 			await (bottleAtPos2);

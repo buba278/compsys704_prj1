@@ -1,0 +1,46 @@
+import run.FillerGUI;
+
+FillerPlant(
+		input signal valve1Open, valve2Open;					// filler -> fillerPlant
+		input Integer signal doseTargetMl;						// filler -> fillerPlant
+		input signal bottleAtPos2;								// turntable -> fillerPlant (allowed?)
+		output signal levelAtTarget;							// fillerPlant -> filler
+		output signal valve1OpenE, valve2OpenE;					// fillerPlant -> fillerGUI
+		output Integer signal fillLevelE;						// fillerPlant -> fillerGUI
+)
+->
+{
+	// new Thread(new FillerGUI()).start();
+	
+	int signal fillLevel;
+	emit fillLevel(0);
+	
+	{
+		loop {
+			present(!bottleAtPost2) {
+				emit fillLevel(0);
+				emit fillLevelE(0);
+			}
+			present (valve1Open || valve2Open) {
+				// simplified indication of flow over time - might need to make slower 
+				int lvl = (Integer)#fillLevel + 1;
+				emit fillLevel(lvl);
+				emit fillLevelE(lvl);
+				if (lvl >= (Integer)#doseTargetMl) {
+					emit levelAtTarget;
+				}
+			}
+		}
+	}
+	||
+	{
+		loop {
+            present (valve1Open) { 
+            	emit valve1OpenE; 
+            }
+            present (valve2Open) { 
+            	emit valve2OpenE; 
+            }
+		}
+	}
+}
