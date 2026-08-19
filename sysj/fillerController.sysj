@@ -1,4 +1,4 @@
-Filler(
+FillerController(
     input signal bottleAtPos2; 								// turntable -> fillerController
     input Integer signal liquidARatio, targetVolumeMl;		// orchestrator -> fillerController
     input signal levelAtTarget;								// fillerPlant -> fillerController

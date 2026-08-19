@@ -1,0 +1,16 @@
+<System xmlns="http://systemjtechnology.com">
+      <SubSystem Name="SS1" Local="true">
+              <ClockDomain Name="FillerControllerCD" Class="FillerController">
+                       <iSignal Name="bottleAtPos2"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
+                      <iSignal Name="liquidARatio"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
+                      <iSignal Name="targetVolumeMl" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
+                      <iSignal Name="levelAtTarget"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
+
+                      <oSignal Name="valve1Open"   To="FillerPlantCD.valve1Open"   Class="com.systemj.ipc.SimpleClient" IPPort="10003" />
+                      <oSignal Name="valve2Open"   To="FillerPlantCD.valve2Open"   Class="com.systemj.ipc.SimpleClient" IPPort="10003" />
+                      <oSignal Name="doseTargetMl" To="FillerPlantCD.doseTargetMl" Class="com.systemj.ipc.SimpleClient" IPPort="10003" />
+
+                      <oSignal Name="fillDoneE" To="UI.fillDoneE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port
+              </ClockDomain>
+      </SubSystem>
+</System>
