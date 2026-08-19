@@ -6,11 +6,11 @@
                       <iSignal Name="doseTargetMl" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
                       <iSignal Name="bottleAtPos2" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
 
-                      <oSignal Name="levelAtTarget" To="FillerCD.levelAtTarget" Class="com.systemj.ipc.SimpleClient" IP="1 />
+                      <oSignal Name="levelAtTarget" To="FillerControllerCD.levelAtTarget" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />
 
-                      <oSignal Name="valve1OpenE" To="UI.valve1OpenE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1"
-                      <oSignal Name="valve2OpenE" To="UI.valve2OpenE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1"
-                      <oSignal Name="fillLevelE"  To="UI.fillLevelE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1"
+                      <oSignal Name="valve1OpenE" To="UI.valve1OpenE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
+                      <oSignal Name="valve2OpenE" To="UI.valve2OpenE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
+                      <oSignal Name="fillLevelE"  To="UI.fillLevelE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
               </ClockDomain>
       </SubSystem>
 </System>
