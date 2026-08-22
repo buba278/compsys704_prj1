@@ -22,12 +22,14 @@ FillerPlant(
 				emit fillLevelE(0);
 			}
 			present (valve1Open || valve2Open) {
-				// simplified indication of flow over time - might need to make slower 
-				int lvl = (Integer)#fillLevel + 1;
+				// simplified indication of flow over time - might need to make slower
+				int prevLvl = (Integer)#fillLevel;
+				int target = (Integer)#doseTargetMl;
+				int lvl = Math.min(prevLvl + 1, target);
 				emit fillLevel(lvl);
 				emit fillLevelE(lvl);
-				System.out.printf("lvl=%d doseTarget=%d%n", lvl, (Integer)#doseTargetMl);
-				if (lvl == (Integer)#doseTargetMl) {
+				System.out.printf("lvl=%d doseTarget=%d%n", lvl, target);
+				if (prevLvl < target && lvl >= target) {
 					System.out.printf("target reached at lvl=%d%n", lvl);
 					emit levelAtTarget;
 				}
