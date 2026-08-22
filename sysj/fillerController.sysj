@@ -15,15 +15,18 @@ FillerController(
 			int aTarget = ((Integer)#targetVolumeMl * (Integer)#liquidARatio / 100);
 			int bTarget = (Integer)#targetVolumeMl; // just check total for last liquid
 			
+			System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget, bTarget);
 			emit doseTargetMl(aTarget);
 			abort (levelAtTarget) {
 				sustain valve1Open;
 			}
+			System.out.printf("phase 1 done, dosing to %d%n", bTarget);
 			emit doseTargetMl(bTarget);
 			abort (levelAtTarget) {
 				sustain valve2Open;
 			}
-			
+			System.out.printf("phase 2 done%n");
+
 			emit fillDone;
 			await (!bottleAtPos2);
 		}

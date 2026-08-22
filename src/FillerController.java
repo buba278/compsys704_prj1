@@ -39,8 +39,8 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 35, column: 14
-          fillDoneE.setPresent();//sysj\fillerController.sysj line: 36, column: 6
+        if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 38, column: 14
+          fillDoneE.setPresent();//sysj\fillerController.sysj line: 39, column: 6
           currsigs.addElement(fillDoneE);
           active[3]=1;
           ends[3]=1;
@@ -70,11 +70,12 @@ public class FillerController extends ClockDomain{
             if(bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 13, column: 11
               aTarget_thread_2 = ((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())) * (Integer)(liquidARatio.getpreval() == null ? null : ((Integer)liquidARatio.getpreval())) / 100);//sysj\fillerController.sysj line: 15, column: 4
               bTarget_thread_2 = (Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval()));//sysj\fillerController.sysj line: 16, column: 4
-              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 18, column: 4
+              System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget_thread_2, bTarget_thread_2);//sysj\fillerController.sysj line: 18, column: 4
+              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 19, column: 4
               currsigs.addElement(doseTargetMl);
-              doseTargetMl.setValue(aTarget_thread_2);//sysj\fillerController.sysj line: 18, column: 4
+              doseTargetMl.setValue(aTarget_thread_2);//sysj\fillerController.sysj line: 19, column: 4
               S1162=1;
-              valve1Open.setPresent();//sysj\fillerController.sysj line: 20, column: 5
+              valve1Open.setPresent();//sysj\fillerController.sysj line: 21, column: 5
               currsigs.addElement(valve1Open);
               active[2]=1;
               ends[2]=1;
@@ -88,19 +89,20 @@ public class FillerController extends ClockDomain{
             break;
           
           case 1 : 
-            if(levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 19, column: 11
-              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 22, column: 4
+            if(levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 20, column: 11
+              System.out.printf("phase 1 done, dosing to %d%n", bTarget_thread_2);//sysj\fillerController.sysj line: 23, column: 4
+              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 24, column: 4
               currsigs.addElement(doseTargetMl);
-              doseTargetMl.setValue(bTarget_thread_2);//sysj\fillerController.sysj line: 22, column: 4
+              doseTargetMl.setValue(bTarget_thread_2);//sysj\fillerController.sysj line: 24, column: 4
               S1162=2;
-              valve2Open.setPresent();//sysj\fillerController.sysj line: 24, column: 5
+              valve2Open.setPresent();//sysj\fillerController.sysj line: 26, column: 5
               currsigs.addElement(valve2Open);
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
             }
             else {
-              valve1Open.setPresent();//sysj\fillerController.sysj line: 20, column: 5
+              valve1Open.setPresent();//sysj\fillerController.sysj line: 21, column: 5
               currsigs.addElement(valve1Open);
               active[2]=1;
               ends[2]=1;
@@ -109,8 +111,9 @@ public class FillerController extends ClockDomain{
             break;
           
           case 2 : 
-            if(levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 23, column: 11
-              fillDone.setPresent();//sysj\fillerController.sysj line: 27, column: 4
+            if(levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 25, column: 11
+              System.out.printf("phase 2 done%n");//sysj\fillerController.sysj line: 28, column: 4
+              fillDone.setPresent();//sysj\fillerController.sysj line: 30, column: 4
               currsigs.addElement(fillDone);
               S1162=3;
               active[2]=1;
@@ -118,7 +121,7 @@ public class FillerController extends ClockDomain{
               tdone[2]=1;
             }
             else {
-              valve2Open.setPresent();//sysj\fillerController.sysj line: 24, column: 5
+              valve2Open.setPresent();//sysj\fillerController.sysj line: 26, column: 5
               currsigs.addElement(valve2Open);
               active[2]=1;
               ends[2]=1;
@@ -127,7 +130,7 @@ public class FillerController extends ClockDomain{
             break;
           
           case 3 : 
-            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 28, column: 11
+            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 31, column: 11
               S1162=0;
               active[2]=1;
               ends[2]=1;
@@ -148,8 +151,8 @@ public class FillerController extends ClockDomain{
 
   public void thread1235(int [] tdone, int [] ends){
         S1230=1;
-    if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 35, column: 14
-      fillDoneE.setPresent();//sysj\fillerController.sysj line: 36, column: 6
+    if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 38, column: 14
+      fillDoneE.setPresent();//sysj\fillerController.sysj line: 39, column: 6
       currsigs.addElement(fillDoneE);
       active[3]=1;
       ends[3]=1;
