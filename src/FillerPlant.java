@@ -98,7 +98,7 @@ public class FillerPlant extends ClockDomain{
             currsigs.addElement(fillLevelE);
             fillLevelE.setValue(lvl_thread_2);//sysj\fillerPlant.sysj line: 28, column: 5
             System.out.printf("lvl=%d doseTarget=%d%n", lvl_thread_2, (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval())));//sysj\fillerPlant.sysj line: 29, column: 5
-            if(lvl_thread_2 >= (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
+            if(lvl_thread_2 == (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
               System.out.printf("target reached at lvl=%d%n", lvl_thread_2);//sysj\fillerPlant.sysj line: 31, column: 6
               levelAtTarget.setPresent();//sysj\fillerPlant.sysj line: 32, column: 6
               currsigs.addElement(levelAtTarget);
@@ -128,7 +128,7 @@ public class FillerPlant extends ClockDomain{
             currsigs.addElement(fillLevelE);
             fillLevelE.setValue(lvl_thread_2);//sysj\fillerPlant.sysj line: 28, column: 5
             System.out.printf("lvl=%d doseTarget=%d%n", lvl_thread_2, (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval())));//sysj\fillerPlant.sysj line: 29, column: 5
-            if(lvl_thread_2 >= (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
+            if(lvl_thread_2 == (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
               System.out.printf("target reached at lvl=%d%n", lvl_thread_2);//sysj\fillerPlant.sysj line: 31, column: 6
               levelAtTarget.setPresent();//sysj\fillerPlant.sysj line: 32, column: 6
               currsigs.addElement(levelAtTarget);
@@ -205,7 +205,7 @@ public class FillerPlant extends ClockDomain{
         currsigs.addElement(fillLevelE);
         fillLevelE.setValue(lvl_thread_2);//sysj\fillerPlant.sysj line: 28, column: 5
         System.out.printf("lvl=%d doseTarget=%d%n", lvl_thread_2, (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval())));//sysj\fillerPlant.sysj line: 29, column: 5
-        if(lvl_thread_2 >= (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
+        if(lvl_thread_2 == (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
           System.out.printf("target reached at lvl=%d%n", lvl_thread_2);//sysj\fillerPlant.sysj line: 31, column: 6
           levelAtTarget.setPresent();//sysj\fillerPlant.sysj line: 32, column: 6
           currsigs.addElement(levelAtTarget);
@@ -235,7 +235,7 @@ public class FillerPlant extends ClockDomain{
         currsigs.addElement(fillLevelE);
         fillLevelE.setValue(lvl_thread_2);//sysj\fillerPlant.sysj line: 28, column: 5
         System.out.printf("lvl=%d doseTarget=%d%n", lvl_thread_2, (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval())));//sysj\fillerPlant.sysj line: 29, column: 5
-        if(lvl_thread_2 >= (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
+        if(lvl_thread_2 == (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()))){//sysj\fillerPlant.sysj line: 30, column: 9
           System.out.printf("target reached at lvl=%d%n", lvl_thread_2);//sysj\fillerPlant.sysj line: 31, column: 6
           levelAtTarget.setPresent();//sysj\fillerPlant.sysj line: 32, column: 6
           currsigs.addElement(levelAtTarget);

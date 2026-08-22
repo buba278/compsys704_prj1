@@ -27,7 +27,7 @@ FillerPlant(
 				emit fillLevel(lvl);
 				emit fillLevelE(lvl);
 				System.out.printf("lvl=%d doseTarget=%d%n", lvl, (Integer)#doseTargetMl);
-				if (lvl >= (Integer)#doseTargetMl) {
+				if (lvl == (Integer)#doseTargetMl) {
 					System.out.printf("target reached at lvl=%d%n", lvl);
 					emit levelAtTarget;
 				}
