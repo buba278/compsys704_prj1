@@ -1,0 +1,76 @@
+rotaryTableController(
+		input signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1, readyToRotate;
+		output rotaryTableTrigger, tableRotationComplete;
+		input mode, rotateM; // manually rotate table
+		)
+->
+{	
+	signal autoMode; 	// 0
+	signal manualMode; 	// 1
+	
+	{	// mode selection
+		
+		int currentMode = 0; // default is auto mode
+		
+		loop {
+			{
+				if (currentMode == 0) {
+					abort(mode) {
+						sustain autoMode;
+					}	
+					currentMode = #mode;
+				}
+				else if (currentMode == 1) {
+					abort(mode) {
+						sustain manualMode;
+					}
+					currentMode = #mode;
+				}
+			}
+		}
+	}
+	||
+	{ 	// auto mode
+		
+		loop {
+			
+			await(autoMode);
+			
+			abort(manualMode) {
+				await(readyToRotate);
+				
+				if(capOnBottleAtPos1) {
+					await(!capOnBottleAtPos1);
+				}
+				
+				abort(tableAlignedWithSensor) {
+					loop {
+						emit rotaryTableTrigger;
+						pause;
+					}
+				}
+				
+				await(tableAlignedWithSensor);
+				
+				emit tableRotationComplete;
+				pause;
+			}
+		}
+	}
+	||
+	{	// manual mode
+		loop {
+			await(manualMode);
+			
+			abort(autoMode) {
+				loop {
+					present(rotateM) {
+						emit rotaryTableTrigger;
+					}
+					pause;
+				}
+			}
+		}
+	}
+	
+}
