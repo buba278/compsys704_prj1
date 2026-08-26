@@ -9,8 +9,9 @@ public class FillerCanvas extends JPanel {
 
       private static final double PIXELS_PER_ML = 0.3;
       private static final int CONTAINER_BOTTOM_Y = 230;
-      private static final int CONTAINER_X = 160;
-      private static final int CONTAINER_WIDTH = 30;
+      private static final int BASE_VOLUME_ML = 200;
+      private static final int CONTAINER_HEIGHT = (int) (BASE_VOLUME_ML * PIXELS_PER_ML);
+      private static final double CONTAINER_WIDTH_PER_ML = 30.0 / BASE_VOLUME_ML;
 
       private static final int INDICATOR_X = 10;
       private static final int LABEL_X = 30;
@@ -40,23 +41,28 @@ public class FillerCanvas extends JPanel {
               g.setColor(Color.BLACK);
               g.drawString("Fill Done", LABEL_X, FILL_DONE_Y + 12);
 
-              int containerHeight = (int) (FillerState.TARGET_VOLUME_ML * PIXELS_PER_ML);
-              int containerTop = CONTAINER_BOTTOM_Y - containerHeight;
+              // Container height is fixed (sized for BASE_VOLUME_ML); bigger targets widen it
+              // instead, and it stays centered so widening never pushes it off-canvas.
+              int containerTop = CONTAINER_BOTTOM_Y - CONTAINER_HEIGHT;
+              int containerWidth = (int) (FillerState.TARGET_VOLUME_ML * CONTAINER_WIDTH_PER_ML);
+              int containerX = (getWidth() - containerWidth) / 2;
 
-              g.drawString(FillerState.TARGET_VOLUME_ML + " ml", CONTAINER_X, containerTop - 6);
-              g.drawRect(CONTAINER_X, containerTop, CONTAINER_WIDTH, containerHeight);
+              g.drawString(FillerState.TARGET_VOLUME_ML + " ml", containerX, containerTop - 6);
+              g.drawRect(containerX, containerTop, containerWidth, CONTAINER_HEIGHT);
 
-              int filled = (int) Math.min(containerHeight, FillerState.FILL_LEVEL * PIXELS_PER_ML);
-              int boundary = (int) Math.min(filled, FillerState.PHASE1_END_LEVEL * PIXELS_PER_ML);
+              double fraction = FillerState.FILL_LEVEL / (double) FillerState.TARGET_VOLUME_ML;
+              double boundaryFraction = FillerState.PHASE1_END_LEVEL / (double) FillerState.TARGET_VOLUME_ML;
+              int filled = (int) Math.min(CONTAINER_HEIGHT, fraction * CONTAINER_HEIGHT);
+              int boundary = (int) Math.min(filled, boundaryFraction * CONTAINER_HEIGHT);
 
               if (boundary > 0) {
                     g.setColor(LIQUID_A_COLOR);
-                    g.fillRect(CONTAINER_X + 1, CONTAINER_BOTTOM_Y - boundary, CONTAINER_WIDTH - 1, boundary);
+                    g.fillRect(containerX + 1, CONTAINER_BOTTOM_Y - boundary, containerWidth - 1, boundary);
               }
               if (filled > boundary) {
                     Color topColor = FillerState.PHASE1_END_LEVEL > 0 ? LIQUID_B_COLOR : LIQUID_A_COLOR;
                     g.setColor(topColor);
-                    g.fillRect(CONTAINER_X + 1, CONTAINER_BOTTOM_Y - filled, CONTAINER_WIDTH - 1, filled - boundary);
+                    g.fillRect(containerX + 1, CONTAINER_BOTTOM_Y - filled, containerWidth - 1, filled - boundary);
               }
       }
 }
