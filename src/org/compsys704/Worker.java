@@ -6,12 +6,12 @@ import java.net.Socket;
 import java.util.Arrays;
 
 public abstract class Worker implements Runnable {
-	String signame = null;
+	protected String signame = null;
 	Socket socket = null;
 	ObjectInputStream ois = null;
 
 	public abstract void setSignal(boolean status);
-
+	public void setIntSignal(int value) {} // not defined by default, override when needed
 	public abstract boolean hasSignal(String sn);
 
 	public void setSocket(Socket s) {
@@ -39,23 +39,31 @@ public abstract class Worker implements Runnable {
 	}
 
 	@Override
-	public void run() {
-		try {
-			while (true) {
-				Object[] o = (Object[]) ois.readObject();
-				if(initTimeElapsed())
-					setSignal((Boolean) o[0]);
-			}
-		} catch (IOException e) {
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				socket.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-				System.exit(1);
-			}
-		}
-	}
+    public void run() {
+            try {
+                    while (true) {
+                            Object[] o = (Object[]) ois.readObject();
+                            if (initTimeElapsed()) {
+                                    setSignal((Boolean) o[0]);
+                                    if (o.length > 1 && o[1] instanceof Integer)
+                                            setIntSignal((Integer) o[1]);
+                            }
+                    }
+            } 
+            catch (IOException e) {
+            	// ignore
+            } 
+            catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+            } 
+            finally {
+                    try { 
+                    	socket.close(); 
+                    } 
+                    catch (IOException e1) { 
+                    	e1.printStackTrace(); 
+                    	System.exit(1); 
+                    }
+            }
+    }
 }

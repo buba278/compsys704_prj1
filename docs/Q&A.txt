@@ -1,0 +1,14 @@
+allows to simplify the ideas so long as main functionality is met. has to be clockwise.
+need to put a labeler too in the system. needs to be at the end of the conveyer
+Q: ask about fault tolerance A: very loose definitions, e.g. moving something and throwing in bin or putting in redundant replacement machine. he pretty much said get creative can assume only one failure at a time. can just throw in trash
+end product sorting to be done with diverters on conveyer belts. anything common sense can include, can design new machines.
+digital twin assigned when first loaded
+serial hash vs incremented ID? - I dont think matters
+could override stuff with the mechanical arm rather than relying on turntable and conveyers - think out of the box
+deadlock SHOULDNT be possible in systemJ
+can have database, or can do like SQL database for the POS and the product storage
+simplify things. doesnt really care about implementations, the point is just control of this idea of the system.
+visualisation just need characteristic points. need to say how you are tracking, what sensors. whats the flow? how many workpieces can be on the conveyer? can have some stuff be printed to console too, but not replacement for vis.
+IP is just 2 pages for first one as a proposal
+GP is just 4 pages with one as a diagram. also proposal, the word count is a rough estimate buy he is expecting around that cause each page is 600 words so 600*3 = 1800?
+his math is an estimate
