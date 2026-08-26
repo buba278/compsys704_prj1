@@ -20,6 +20,7 @@ public class FillerPanel extends JFrame {
 
       private JRadioButton defaultRatioButton;
       private JRadioButton defaultVolumeButton;
+      private final java.util.List<JRadioButton> devButtons = new java.util.ArrayList<JRadioButton>();
 
       public FillerPanel() {
               FillerCanvas canvas = new FillerCanvas();
@@ -50,6 +51,8 @@ public class FillerPanel extends JFrame {
               JPanel bottlePanel = new JPanel();
               bottlePanel.add(bottleAbsent);
               bottlePanel.add(bottlePresent);
+              devButtons.add(bottlePresent);
+              devButtons.add(bottleAbsent);
 
               SignalRadioClient ratioClient = new SignalRadioClient(Ports.PORT_FILLER_CONTROLLER, Ports.FILLER_LIQUID_A_RATIO);
               ratioClient.setCheckBoxComponent(new JPanel());
@@ -63,6 +66,7 @@ public class FillerPanel extends JFrame {
                       if (r.equals("50")) defaultRatioButton = rb;
                       ratioGroup.add(rb);
                       ratioPanel.add(rb);
+                      devButtons.add(rb);
               }
 
               SignalRadioClient volumeClient = new SignalRadioClient(Ports.PORT_FILLER_CONTROLLER, Ports.FILLER_TARGET_VOLUME_ML);
@@ -82,6 +86,7 @@ public class FillerPanel extends JFrame {
                       if (v.equals("330")) defaultVolumeButton = rb;
                       volumeGroup.add(rb);
                       volumePanel.add(rb);
+                      devButtons.add(rb);
               }
 
               JPanel devControls = new JPanel();
@@ -90,12 +95,36 @@ public class FillerPanel extends JFrame {
               devControls.add(ratioPanel);
               devControls.add(volumePanel);
 
+              // Auto/Manual just gates whether these DEV stand-ins are allowed to drive
+              // bottleAtPos2/liquidARatio/targetVolumeMl by hand, so the same signals can
+              // later be fed by the real turntable/orchestrator without the two racing.
+              final JRadioButton amode = new JRadioButton("Auto");
+              final JRadioButton mmode = new JRadioButton("Manual");
+              mmode.setSelected(true);
+              java.awt.event.ActionListener modeToggle = new java.awt.event.ActionListener() {
+                      public void actionPerformed(java.awt.event.ActionEvent e) {
+                              boolean manual = mmode.isSelected();
+                              for (JRadioButton b : devButtons) b.setEnabled(manual);
+                      }
+              };
+              amode.addActionListener(modeToggle);
+              mmode.addActionListener(modeToggle);
+              ButtonGroup modeGroup = new ButtonGroup();
+              modeGroup.add(amode);
+              modeGroup.add(mmode);
+              JPanel modePanel = new JPanel();
+              modePanel.add(amode);
+              modePanel.add(mmode);
+              modePanel.setBorder(BorderFactory.createTitledBorder("Mode selector"));
+
               this.setLayout(new GridBagLayout());
               GridBagConstraints c = new GridBagConstraints();
               c.gridx = 0; c.gridy = 0;
               this.add(canvas, c);
               c.gridy = 1;
               this.add(devControls, c);
+              c.gridy = 2;
+              this.add(modePanel, c);
 
               this.setTitle("Filler");
               this.setDefaultCloseOperation(EXIT_ON_CLOSE);
