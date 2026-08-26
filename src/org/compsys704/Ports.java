@@ -15,4 +15,15 @@ public class Ports {
 	public static final String SIGNAL_ARM_SOURCE      = "ControllerCD.armSourceM";
 	public static final String SIGNAL_ARM_DEST        = "ControllerCD.armDestM";
 	public static final String SIGNAL_Mode            = "ControllerCD.mode";
+	
+	// === FILLER ===
+	public static final int PORT_FILLER_CONTROLLER = 10002;
+	public static final int PORT_FILLER_PLANT      = 10003;
+	public static final int PORT_FILLER_VIZ        = 20001;
+
+	// for debug: stand in for signals that will come from RotaryTable/Coordinator once those exist
+	public static final String FILLER_BOTTLE_AT_POS2_CONTROLLER = "FillerControllerCD.bottleAtPos2";
+	public static final String FILLER_BOTTLE_AT_POS2_PLANT      = "FillerPlantCD.bottleAtPos2";
+	public static final String FILLER_LIQUID_A_RATIO            = "FillerControllerCD.liquidARatio";
+	public static final String FILLER_TARGET_VOLUME_ML          = "FillerControllerCD.targetVolumeMl";
 }

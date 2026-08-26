@@ -1,0 +1,52 @@
+import run.FillerGUI;
+
+FillerPlant(
+		input signal valve1Open, valve2Open;					// fillerController -> fillerPlant
+		input Integer signal doseTargetMl;						// fillerController -> fillerPlant
+		input signal bottleAtPos2;								// turntable -> fillerPlant (allowed?)
+		output signal levelAtTarget;							// fillerPlant -> fillerController
+		output signal valve1OpenE, valve2OpenE;					// fillerPlant -> fillerGUI
+		output Integer signal fillLevelE;						// fillerPlant -> fillerGUI
+)
+->
+{
+	new Thread(new FillerGUI()).start();
+	
+	int signal fillLevel;
+	emit fillLevel(0);
+	
+	{
+		loop {
+			present(!bottleAtPos2) {
+				emit fillLevel(0);
+				emit fillLevelE(0);
+			}
+			present (valve1Open || valve2Open) {
+				// simplified indication of flow over time - might need to make slower
+				int prevLvl = (Integer)#fillLevel;
+				int target = (Integer)#doseTargetMl;
+				int lvl = Math.min(prevLvl + 1, target);
+				emit fillLevel(lvl);
+				emit fillLevelE(lvl);
+				System.out.printf("lvl=%d doseTarget=%d%n", lvl, target);
+				if (prevLvl < target && lvl >= target) {
+					System.out.printf("target reached at lvl=%d%n", lvl);
+					emit levelAtTarget;
+				}
+			}
+			pause;
+		}
+	}
+	||
+	{
+		loop {
+            present (valve1Open) { 
+            	emit valve1OpenE; 
+            }
+            present (valve2Open) { 
+            	emit valve2OpenE; 
+            }
+            pause;
+		}
+	}
+}
