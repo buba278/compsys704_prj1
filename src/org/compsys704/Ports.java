@@ -26,4 +26,15 @@ public class Ports {
 	public static final String FILLER_BOTTLE_AT_POS2_PLANT      = "FillerPlantCD.bottleAtPos2";
 	public static final String FILLER_LIQUID_A_RATIO            = "FillerControllerCD.liquidARatio";
 	public static final String FILLER_TARGET_VOLUME_ML          = "FillerControllerCD.targetVolumeMl";
+
+	// === COORDINATOR + POS ===
+	public static final int PORT_COORDINATOR = 10004;
+	public static final int PORT_POS         = 10005;
+	public static final int PORT_POS_VIZ     = 20002;
+
+	// GUI order-form -> Pos clock domain
+	public static final String POS_SUBMIT        = "PosCD.submit";
+	public static final String POS_LIQUID_A      = "PosCD.formLiquidARatio";
+	public static final String POS_TARGET_VOLUME = "PosCD.formTargetVolume";
+	public static final String POS_QUANTITY      = "PosCD.formQuantity";
 }
