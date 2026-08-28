@@ -29,6 +29,7 @@ Coordinator(
         while (filled < quantity) {
             abort (fillDoneE) {         // present a bottle until the filler signals fillDoneE
                 loop {
+                    // TODO: currently management of this is a placeholder to test POS without other machines
                     emit bottleAtPos2;
                     emit bottleAtPos2P;
                     pause;
