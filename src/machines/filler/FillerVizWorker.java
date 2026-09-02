@@ -24,7 +24,7 @@ public class FillerVizWorker extends Worker {
       @Override
       public void setIntSignal(int value) {
               switch (signame) {
-              case "fillLevelE":     FillerState.setFillLevel(value); break;
+              case "fillLevelE":     FillerState.setFillLevel(value); if (value == 0) FillerState.FILL_DONE = false; break;
               case "totalVolumeMlE": FillerState.TARGET_VOLUME_ML = value; break;
               default:
                       System.err.println("Wrong sig name : " + signame);
