@@ -27,7 +27,7 @@ public class Coordinator extends ClockDomain{
   private int quantity_thread_1;//sysj\coordinator.sysj line: 20, column: 9
   private long start_thread_1;//sysj\coordinator.sysj line: 27, column: 9
   private int filled_thread_1;//sysj\coordinator.sysj line: 28, column: 9
-  private int elapsed_thread_1;//sysj\coordinator.sysj line: 42, column: 9
+  private int elapsed_thread_1;//sysj\coordinator.sysj line: 43, column: 9
   private int S1370 = 1;
   private int S1162 = 1;
   private int S1169 = 1;
@@ -87,9 +87,9 @@ public class Coordinator extends ClockDomain{
               S1162=2;
               if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 29, column: 16
                 S1169=0;
-                bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 32, column: 21
+                bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 33, column: 21
                 currsigs.addElement(bottleAtPos2);
-                bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 33, column: 21
+                bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 34, column: 21
                 currsigs.addElement(bottleAtPos2P);
                 active[1]=1;
                 ends[1]=1;
@@ -98,11 +98,11 @@ public class Coordinator extends ClockDomain{
               else {
                 ends[1]=2;
                 ;//sysj\coordinator.sysj line: 29, column: 9
-                elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 42, column: 9
-                batchDone.setPresent();//sysj\coordinator.sysj line: 43, column: 9
+                elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 43, column: 9
+                batchDone.setPresent();//sysj\coordinator.sysj line: 44, column: 9
                 currsigs.addElement(batchDone);
-                batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 43, column: 9
-                System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 44, column: 9
+                batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 44, column: 9
+                System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 45, column: 9
                 S1162=0;
                 active[1]=1;
                 ends[1]=1;
@@ -119,9 +119,9 @@ public class Coordinator extends ClockDomain{
                     break RUN;
                   }
                   else {
-                    bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 32, column: 21
+                    bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 33, column: 21
                     currsigs.addElement(bottleAtPos2);
-                    bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 33, column: 21
+                    bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 34, column: 21
                     currsigs.addElement(bottleAtPos2P);
                     active[1]=1;
                     ends[1]=1;
@@ -129,14 +129,14 @@ public class Coordinator extends ClockDomain{
                   }
                 
                 case 1 : 
-                  if(fillReady.getprestatus()){//sysj\coordinator.sysj line: 37, column: 20
-                    filled_thread_1 = filled_thread_1 + 1;//sysj\coordinator.sysj line: 38, column: 13
-                    System.out.printf("[Coordinator] bottle %d/%d done%n", filled_thread_1, quantity_thread_1);//sysj\coordinator.sysj line: 39, column: 13
+                  if(fillReady.getprestatus()){//sysj\coordinator.sysj line: 38, column: 20
+                    filled_thread_1 = filled_thread_1 + 1;//sysj\coordinator.sysj line: 39, column: 13
+                    System.out.printf("[Coordinator] bottle %d/%d done%n", filled_thread_1, quantity_thread_1);//sysj\coordinator.sysj line: 40, column: 13
                     if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 29, column: 16
                       S1169=0;
-                      bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 32, column: 21
+                      bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 33, column: 21
                       currsigs.addElement(bottleAtPos2);
-                      bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 33, column: 21
+                      bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 34, column: 21
                       currsigs.addElement(bottleAtPos2P);
                       active[1]=1;
                       ends[1]=1;
@@ -145,11 +145,11 @@ public class Coordinator extends ClockDomain{
                     else {
                       ends[1]=2;
                       ;//sysj\coordinator.sysj line: 29, column: 9
-                      elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 42, column: 9
-                      batchDone.setPresent();//sysj\coordinator.sysj line: 43, column: 9
+                      elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 43, column: 9
+                      batchDone.setPresent();//sysj\coordinator.sysj line: 44, column: 9
                       currsigs.addElement(batchDone);
-                      batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 43, column: 9
-                      System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 44, column: 9
+                      batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 44, column: 9
+                      System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 45, column: 9
                       S1162=0;
                       active[1]=1;
                       ends[1]=1;

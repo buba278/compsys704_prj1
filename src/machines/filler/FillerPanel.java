@@ -42,6 +42,7 @@ public class FillerPanel extends JFrame {
                       public void actionPerformed(java.awt.event.ActionEvent e) {
                               bottleControllerClient.send(false);
                               bottlePlantClient.send(false);
+                              FillerState.FILL_DONE = false;
                       }
               });
               bottleAbsent.setSelected(true);

@@ -13,6 +13,8 @@ Pos(
 )
 ->
 {
+    // TODO: add queuing of orders
+	// TODO: add validation of order vs result (option of how to approach faults)
     new Thread(new PosGUI()).start();
 
     loop {
@@ -25,7 +27,7 @@ Pos(
         emit orderLiquidARatio(ratioA);
         emit orderTargetVolume(volume);
         emit orderQuantity(quantity);
-        pause;                          // let the values land before the trigger
+        pause;  // let the values land before the trigger
         emit orderReady;
         System.out.printf("[POS] submitted ratioA=%d vol=%d qty=%d%n", ratioA, volume, quantity);
 

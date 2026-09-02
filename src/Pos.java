@@ -23,10 +23,10 @@ public class Pos extends ClockDomain{
   public Signal orderQuantity = new Signal("orderQuantity", Signal.OUTPUT);
   public Signal batchDoneE = new Signal("batchDoneE", Signal.OUTPUT);
   public Signal completionTimeE = new Signal("completionTimeE", Signal.OUTPUT);
-  private int ratioA_thread_1;//sysj\pos.sysj line: 21, column: 9
-  private int volume_thread_1;//sysj\pos.sysj line: 22, column: 9
-  private int quantity_thread_1;//sysj\pos.sysj line: 23, column: 9
-  private int t_thread_1;//sysj\pos.sysj line: 33, column: 9
+  private int ratioA_thread_1;//sysj\pos.sysj line: 23, column: 9
+  private int volume_thread_1;//sysj\pos.sysj line: 24, column: 9
+  private int quantity_thread_1;//sysj\pos.sysj line: 25, column: 9
+  private int t_thread_1;//sysj\pos.sysj line: 35, column: 9
   private int S3174 = 1;
   private int S3150 = 1;
   
@@ -48,7 +48,7 @@ public class Pos extends ClockDomain{
         case 1 : 
           S3174=2;
           S3174=2;
-          new Thread(new PosGUI()).start();//sysj\pos.sysj line: 16, column: 5
+          new Thread(new PosGUI()).start();//sysj\pos.sysj line: 18, column: 5
           S3150=0;
           active[1]=1;
           ends[1]=1;
@@ -57,19 +57,19 @@ public class Pos extends ClockDomain{
         case 2 : 
           switch(S3150){
             case 0 : 
-              if(submit.getprestatus()){//sysj\pos.sysj line: 19, column: 16
-                ratioA_thread_1 = (Integer)(formLiquidARatio.getpreval() == null ? null : ((Integer)formLiquidARatio.getpreval()));//sysj\pos.sysj line: 21, column: 9
-                volume_thread_1 = (Integer)(formTargetVolume.getpreval() == null ? null : ((Integer)formTargetVolume.getpreval()));//sysj\pos.sysj line: 22, column: 9
-                quantity_thread_1 = (Integer)(formQuantity.getpreval() == null ? null : ((Integer)formQuantity.getpreval()));//sysj\pos.sysj line: 23, column: 9
-                orderLiquidARatio.setPresent();//sysj\pos.sysj line: 25, column: 9
+              if(submit.getprestatus()){//sysj\pos.sysj line: 21, column: 16
+                ratioA_thread_1 = (Integer)(formLiquidARatio.getpreval() == null ? null : ((Integer)formLiquidARatio.getpreval()));//sysj\pos.sysj line: 23, column: 9
+                volume_thread_1 = (Integer)(formTargetVolume.getpreval() == null ? null : ((Integer)formTargetVolume.getpreval()));//sysj\pos.sysj line: 24, column: 9
+                quantity_thread_1 = (Integer)(formQuantity.getpreval() == null ? null : ((Integer)formQuantity.getpreval()));//sysj\pos.sysj line: 25, column: 9
+                orderLiquidARatio.setPresent();//sysj\pos.sysj line: 27, column: 9
                 currsigs.addElement(orderLiquidARatio);
-                orderLiquidARatio.setValue(ratioA_thread_1);//sysj\pos.sysj line: 25, column: 9
-                orderTargetVolume.setPresent();//sysj\pos.sysj line: 26, column: 9
+                orderLiquidARatio.setValue(ratioA_thread_1);//sysj\pos.sysj line: 27, column: 9
+                orderTargetVolume.setPresent();//sysj\pos.sysj line: 28, column: 9
                 currsigs.addElement(orderTargetVolume);
-                orderTargetVolume.setValue(volume_thread_1);//sysj\pos.sysj line: 26, column: 9
-                orderQuantity.setPresent();//sysj\pos.sysj line: 27, column: 9
+                orderTargetVolume.setValue(volume_thread_1);//sysj\pos.sysj line: 28, column: 9
+                orderQuantity.setPresent();//sysj\pos.sysj line: 29, column: 9
                 currsigs.addElement(orderQuantity);
-                orderQuantity.setValue(quantity_thread_1);//sysj\pos.sysj line: 27, column: 9
+                orderQuantity.setValue(quantity_thread_1);//sysj\pos.sysj line: 29, column: 9
                 S3150=1;
                 active[1]=1;
                 ends[1]=1;
@@ -83,23 +83,23 @@ public class Pos extends ClockDomain{
             
             case 1 : 
               S3150=1;
-              orderReady.setPresent();//sysj\pos.sysj line: 29, column: 9
+              orderReady.setPresent();//sysj\pos.sysj line: 31, column: 9
               currsigs.addElement(orderReady);
-              System.out.printf("[POS] submitted ratioA=%d vol=%d qty=%d%n", ratioA_thread_1, volume_thread_1, quantity_thread_1);//sysj\pos.sysj line: 30, column: 9
+              System.out.printf("[POS] submitted ratioA=%d vol=%d qty=%d%n", ratioA_thread_1, volume_thread_1, quantity_thread_1);//sysj\pos.sysj line: 32, column: 9
               S3150=2;
               active[1]=1;
               ends[1]=1;
               break RUN;
             
             case 2 : 
-              if(batchDone.getprestatus()){//sysj\pos.sysj line: 32, column: 16
-                t_thread_1 = (Integer)(batchDone.getpreval() == null ? null : ((Integer)batchDone.getpreval()));//sysj\pos.sysj line: 33, column: 9
-                completionTimeE.setPresent();//sysj\pos.sysj line: 34, column: 9
+              if(batchDone.getprestatus()){//sysj\pos.sysj line: 34, column: 16
+                t_thread_1 = (Integer)(batchDone.getpreval() == null ? null : ((Integer)batchDone.getpreval()));//sysj\pos.sysj line: 35, column: 9
+                completionTimeE.setPresent();//sysj\pos.sysj line: 36, column: 9
                 currsigs.addElement(completionTimeE);
-                completionTimeE.setValue(t_thread_1);//sysj\pos.sysj line: 34, column: 9
-                batchDoneE.setPresent();//sysj\pos.sysj line: 35, column: 9
+                completionTimeE.setValue(t_thread_1);//sysj\pos.sysj line: 36, column: 9
+                batchDoneE.setPresent();//sysj\pos.sysj line: 37, column: 9
                 currsigs.addElement(batchDoneE);
-                System.out.printf("[POS] batch complete in %d ms%n", t_thread_1);//sysj\pos.sysj line: 36, column: 9
+                System.out.printf("[POS] batch complete in %d ms%n", t_thread_1);//sysj\pos.sysj line: 38, column: 9
                 S3150=0;
                 active[1]=1;
                 ends[1]=1;
