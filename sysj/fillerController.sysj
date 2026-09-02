@@ -4,9 +4,11 @@ FillerController(
     input signal levelAtTarget;								// fillerPlant -> fillerController
     output Integer signal doseTargetMl;						// fillerController -> fillerPlant
     output signal valve1Open, valve2Open, fillDone;			// fillerController -> fillerPlant
-    output signal fillDoneE; 								// fillerController -> turntable
+    output signal fillDoneE; 								// fillerController -> UI viz
+    output signal fillDoneCoordE;						// fillerController -> coordinator (separate socket)
+    output signal fillReady;							// fillerController -> coordinator (filler reset, ready for next)
 )
--> 
+->
 {
 	{
 		loop {
@@ -14,7 +16,7 @@ FillerController(
 			// scale liquids by ratios
 			int aTarget = ((Integer)#targetVolumeMl * (Integer)#liquidARatio / 100);
 			int bTarget = (Integer)#targetVolumeMl; // just check total for last liquid
-			
+
 			System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget, bTarget);
 			emit doseTargetMl(aTarget);
 			abort (levelAtTarget) {
@@ -29,6 +31,7 @@ FillerController(
 
 			emit fillDone;
 			await (!bottleAtPos2);
+			emit fillReady;
 		}
 	}
 	||
@@ -37,6 +40,7 @@ FillerController(
 			{
 				present (fillDone) {
 					emit fillDoneE;
+					emit fillDoneCoordE;
 				}
 				pause;
 			}

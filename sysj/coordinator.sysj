@@ -1,0 +1,47 @@
+Coordinator(
+    input signal orderReady;                                    // POS -> coordinator
+    input Integer signal orderLiquidARatio, orderTargetVolume, orderQuantity;
+    input signal fillDoneE;                                     // filler -> coordinator (repointed)
+    input signal fillReady;                                     // filler confirms reset, ready for next bottle
+
+    output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
+    output signal bottleAtPos2;                                 // coordinator -> fillerController
+    output signal bottleAtPos2P;                                // coordinator -> fillerPlant (same event, 2nd socket)
+
+    output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
+)
+->
+{
+    loop {
+        await (orderReady);
+
+        int ratioA   = (Integer)#orderLiquidARatio;
+        int volume   = (Integer)#orderTargetVolume;
+        int quantity = (Integer)#orderQuantity;
+        System.out.printf("[Coordinator] order ratioA=%d vol=%d qty=%d%n", ratioA, volume, quantity);
+
+        emit liquidARatio(ratioA);
+        emit targetVolumeMl(volume);
+        pause;                          // let the recipe reach the filler before the first bottle
+
+        long start = System.currentTimeMillis();
+        int filled = 0;
+        while (filled < quantity) {
+            abort (fillDoneE) {         // present a bottle until the filler signals fillDoneE
+                loop {
+                    // TODO: currently management of this is a placeholder to test POS without other machines
+                    emit bottleAtPos2;
+                    emit bottleAtPos2P;
+                    pause;
+                }
+            }
+            await (fillReady);          // filler confirmed reset (saw !bottleAtPos2 and is ready)
+            filled = filled + 1;
+            System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
+        }
+
+        int elapsed = (int)(System.currentTimeMillis() - start);
+        emit batchDone(elapsed);
+        System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed);
+    }
+}

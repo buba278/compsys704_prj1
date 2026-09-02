@@ -43,4 +43,15 @@ public class Ports {
  
 	// kicks the plant's sensor loop off (it sits at await(start) until this fires)
 	public static final String ROTARYTABLE_START = "RotaryTablePlantCD.start";
+
+	// === COORDINATOR + POS ===
+	public static final int PORT_COORDINATOR = 10004;
+	public static final int PORT_POS         = 10005;
+	public static final int PORT_POS_VIZ     = 20002;
+
+	// GUI order-form -> Pos clock domain
+	public static final String POS_SUBMIT        = "PosCD.submit";
+	public static final String POS_LIQUID_A      = "PosCD.formLiquidARatio";
+	public static final String POS_TARGET_VOLUME = "PosCD.formTargetVolume";
+	public static final String POS_QUANTITY      = "PosCD.formQuantity";
 }

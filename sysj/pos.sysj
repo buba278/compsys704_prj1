@@ -1,0 +1,40 @@
+import run.PosGUI;
+
+Pos(
+    input signal submit;                                        // GUI form -> pos
+    input Integer signal formLiquidARatio, formTargetVolume, formQuantity;
+    input Integer signal batchDone;                             // coordinator -> pos (carries elapsed ms)
+
+    output signal orderReady;                                   // pos -> coordinator
+    output Integer signal orderLiquidARatio, orderTargetVolume, orderQuantity;
+
+    output signal batchDoneE;                                   // pos -> pos GUI viz
+    output Integer signal completionTimeE;
+)
+->
+{
+    // TODO: add queuing of orders
+	// TODO: add validation of order vs result (option of how to approach faults)
+    new Thread(new PosGUI()).start();
+
+    loop {
+        await (submit);
+
+        int ratioA   = (Integer)#formLiquidARatio;
+        int volume   = (Integer)#formTargetVolume;
+        int quantity = (Integer)#formQuantity;
+
+        emit orderLiquidARatio(ratioA);
+        emit orderTargetVolume(volume);
+        emit orderQuantity(quantity);
+        pause;  // let the values land before the trigger
+        emit orderReady;
+        System.out.printf("[POS] submitted ratioA=%d vol=%d qty=%d%n", ratioA, volume, quantity);
+
+        await (batchDone);
+        int t = (Integer)#batchDone;
+        emit completionTimeE(t);
+        emit batchDoneE;
+        System.out.printf("[POS] batch complete in %d ms%n", t);
+    }
+}

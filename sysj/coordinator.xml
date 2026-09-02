@@ -1,0 +1,19 @@
+<System xmlns="http://systemjtechnology.com">
+      <SubSystem Name="SS3" Local="true">
+              <ClockDomain Name="CoordinatorCD" Class="Coordinator">
+                      <iSignal Name="orderReady"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+                      <iSignal Name="orderLiquidARatio" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+                      <iSignal Name="orderTargetVolume" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+                      <iSignal Name="orderQuantity"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+                      <iSignal Name="fillDoneE"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+                      <iSignal Name="fillReady" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+
+                      <oSignal Name="liquidARatio"   To="FillerControllerCD.liquidARatio"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />
+                      <oSignal Name="targetVolumeMl" To="FillerControllerCD.targetVolumeMl" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />
+                      <oSignal Name="bottleAtPos2"   To="FillerControllerCD.bottleAtPos2"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />
+                      <oSignal Name="bottleAtPos2P"  To="FillerPlantCD.bottleAtPos2"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10003" />
+
+                      <oSignal Name="batchDone" To="PosCD.batchDone" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+              </ClockDomain>
+      </SubSystem>
+</System>
