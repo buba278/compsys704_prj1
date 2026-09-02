@@ -27,8 +27,8 @@ public class Pos extends ClockDomain{
   private int volume_thread_1;//sysj\pos.sysj line: 24, column: 9
   private int quantity_thread_1;//sysj\pos.sysj line: 25, column: 9
   private int t_thread_1;//sysj\pos.sysj line: 35, column: 9
-  private int S3174 = 1;
-  private int S3150 = 1;
+  private int S3177 = 1;
+  private int S3153 = 1;
   
   private int[] ends = new int[2];
   private int[] tdone = new int[2];
@@ -40,22 +40,22 @@ public class Pos extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S3174){
+      switch(S3177){
         case 0 : 
-          S3174=0;
+          S3177=0;
           break RUN;
         
         case 1 : 
-          S3174=2;
-          S3174=2;
+          S3177=2;
+          S3177=2;
           new Thread(new PosGUI()).start();//sysj\pos.sysj line: 18, column: 5
-          S3150=0;
+          S3153=0;
           active[1]=1;
           ends[1]=1;
           break RUN;
         
         case 2 : 
-          switch(S3150){
+          switch(S3153){
             case 0 : 
               if(submit.getprestatus()){//sysj\pos.sysj line: 21, column: 16
                 ratioA_thread_1 = (Integer)(formLiquidARatio.getpreval() == null ? null : ((Integer)formLiquidARatio.getpreval()));//sysj\pos.sysj line: 23, column: 9
@@ -70,7 +70,7 @@ public class Pos extends ClockDomain{
                 orderQuantity.setPresent();//sysj\pos.sysj line: 29, column: 9
                 currsigs.addElement(orderQuantity);
                 orderQuantity.setValue(quantity_thread_1);//sysj\pos.sysj line: 29, column: 9
-                S3150=1;
+                S3153=1;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
@@ -82,11 +82,11 @@ public class Pos extends ClockDomain{
               }
             
             case 1 : 
-              S3150=1;
+              S3153=1;
               orderReady.setPresent();//sysj\pos.sysj line: 31, column: 9
               currsigs.addElement(orderReady);
               System.out.printf("[POS] submitted ratioA=%d vol=%d qty=%d%n", ratioA_thread_1, volume_thread_1, quantity_thread_1);//sysj\pos.sysj line: 32, column: 9
-              S3150=2;
+              S3153=2;
               active[1]=1;
               ends[1]=1;
               break RUN;
@@ -100,7 +100,7 @@ public class Pos extends ClockDomain{
                 batchDoneE.setPresent();//sysj\pos.sysj line: 37, column: 9
                 currsigs.addElement(batchDoneE);
                 System.out.printf("[POS] batch complete in %d ms%n", t_thread_1);//sysj\pos.sysj line: 38, column: 9
-                S3150=0;
+                S3153=0;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;

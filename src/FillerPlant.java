@@ -24,15 +24,15 @@ public class FillerPlant extends ClockDomain{
   private int prevLvl_thread_2;//sysj\fillerPlant.sysj line: 26, column: 5
   private int target_thread_2;//sysj\fillerPlant.sysj line: 27, column: 5
   private int lvl_thread_2;//sysj\fillerPlant.sysj line: 28, column: 5
-  private int S1784 = 1;
-  private int S1516 = 1;
-  private int S1533 = 1;
+  private int S1787 = 1;
+  private int S1519 = 1;
+  private int S1536 = 1;
   
   private int[] ends = new int[4];
   private int[] tdone = new int[4];
   
-  public void thread1790(int [] tdone, int [] ends){
-        switch(S1533){
+  public void thread1793(int [] tdone, int [] ends){
+        switch(S1536){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -75,8 +75,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread1789(int [] tdone, int [] ends){
-        switch(S1516){
+  public void thread1792(int [] tdone, int [] ends){
+        switch(S1519){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -159,8 +159,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread1787(int [] tdone, int [] ends){
-        S1533=1;
+  public void thread1790(int [] tdone, int [] ends){
+        S1536=1;
     if(valve1Open.getprestatus()){//sysj\fillerPlant.sysj line: 43, column: 22
       valve1OpenE.setPresent();//sysj\fillerPlant.sysj line: 44, column: 14
       currsigs.addElement(valve1OpenE);
@@ -193,8 +193,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread1786(int [] tdone, int [] ends){
-        S1516=1;
+  public void thread1789(int [] tdone, int [] ends){
+        S1519=1;
     if(!bottleAtPos2.getprestatus()){//sysj\fillerPlant.sysj line: 20, column: 12
       fillLevel_1.setPresent();//sysj\fillerPlant.sysj line: 21, column: 5
       currsigs.addElement(fillLevel_1);
@@ -274,36 +274,19 @@ public class FillerPlant extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S1784){
+      switch(S1787){
         case 0 : 
-          S1784=0;
+          S1787=0;
           break RUN;
         
         case 1 : 
-          S1784=2;
-          S1784=2;
+          S1787=2;
+          S1787=2;
           new Thread(new FillerGUI()).start();//sysj\fillerPlant.sysj line: 13, column: 2
           fillLevel_1.setClear();//sysj\fillerPlant.sysj line: 15, column: 2
           fillLevel_1.setPresent();//sysj\fillerPlant.sysj line: 16, column: 2
           currsigs.addElement(fillLevel_1);
           fillLevel_1.setValue(0);//sysj\fillerPlant.sysj line: 16, column: 2
-          thread1786(tdone,ends);
-          thread1787(tdone,ends);
-          int biggest1788 = 0;
-          if(ends[2]>=biggest1788){
-            biggest1788=ends[2];
-          }
-          if(ends[3]>=biggest1788){
-            biggest1788=ends[3];
-          }
-          if(biggest1788 == 1){
-            active[1]=1;
-            ends[1]=1;
-            break RUN;
-          }
-        
-        case 2 : 
-          fillLevel_1.setClear();//sysj\fillerPlant.sysj line: 15, column: 2
           thread1789(tdone,ends);
           thread1790(tdone,ends);
           int biggest1791 = 0;
@@ -318,12 +301,29 @@ public class FillerPlant extends ClockDomain{
             ends[1]=1;
             break RUN;
           }
+        
+        case 2 : 
+          fillLevel_1.setClear();//sysj\fillerPlant.sysj line: 15, column: 2
+          thread1792(tdone,ends);
+          thread1793(tdone,ends);
+          int biggest1794 = 0;
+          if(ends[2]>=biggest1794){
+            biggest1794=ends[2];
+          }
+          if(ends[3]>=biggest1794){
+            biggest1794=ends[3];
+          }
+          if(biggest1794 == 1){
+            active[1]=1;
+            ends[1]=1;
+            break RUN;
+          }
           //FINXME code
-          if(biggest1791 == 0){
-            S1784=0;
+          if(biggest1794 == 0){
+            S1787=0;
             active[1]=0;
             ends[1]=0;
-            S1784=0;
+            S1787=0;
             break RUN;
           }
         
