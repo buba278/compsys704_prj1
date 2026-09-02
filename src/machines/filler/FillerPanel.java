@@ -101,7 +101,7 @@ public class FillerPanel extends JFrame {
               // later be fed by the real turntable/orchestrator without the two racing.
               final JRadioButton amode = new JRadioButton("Auto");
               final JRadioButton mmode = new JRadioButton("Manual");
-              mmode.setSelected(true);
+              amode.setSelected(true);
               java.awt.event.ActionListener modeToggle = new java.awt.event.ActionListener() {
                       public void actionPerformed(java.awt.event.ActionEvent e) {
                               boolean manual = mmode.isSelected();
@@ -139,6 +139,7 @@ public class FillerPanel extends JFrame {
               panel.setVisible(true);
               panel.defaultRatioButton.doClick();
               panel.defaultVolumeButton.doClick();
+              for (JRadioButton b : panel.devButtons) b.setEnabled(false);
 
               SignalServer<FillerVizWorker> server = new SignalServer<FillerVizWorker>(Ports.PORT_FILLER_VIZ, FillerVizWorker.class);
               new Thread(server).start();
