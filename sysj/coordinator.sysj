@@ -13,35 +13,50 @@ Coordinator(
 ->
 {
     loop {
-        await (orderReady);
-
-        int ratioA   = (Integer)#orderLiquidARatio;
-        int volume   = (Integer)#orderTargetVolume;
+        System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");
+        await (orderLiquidARatio);
+        int ratioA = (Integer)#orderLiquidARatio;
+        System.out.printf("[Coordinator] got ratioA=%d, waiting for orderTargetVolume%n", ratioA);
+        await (orderTargetVolume);
+        int volume = (Integer)#orderTargetVolume;
+        System.out.printf("[Coordinator] got volume=%d, waiting for orderQuantity%n", volume);
+        await (orderQuantity);
         int quantity = (Integer)#orderQuantity;
+        System.out.printf("[Coordinator] got quantity=%d, waiting for orderReady%n", quantity);
+        await (orderReady);
         System.out.printf("[Coordinator] order ratioA=%d vol=%d qty=%d%n", ratioA, volume, quantity);
 
-        emit liquidARatio(ratioA);
-        emit targetVolumeMl(volume);
-        pause;                          // let the recipe reach the filler before the first bottle
+        long tRecipe = System.currentTimeMillis();
+        while (System.currentTimeMillis() - tRecipe < 50) {
+            emit liquidARatio(ratioA);   // hold for 50ms real time - reliable GALS delivery regardless of tick speed
+            emit targetVolumeMl(volume);
+            pause;
+        }
 
         long start = System.currentTimeMillis();
         int filled = 0;
         while (filled < quantity) {
+            System.out.printf("[Coordinator] abort-block start for bottle %d/%d%n", filled + 1, quantity);
             abort (fillDoneE) {         // present a bottle until the filler signals fillDoneE
                 loop {
-                    // TODO: currently management of this is a placeholder to test POS without other machines
                     emit bottleAtPos2;
                     emit bottleAtPos2P;
                     pause;
                 }
             }
-            await (fillReady);          // filler confirmed reset (saw !bottleAtPos2 and is ready)
+            System.out.printf("[Coordinator] fillDoneE fired for bottle %d/%d, awaiting fillReady%n", filled + 1, quantity);
+            await (fillReady);
+            System.out.printf("[Coordinator] fillReady received for bottle %d/%d%n", filled + 1, quantity);
             filled = filled + 1;
             System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
         }
 
         int elapsed = (int)(System.currentTimeMillis() - start);
-        emit batchDone(elapsed);
+        long tBatch = System.currentTimeMillis();
+        while (System.currentTimeMillis() - tBatch < 50) {
+            emit batchDone(elapsed);    // hold for 50ms real time - reliable GALS delivery regardless of tick speed
+            pause;
+        }
         System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed);
     }
 }
