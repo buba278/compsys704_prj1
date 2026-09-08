@@ -1,16 +1,10 @@
 <System xmlns="http://systemjtechnology.com">
       <SubSystem Name="SS4" Local="true">
               <ClockDomain Name="PosCD" Class="Pos">
-                      <iSignal Name="submit"           Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
-                      <iSignal Name="formLiquidARatio" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
-                      <iSignal Name="formTargetVolume" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
-                      <iSignal Name="formQuantity"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
+                      <iSignal Name="submit"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
                       <iSignal Name="batchDone" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
 
-                      <oSignal Name="orderReady"        To="CoordinatorCD.orderReady"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
-                      <oSignal Name="orderLiquidARatio" To="CoordinatorCD.orderLiquidARatio" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
-                      <oSignal Name="orderTargetVolume" To="CoordinatorCD.orderTargetVolume" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
-                      <oSignal Name="orderQuantity"     To="CoordinatorCD.orderQuantity"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
+                      <oSignal Name="orderReady" To="CoordinatorCD.orderReady" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
 
                       <oSignal Name="batchDoneE"      To="UI.batchDoneE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
                       <oSignal Name="completionTimeE" To="UI.completionTimeE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />

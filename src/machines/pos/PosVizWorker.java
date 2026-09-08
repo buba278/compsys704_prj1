@@ -10,7 +10,10 @@ public class PosVizWorker extends Worker {
       @Override
       public void setSignal(boolean status) {
               switch (signame) {
-              case "batchDoneE":      PosState.BATCH_DONE = status; break;
+              case "batchDoneE":
+                      PosState.BATCH_DONE = status;
+                      if (status) OrderQueue.markDone(PosState.LAST_COMPLETION_MS);
+                      break;
               case "completionTimeE": break; // value arrives via setIntSignal
               default:
                       System.err.println("Wrong sig name : " + signame);

@@ -5,6 +5,7 @@ FillerController(
     output Integer signal doseTargetMl;						// fillerController -> fillerPlant
     output signal valve1Open, valve2Open, fillDone;			// fillerController -> fillerPlant
     output signal fillDoneE; 								// fillerController -> UI viz
+    output Integer signal totalVolumeMlE;				// fillerController -> UI viz (target volume for canvas)
     output signal fillDoneCoordE;						// fillerController -> coordinator (separate socket)
     output signal fillReady;							// fillerController -> coordinator (filler reset, ready for next)
 )
@@ -13,25 +14,39 @@ FillerController(
 	{
 		loop {
 			await (bottleAtPos2);
-			// scale liquids by ratios
-			int aTarget = ((Integer)#targetVolumeMl * (Integer)#liquidARatio / 100);
-			int bTarget = (Integer)#targetVolumeMl; // just check total for last liquid
+			// Read recipe from the Java-side store — avoids SystemJ local-signal retention
+			// problems (local signals go absent if not re-emitted each tick → null getpreval).
+			int aTarget = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;
+			int bTarget = run.FillerRecipe.getVolume();
 
 			System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget, bTarget);
-			emit doseTargetMl(aTarget);
 			abort (levelAtTarget) {
-				sustain valve1Open;
+				loop {
+					emit doseTargetMl(aTarget); // continuously reflected for the whole phase - FillerPlant is
+					emit valve1Open;             // guaranteed many ticks to observe it (reliable GALS delivery)
+					pause;
+				}
 			}
 			System.out.printf("phase 1 done, dosing to %d%n", bTarget);
-			emit doseTargetMl(bTarget);
 			abort (levelAtTarget) {
-				sustain valve2Open;
+				loop {
+					emit doseTargetMl(bTarget);
+					emit valve2Open;
+					pause;
+				}
 			}
-			System.out.printf("phase 2 done%n");
+			System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");
 
 			emit fillDone;
 			await (!bottleAtPos2);
-			emit fillReady;
+			System.out.printf("[FC] !bottleAtPos2 seen, holding fillReady%n");
+			abort (bottleAtPos2) {       // terminate the instant coordinator starts the next bottle (fast, normal
+				long tFillReady = System.currentTimeMillis(); // path) - the 200ms cap is only a safety net for the
+				while (System.currentTimeMillis() - tFillReady < 200) { // last bottle of a batch, where bottleAtPos2
+					emit fillReady;       // never returns until a new order arrives.
+					pause;
+				}
+			}
 		}
 	}
 	||
@@ -39,11 +54,36 @@ FillerController(
 		loop {
 			{
 				present (fillDone) {
-					emit fillDoneE;
-					emit fillDoneCoordE;
+					emit fillDoneE;     // viz signal: one-shot is fine (UI just needs the edge)
 				}
 				pause;
 			}
+		}
+	}
+	||
+	{
+		loop {
+			await (fillDone);           // wait for phase 2 to complete
+			System.out.printf("[FC] fillDoneCoordE → coordinator (holding)%n");
+			abort (!bottleAtPos2) {      // terminate the instant coordinator stops bottleAtPos2 (fast, normal path -
+				long tFillDoneCoord = System.currentTimeMillis(); // must not bleed into the NEXT bottle's
+				while (System.currentTimeMillis() - tFillDoneCoord < 200) { // fillDoneE check). 200ms cap is only a
+					emit fillDoneCoordE; // safety net in case that ack is somehow missed.
+					pause;
+				}
+			}
+		}
+	}
+	||
+	{
+		// Update Java-side recipe store and forward target volume to the viz layer.
+		loop {
+			present (liquidARatio)   { run.FillerRecipe.setRatio((Integer)#liquidARatio); }
+			present (targetVolumeMl) {
+				run.FillerRecipe.setVolume((Integer)#targetVolumeMl);
+				emit totalVolumeMlE((Integer)#targetVolumeMl);
+			}
+			pause;
 		}
 	}
 }

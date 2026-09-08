@@ -16,6 +16,7 @@ FillerPlant(
 	emit fillLevel(0);
 	int signal doseTarget;
 	emit doseTarget(0);
+	signal levelAtTargetPulse;   // local: hands the one-tick crossing edge to the widening thread below
 
 	{
 		loop {
@@ -36,7 +37,7 @@ FillerPlant(
 				System.out.printf("lvl=%d doseTarget=%d%n", lvl, target);
 				if (prevLvl < target && lvl >= target) {
 					System.out.printf("target reached at lvl=%d%n", lvl);
-					emit levelAtTarget;
+					emit levelAtTargetPulse;
 				}
 			}
 			}
@@ -49,10 +50,22 @@ FillerPlant(
             present (valve1Open) { 
             	emit valve1OpenE; 
             }
-            present (valve2Open) { 
-            	emit valve2OpenE; 
+            present (valve2Open) {
+            	emit valve2OpenE;
             }
             pause;
+		}
+	}
+	||
+	{
+		// Widen the single-tick "at target" edge into a reliably-delivered hold.
+		// Bounded by the NEXT doseTargetMl (start of the following phase/bottle) rather
+		// than a fixed timer, so it cannot bleed stale into a subsequent phase's check.
+		loop {
+			await (levelAtTargetPulse);
+			abort (doseTargetMl) {
+				sustain levelAtTarget;
+			}
 		}
 	}
 }
