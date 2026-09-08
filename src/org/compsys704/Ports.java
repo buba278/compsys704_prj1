@@ -34,7 +34,9 @@ public class Ports {
 
 	// GUI order-form -> Pos clock domain
 	public static final String POS_SUBMIT        = "PosCD.submit";
-	public static final String POS_LIQUID_A      = "PosCD.formLiquidARatio";
-	public static final String POS_TARGET_VOLUME = "PosCD.formTargetVolume";
-	public static final String POS_QUANTITY      = "PosCD.formQuantity";
+
+	// GUI order-form -> Coordinator clock domain (sent directly to avoid GALS timing races)
+	public static final String COORD_LIQUID_A      = "CoordinatorCD.orderLiquidARatio";
+	public static final String COORD_TARGET_VOLUME = "CoordinatorCD.orderTargetVolume";
+	public static final String COORD_QUANTITY      = "CoordinatorCD.orderQuantity";
 }
