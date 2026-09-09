@@ -1,0 +1,20 @@
+<System xmlns="http://systemjtechnology.com">
+      <SubSystem Name="SS2" Local="true">
+              <ClockDomain Name="CapperPlantCD" Class="CapperPlant">
+                      <!-- Input Signals received from the CapperControllerCD -->
+                      <iSignal Name="sendGripperDown"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
+                      <iSignal Name="sendGripperTwist"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
+                      <iSignal Name="sendGripperUntwist" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
+                      <iSignal Name="sendGripCap"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
+                      <iSignal Name="sendClamp"          Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
+
+                      <!-- Output Signals transmitted back to the CapperControllerCD -->
+                      <oSignal Name="bottleAtPos4"     To="CapperControllerCD.bottleAtPos4"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+                      <oSignal Name="gripperMaxLower"  To="CapperControllerCD.gripperMaxLower"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+                      <oSignal Name="gripperMaxLift"   To="CapperControllerCD.gripperMaxLift"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+                      <oSignal Name="capGripped"       To="CapperControllerCD.capGripped"       Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+                      <oSignal Name="gripperInitPos"   To="CapperControllerCD.gripperInitPos"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+                      <oSignal Name="gripperFullTwist" To="CapperControllerCD.gripperFullTwist" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+              </ClockDomain>
+      </SubSystem>
+</System>
