@@ -5,6 +5,7 @@
                       <iSignal Name="liquidARatio"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
                       <iSignal Name="targetVolumeMl" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
                       <iSignal Name="levelAtTarget"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
+                      <iSignal Name="fillLevelMl"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10002" />
 
                       <oSignal Name="valve1Open"   To="FillerPlantCD.valve1Open"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10003" />
                       <oSignal Name="valve2Open"   To="FillerPlantCD.valve2Open"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10003" />
@@ -12,6 +13,7 @@
 
                       <oSignal Name="fillDoneE"        To="UI.fillDoneE"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
                       <oSignal Name="totalVolumeMlE"  To="UI.totalVolumeMlE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
+                      <oSignal Name="fillFaultE"      To="UI.fillFaultE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
                       <oSignal Name="fillDoneCoordE" To="CoordinatorCD.fillDoneE"         Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
                       <oSignal Name="fillReady"      To="CoordinatorCD.fillReady"         Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
               </ClockDomain>

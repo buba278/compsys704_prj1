@@ -27,6 +27,9 @@ public class Ports {
 	public static final String FILLER_LIQUID_A_RATIO            = "FillerControllerCD.liquidARatio";
 	public static final String FILLER_TARGET_VOLUME_ML          = "FillerControllerCD.targetVolumeMl";
 
+	// fault tolerance: manual fault injection from the Filler GUI
+	public static final String FILLER_OVERFILL_M                = "FillerPlantCD.overfillM";
+
 	// === COORDINATOR + POS ===
 	public static final int PORT_COORDINATOR = 10004;
 	public static final int PORT_POS         = 10005;

@@ -18,6 +18,7 @@ public class FillerCanvas extends JPanel {
       private static final int VALVE1_Y = 10;
       private static final int VALVE2_Y = 35;
       private static final int FILL_DONE_Y = 60;
+      private static final int FAULT_Y = 85;
 
       private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // light blue
       private static final Color LIQUID_B_COLOR = new Color(255, 195, 130);  // light orange
@@ -40,6 +41,11 @@ public class FillerCanvas extends JPanel {
               g.fillOval(INDICATOR_X, FILL_DONE_Y, 15, 15);
               g.setColor(Color.BLACK);
               g.drawString("Fill Done", LABEL_X, FILL_DONE_Y + 12);
+
+              g.setColor(FillerState.FAULT ? Color.RED : Color.LIGHT_GRAY);
+              g.fillOval(INDICATOR_X, FAULT_Y, 15, 15);
+              g.setColor(Color.BLACK);
+              g.drawString("FAULT", LABEL_X, FAULT_Y + 12);
 
               // Container height is fixed (sized for BASE_VOLUME_ML); bigger targets widen it
               // instead, and it stays centered so widening never pushes it off-canvas.

@@ -2,10 +2,12 @@ FillerController(
     input signal bottleAtPos2; 								// turntable -> fillerController
     input Integer signal liquidARatio, targetVolumeMl;		// orchestrator -> fillerController
     input signal levelAtTarget;								// fillerPlant -> fillerController
+    input Integer signal fillLevelMl;							// fillerPlant -> fillerController (reported level, for fault detection)
     output Integer signal doseTargetMl;						// fillerController -> fillerPlant
     output signal valve1Open, valve2Open, fillDone;			// fillerController -> fillerPlant
     output signal fillDoneE; 								// fillerController -> UI viz
     output Integer signal totalVolumeMlE;				// fillerController -> UI viz (target volume for canvas)
+    output signal fillFaultE;							// fillerController -> UI viz (fault indicator)
     output signal fillDoneCoordE;						// fillerController -> coordinator (separate socket)
     output signal fillReady;							// fillerController -> coordinator (filler reset, ready for next)
 )
@@ -82,6 +84,25 @@ FillerController(
 			present (targetVolumeMl) {
 				run.FillerRecipe.setVolume((Integer)#targetVolumeMl);
 				emit totalVolumeMlE((Integer)#targetVolumeMl);
+			}
+			pause;
+		}
+	}
+	||
+	{
+		// Fault detection: compare the plant's reported level against whichever phase
+		// target this controller is currently dosing to (doseTargetMl is re-emitted every
+		// tick of an active phase, so this is always comparing two same-reaction values,
+		// never a stale one). A local fill overflowing its target only happens today via
+		// the GUI's manual overfill trigger, but the check itself doesn't know that.
+		loop {
+			present (doseTargetMl && fillLevelMl) {
+				int level = (Integer)#fillLevelMl;
+				int target = (Integer)#doseTargetMl;
+				if (level > target) {
+					System.out.printf("[FC] FAULT: overfill detected, level=%d target=%d%n", level, target);
+					emit fillFaultE;
+				}
 			}
 			pause;
 		}

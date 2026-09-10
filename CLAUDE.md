@@ -63,6 +63,12 @@ SystemJ clock domains tick at **unthrottled full CPU speed** (`DefaultTickFinish
 
 Never use a bare single-tick `emit` for anything that crosses a clock-domain boundary.
 
+## `abort(cond){ sustain X }` latches — a same-domain pitfall, distinct from the above
+
+Unrelated to the cross-domain socket race above (this happens purely within one clock domain's own reaction), but easy to conflate with it: `abort(cond){ sustain X; }` only latches `X` for as long as `cond` is false. If `cond` can *already* be true the instant you enter the block, the body runs for one tick and is torn down immediately — verified by testing it in isolation (see the fault-tolerance IP work): `await(overfillM); abort(!bottleAtPos2){ sustain overfilling; }` looked reasonable but silently failed whenever the trigger signal (`overfillM`) fired before the bound condition's positive case (`bottleAtPos2`) ever became true, which is exactly the realistic order a GUI button produces.
+
+This is the construct behaving correctly, not a bug — `abort` is documented to preempt once its condition holds, checked from entry. The existing working uses in this codebase (`fillReady`'s `await(!bottleAtPos2); abort(bottleAtPos2){...}`, and `levelAtTarget`'s `await(levelAtTargetPulse); abort(doseTargetMl){ sustain levelAtTarget; }`) all work because the preceding code guarantees the abort condition is false at entry. When you can't guarantee that — typically when the thing you're latching and the thing that bounds it are two independently-timed real-world events (e.g. a manual GUI trigger vs. a bottle's physical presence) — don't fight the ordering in SystemJ; latch it in a plain Java `volatile` field instead (see `run.FillerFaultState`, `run.FillerRecipe`). It has no entry precondition to get wrong.
+
 ## Architecture
 
 Current implementation: an original Lab-3-style pick-and-place cell (`Controller`/`Plant`) plus a POS-driven liquid filling line (`Coordinator`/`FillerController`/`FillerPlant`/`Pos`). See `README.md` for the file map and signal-flow summary.

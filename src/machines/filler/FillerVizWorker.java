@@ -13,6 +13,7 @@ public class FillerVizWorker extends Worker {
               case "valve1OpenE":     FillerState.setValve1Open(status); break;
               case "valve2OpenE":     FillerState.VALVE2_OPEN = status; break;
               case "fillDoneE":       if (status) FillerState.FILL_DONE = true; break;
+              case "fillFaultE":      if (status) FillerState.FAULT = true; break;
               case "fillLevelE":      break;
               case "totalVolumeMlE":  break;
               default:
@@ -32,7 +33,7 @@ public class FillerVizWorker extends Worker {
               }
       }
 
-      static final List<String> signames = Arrays.asList("valve1OpenE", "valve2OpenE", "fillDoneE", "fillLevelE", "totalVolumeMlE");
+      static final List<String> signames = Arrays.asList("valve1OpenE", "valve2OpenE", "fillDoneE", "fillFaultE", "fillLevelE", "totalVolumeMlE");
 
       @Override
       public boolean hasSignal(String sn) {

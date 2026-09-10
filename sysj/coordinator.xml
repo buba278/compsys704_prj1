@@ -16,4 +16,4 @@
                       <oSignal Name="batchDone" To="PosCD.batchDone" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
               </ClockDomain>
       </SubSystem>
-</System>
+</System> 

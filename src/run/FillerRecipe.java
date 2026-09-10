@@ -2,9 +2,11 @@ package run;
 
 /** Holds the current fill recipe (ratio and volume) set by the coordinator.
  *  Using plain Java volatile fields avoids SystemJ local-signal retention issues:
- *  local signals go absent if not re-emitted each tick, making getpreval() return null.
- *  Static accessors are used from .sysj files to avoid the SystemJ compiler misreading
- *  dotted field assignments (e.g. Foo.bar = x) as local variable declarations.
+ *  a signal's carried value only exists on ticks it's actively (re-)emitted, so
+ *  reading it many ticks after the sender stopped emitting (e.g. mid-dose, long
+ *  after the recipe signals' one-shot 50ms hold from the Coordinator) makes
+ *  getpreval() return null. Static accessors are used purely as the calling
+ *  convention for this store from .sysj files, not to work around a parser issue.
  */
 public class FillerRecipe {
     private static volatile int ratio  = 50;

@@ -5,13 +5,16 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.compsys704.Ports;
+import org.compsys704.SignalClient;
 import org.compsys704.SignalLevelClient;
 import org.compsys704.SignalRadioClient;
 import org.compsys704.SignalServer;
@@ -20,7 +23,7 @@ public class FillerPanel extends JFrame {
 
       private JRadioButton defaultRatioButton;
       private JRadioButton defaultVolumeButton;
-      private final java.util.List<JRadioButton> devButtons = new java.util.ArrayList<JRadioButton>();
+      private final java.util.List<AbstractButton> devButtons = new java.util.ArrayList<AbstractButton>();
 
       public FillerPanel() {
               FillerCanvas canvas = new FillerCanvas();
@@ -91,10 +94,17 @@ public class FillerPanel extends JFrame {
               }
 
               JPanel devControls = new JPanel();
-              devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-ins for RotaryTable / Coordinator)"));
+              devControls.setBorder(BorderFactory.createTitledBorder("RotaryTable / Coordinator emulator + extra testing functionalities)"));
               devControls.add(bottlePanel);
               devControls.add(ratioPanel);
               devControls.add(volumePanel);
+
+              JButton overfillButton = new JButton("Overfill");
+              overfillButton.addActionListener(new SignalClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_OVERFILL_M));
+              JPanel faultPanel = new JPanel();
+              faultPanel.setBorder(BorderFactory.createTitledBorder("Fault injection"));
+              faultPanel.add(overfillButton);
+              devButtons.add(overfillButton);
 
               // Auto/Manual just gates whether these DEV stand-ins are allowed to drive
               // bottleAtPos2/liquidARatio/targetVolumeMl by hand, so the same signals can
@@ -105,7 +115,7 @@ public class FillerPanel extends JFrame {
               java.awt.event.ActionListener modeToggle = new java.awt.event.ActionListener() {
                       public void actionPerformed(java.awt.event.ActionEvent e) {
                               boolean manual = mmode.isSelected();
-                              for (JRadioButton b : devButtons) b.setEnabled(manual);
+                              for (AbstractButton b : devButtons) b.setEnabled(manual);
                       }
               };
               amode.addActionListener(modeToggle);
@@ -118,6 +128,10 @@ public class FillerPanel extends JFrame {
               modePanel.add(mmode);
               modePanel.setBorder(BorderFactory.createTitledBorder("Mode selector"));
 
+              JPanel bottomRow = new JPanel();
+              bottomRow.add(faultPanel);
+              bottomRow.add(modePanel);
+
               this.setLayout(new GridBagLayout());
               GridBagConstraints c = new GridBagConstraints();
               c.gridx = 0; c.gridy = 0;
@@ -125,7 +139,7 @@ public class FillerPanel extends JFrame {
               c.gridy = 1;
               this.add(devControls, c);
               c.gridy = 2;
-              this.add(modePanel, c);
+              this.add(bottomRow, c);
 
               this.setTitle("Filler");
               this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -139,7 +153,7 @@ public class FillerPanel extends JFrame {
               panel.setVisible(true);
               panel.defaultRatioButton.doClick();
               panel.defaultVolumeButton.doClick();
-              for (JRadioButton b : panel.devButtons) b.setEnabled(false);
+              for (AbstractButton b : panel.devButtons) b.setEnabled(false);
 
               SignalServer<FillerVizWorker> server = new SignalServer<FillerVizWorker>(Ports.PORT_FILLER_VIZ, FillerVizWorker.class);
               new Thread(server).start();
