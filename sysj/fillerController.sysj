@@ -35,13 +35,21 @@ FillerController(
 			int aTarget = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;
 			int bTarget = run.FillerRecipe.getVolume();
 			boolean faulted = false;
+			// Not a fault of THIS station - the bottle it was dosing into is simply gone
+			// (today, only reachable via the dev "no bottle" override standing in for the
+			// Rotary Table; in a real line this is the Rotary Table's own fault to detect and
+			// is out of scope here, per the IP's own Section 5 assumptions). Still needs to
+			// close the valves: dispensing into nothing is a physical-safety gap regardless of
+			// whose fault it conceptually is, so it's handled as basic dosing correctness, not
+			// routed through the FAULT lamp / fillFaultE / Clear Fault machinery above.
+			boolean bottleLost = false;
 
 			// Same reasoning as the phase1->phase2 guard below: don't start a new bottle's
 			// phase 1 while levelAtTarget might still be held from the PREVIOUS bottle's
 			// phase 2 completion.
 			await (!levelAtTarget);
 			System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget, bTarget);
-			abort (levelAtTarget || stationFault) {
+			abort (levelAtTarget || stationFault || !bottleAtPos2) {
 				loop {
 					emit doseTargetMl(aTarget); // continuously reflected for the whole phase - FillerPlant is
 					emit valve1Open;             // guaranteed many ticks to observe it (reliable GALS delivery)
@@ -51,6 +59,10 @@ FillerController(
 			present (stationFault) {
 				faulted = true;
 				System.out.printf("[FC] phase 1 aborted by fault - valves closed, bottle abandoned%n");
+			} else {
+			present (!bottleAtPos2) {
+				bottleLost = true;
+				System.out.printf("[FC] phase 1 aborted: bottle no longer present - valves closed%n");
 			} else {
 				System.out.printf("phase 1 done, dosing to %d%n", bTarget);
 				// Must not re-enter abort(levelAtTarget) while levelAtTarget is still the SAME
@@ -62,7 +74,7 @@ FillerController(
 				// for it to actually go absent first removes the ambiguity regardless of how
 				// long the plant holds it.
 				await (!levelAtTarget);
-				abort (levelAtTarget || stationFault) {
+				abort (levelAtTarget || stationFault || !bottleAtPos2) {
 					loop {
 						emit doseTargetMl(bTarget);
 						emit valve2Open;
@@ -72,13 +84,19 @@ FillerController(
 				present (stationFault) {
 					faulted = true;
 					System.out.printf("[FC] phase 2 aborted by fault - valves closed, bottle abandoned%n");
+				} else {
+				present (!bottleAtPos2) {
+					bottleLost = true;
+					System.out.printf("[FC] phase 2 aborted: bottle no longer present - valves closed%n");
+				}
 				}
 			}
+			}
 
-			if (!faulted) {
+			if (!faulted && !bottleLost) {
 				System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");
 				emit fillDone;
-			} else {
+			} else if (faulted) {
 				// Safe state already reached (valves closed, the abort above already stopped
 				// emitting them). This bottle is not resumed once cleared - per the group's
 				// own design decision, a faulted bottle's digital twin marks it faulted and
@@ -91,6 +109,9 @@ FillerController(
 				await (!stationFault);
 				System.out.printf("[FC] fault cleared, awaiting bottle removal%n");
 			}
+			// bottleLost: nothing to wait for, no lamp to clear - the bottle's already gone,
+			// fall straight through to the same await(!bottleAtPos2) the other two paths use
+			// (it resolves immediately here, since bottleAtPos2 is already false).
 
 			await (!bottleAtPos2);
 			System.out.printf("[FC] !bottleAtPos2 seen, holding fillReady%n");
