@@ -1,0 +1,57 @@
+import run.RotaryTableGUI;
+
+rotaryTablePlant(
+		input signal rotaryTableTrigger;
+		input signal start;
+		input signal capOnBottleAtPos1Toggle, bottleAtPos5Toggle;
+		output signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1;
+		output signal tableAlignedWithSensorE, bottleAtPos5E, capOnBottleAtPos1E, rotaryTableTriggerE;
+		)
+->
+{
+	new Thread(new RotaryTableGUI()).start();
+
+	{ // table rotation / position sensor 
+	  
+		await(start);
+		loop {
+			abort(rotaryTableTrigger){
+				sustain tableAlignedWithSensor;
+			}
+			// simulated settle time for one 60-degree step
+			pause; pause; pause;
+		}
+	}
+	||
+	{ // Manual test toggle: simulate a bottle already carrying a cap at Pos 1.
+	  // Fault-injection aid for exercising the controller's wait-for-clear
+	  // branch, until the real Capping Unit signal is wired in.
+		while(true){
+			present(capOnBottleAtPos1Toggle){
+				emit capOnBottleAtPos1;
+			}
+			pause;
+		}
+	}
+	||
+	{ // Manual test toggle: simulate a bottle present at Position 5.
+	  // Stands in for the Unloader/Sorting sensor until that machine is
+	  // wired into the full-system model.
+		while(true){
+			present(bottleAtPos5Toggle){
+				emit bottleAtPos5;
+			}
+			pause;
+		}
+	}
+	||
+	{ // Forward events to the GUI for the animated turntable render.
+		{while(true){present(tableAlignedWithSensor){emit tableAlignedWithSensorE;} pause;}}
+		||
+		{while(true){present(bottleAtPos5){emit bottleAtPos5E;} pause;}}
+		||
+		{while(true){present(capOnBottleAtPos1){emit capOnBottleAtPos1E;} pause;}}
+		||
+		{while(true){present(rotaryTableTrigger){emit rotaryTableTriggerE;} pause;}}
+	}
+}

@@ -24,15 +24,15 @@ public class FillerPlant extends ClockDomain{
   private int prevLvl_thread_2;//sysj\fillerPlant.sysj line: 26, column: 5
   private int target_thread_2;//sysj\fillerPlant.sysj line: 27, column: 5
   private int lvl_thread_2;//sysj\fillerPlant.sysj line: 28, column: 5
-  private int S1573 = 1;
-  private int S1305 = 1;
-  private int S1322 = 1;
+  private int S2631 = 1;
+  private int S2363 = 1;
+  private int S2380 = 1;
   
   private int[] ends = new int[4];
   private int[] tdone = new int[4];
   
-  public void thread1579(int [] tdone, int [] ends){
-        switch(S1322){
+  public void thread2637(int [] tdone, int [] ends){
+        switch(S2380){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -75,8 +75,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread1578(int [] tdone, int [] ends){
-        switch(S1305){
+  public void thread2636(int [] tdone, int [] ends){
+        switch(S2363){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -159,8 +159,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread1576(int [] tdone, int [] ends){
-        S1322=1;
+  public void thread2634(int [] tdone, int [] ends){
+        S2380=1;
     if(valve1Open.getprestatus()){//sysj\fillerPlant.sysj line: 43, column: 22
       valve1OpenE.setPresent();//sysj\fillerPlant.sysj line: 44, column: 14
       currsigs.addElement(valve1OpenE);
@@ -193,8 +193,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread1575(int [] tdone, int [] ends){
-        S1305=1;
+  public void thread2633(int [] tdone, int [] ends){
+        S2363=1;
     if(!bottleAtPos2.getprestatus()){//sysj\fillerPlant.sysj line: 20, column: 12
       fillLevel_1.setPresent();//sysj\fillerPlant.sysj line: 21, column: 5
       currsigs.addElement(fillLevel_1);
@@ -274,29 +274,29 @@ public class FillerPlant extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S1573){
+      switch(S2631){
         case 0 : 
-          S1573=0;
+          S2631=0;
           break RUN;
         
         case 1 : 
-          S1573=2;
-          S1573=2;
+          S2631=2;
+          S2631=2;
           new Thread(new FillerGUI()).start();//sysj\fillerPlant.sysj line: 13, column: 2
           fillLevel_1.setClear();//sysj\fillerPlant.sysj line: 15, column: 2
           fillLevel_1.setPresent();//sysj\fillerPlant.sysj line: 16, column: 2
           currsigs.addElement(fillLevel_1);
           fillLevel_1.setValue(0);//sysj\fillerPlant.sysj line: 16, column: 2
-          thread1575(tdone,ends);
-          thread1576(tdone,ends);
-          int biggest1577 = 0;
-          if(ends[2]>=biggest1577){
-            biggest1577=ends[2];
+          thread2633(tdone,ends);
+          thread2634(tdone,ends);
+          int biggest2635 = 0;
+          if(ends[2]>=biggest2635){
+            biggest2635=ends[2];
           }
-          if(ends[3]>=biggest1577){
-            biggest1577=ends[3];
+          if(ends[3]>=biggest2635){
+            biggest2635=ends[3];
           }
-          if(biggest1577 == 1){
+          if(biggest2635 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
@@ -304,26 +304,26 @@ public class FillerPlant extends ClockDomain{
         
         case 2 : 
           fillLevel_1.setClear();//sysj\fillerPlant.sysj line: 15, column: 2
-          thread1578(tdone,ends);
-          thread1579(tdone,ends);
-          int biggest1580 = 0;
-          if(ends[2]>=biggest1580){
-            biggest1580=ends[2];
+          thread2636(tdone,ends);
+          thread2637(tdone,ends);
+          int biggest2638 = 0;
+          if(ends[2]>=biggest2638){
+            biggest2638=ends[2];
           }
-          if(ends[3]>=biggest1580){
-            biggest1580=ends[3];
+          if(ends[3]>=biggest2638){
+            biggest2638=ends[3];
           }
-          if(biggest1580 == 1){
+          if(biggest2638 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
           //FINXME code
-          if(biggest1580 == 0){
-            S1573=0;
+          if(biggest2638 == 0){
+            S2631=0;
             active[1]=0;
             ends[1]=0;
-            S1573=0;
+            S2631=0;
             break RUN;
           }
         

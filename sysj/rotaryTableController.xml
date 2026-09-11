@@ -1,16 +1,19 @@
 <System xmlns="http://systemjtechnology.com">
-	<SubSystem Name="SS1" Local="true">
-		<ClockDomain Name="rotaryTableControllerCD" Class="rotaryTableController">
-			<iSignal Name="tableAlignedWithSensor" 	Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
-			<iSignal Name="bottleAtPos5"  			Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
-			<iSignal Name="capOnBottleAtPos1"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
-			<iSignal Name="readyToRotate"    		Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
+	<SubSystem Name="SS3" Local="true">
+		<ClockDomain Name="RotaryTableControllerCD" Class="rotaryTableController">
+			<iSignal Name="tableAlignedWithSensor" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+			<iSignal Name="bottleAtPos5"           Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+			<iSignal Name="capOnBottleAtPos1"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+			<iSignal Name="readyToRotate"          Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
 
-			<oSignal Name="rotaryTableTrigger" To="PlantCD.pusherExtend" 	Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10001" />
-			<oSignal Name="tableRotationComplete"        To="PlantCD.vacOn" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10001" />
+			<oSignal Name="rotaryTableTrigger"    To="RotaryTablePlantCD.rotaryTableTrigger" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+			<oSignal Name="tableRotationComplete" To="UI.tableRotationComplete"              Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
 
-			<iSignal Name="mode"	Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
-			<iSignal Name="rotateM"	Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
+			<!-- mode / rotateM come straight from the GUI, same pattern as
+			     "mode" / "pusherExtendM" going straight to ControllerCD
+			     in the Lab 3 Workpiece Loader example, rather than via the Plant. -->
+			<iSignal Name="mode"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+			<iSignal Name="rotateM" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
 		</ClockDomain>
 	</SubSystem>
 </System>

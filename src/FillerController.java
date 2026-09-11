@@ -22,16 +22,16 @@ public class FillerController extends ClockDomain{
   public Signal fillDoneE = new Signal("fillDoneE", Signal.OUTPUT);
   private int aTarget_thread_2;//sysj\fillerController.sysj line: 15, column: 4
   private int bTarget_thread_2;//sysj\fillerController.sysj line: 16, column: 4
-  private int S1232 = 1;
-  private int S1222 = 1;
-  private int S1162 = 1;
-  private int S1230 = 1;
+  private int S2290 = 1;
+  private int S2280 = 1;
+  private int S2220 = 1;
+  private int S2288 = 1;
   
   private int[] ends = new int[4];
   private int[] tdone = new int[4];
   
-  public void thread1238(int [] tdone, int [] ends){
-        switch(S1230){
+  public void thread2296(int [] tdone, int [] ends){
+        switch(S2288){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -56,8 +56,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread1237(int [] tdone, int [] ends){
-        switch(S1222){
+  public void thread2295(int [] tdone, int [] ends){
+        switch(S2280){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -65,7 +65,7 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S1162){
+        switch(S2220){
           case 0 : 
             if(bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 13, column: 11
               aTarget_thread_2 = ((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())) * (Integer)(liquidARatio.getpreval() == null ? null : ((Integer)liquidARatio.getpreval())) / 100);//sysj\fillerController.sysj line: 15, column: 4
@@ -74,7 +74,7 @@ public class FillerController extends ClockDomain{
               doseTargetMl.setPresent();//sysj\fillerController.sysj line: 19, column: 4
               currsigs.addElement(doseTargetMl);
               doseTargetMl.setValue(aTarget_thread_2);//sysj\fillerController.sysj line: 19, column: 4
-              S1162=1;
+              S2220=1;
               valve1Open.setPresent();//sysj\fillerController.sysj line: 21, column: 5
               currsigs.addElement(valve1Open);
               active[2]=1;
@@ -94,7 +94,7 @@ public class FillerController extends ClockDomain{
               doseTargetMl.setPresent();//sysj\fillerController.sysj line: 24, column: 4
               currsigs.addElement(doseTargetMl);
               doseTargetMl.setValue(bTarget_thread_2);//sysj\fillerController.sysj line: 24, column: 4
-              S1162=2;
+              S2220=2;
               valve2Open.setPresent();//sysj\fillerController.sysj line: 26, column: 5
               currsigs.addElement(valve2Open);
               active[2]=1;
@@ -115,7 +115,7 @@ public class FillerController extends ClockDomain{
               System.out.printf("phase 2 done%n");//sysj\fillerController.sysj line: 28, column: 4
               fillDone.setPresent();//sysj\fillerController.sysj line: 30, column: 4
               currsigs.addElement(fillDone);
-              S1162=3;
+              S2220=3;
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
@@ -131,7 +131,7 @@ public class FillerController extends ClockDomain{
           
           case 3 : 
             if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 31, column: 11
-              S1162=0;
+              S2220=0;
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
@@ -149,8 +149,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread1235(int [] tdone, int [] ends){
-        S1230=1;
+  public void thread2293(int [] tdone, int [] ends){
+        S2288=1;
     if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 38, column: 14
       fillDoneE.setPresent();//sysj\fillerController.sysj line: 39, column: 6
       currsigs.addElement(fillDoneE);
@@ -165,9 +165,9 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread1234(int [] tdone, int [] ends){
-        S1222=1;
-    S1162=0;
+  public void thread2292(int [] tdone, int [] ends){
+        S2280=1;
+    S2220=0;
     active[2]=1;
     ends[2]=1;
     tdone[2]=1;
@@ -180,50 +180,50 @@ public class FillerController extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S1232){
+      switch(S2290){
         case 0 : 
-          S1232=0;
+          S2290=0;
           break RUN;
         
         case 1 : 
-          S1232=2;
-          S1232=2;
-          thread1234(tdone,ends);
-          thread1235(tdone,ends);
-          int biggest1236 = 0;
-          if(ends[2]>=biggest1236){
-            biggest1236=ends[2];
+          S2290=2;
+          S2290=2;
+          thread2292(tdone,ends);
+          thread2293(tdone,ends);
+          int biggest2294 = 0;
+          if(ends[2]>=biggest2294){
+            biggest2294=ends[2];
           }
-          if(ends[3]>=biggest1236){
-            biggest1236=ends[3];
+          if(ends[3]>=biggest2294){
+            biggest2294=ends[3];
           }
-          if(biggest1236 == 1){
+          if(biggest2294 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
         
         case 2 : 
-          thread1237(tdone,ends);
-          thread1238(tdone,ends);
-          int biggest1239 = 0;
-          if(ends[2]>=biggest1239){
-            biggest1239=ends[2];
+          thread2295(tdone,ends);
+          thread2296(tdone,ends);
+          int biggest2297 = 0;
+          if(ends[2]>=biggest2297){
+            biggest2297=ends[2];
           }
-          if(ends[3]>=biggest1239){
-            biggest1239=ends[3];
+          if(ends[3]>=biggest2297){
+            biggest2297=ends[3];
           }
-          if(biggest1239 == 1){
+          if(biggest2297 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
           //FINXME code
-          if(biggest1239 == 0){
-            S1232=0;
+          if(biggest2297 == 0){
+            S2290=0;
             active[1]=0;
             ends[1]=0;
-            S1232=0;
+            S2290=0;
             break RUN;
           }
         
