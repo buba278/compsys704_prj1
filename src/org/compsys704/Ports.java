@@ -30,6 +30,9 @@ public class Ports {
 	// fault tolerance: manual fault injection from the Filler GUI
 	public static final String FILLER_OVERFILL_M                = "FillerPlantCD.overfillM";
 	public static final String FILLER_STALL_M                   = "FillerPlantCD.stallM";
+	// fault tolerance: operator clears an active fault - goes to the controller (where the
+	// dosing/abandon-bottle decision lives), not the plant
+	public static final String FILLER_CLEAR_FAULT_M             = "FillerControllerCD.clearFaultM";
 
 	// === COORDINATOR + POS ===
 	public static final int PORT_COORDINATOR = 10004;

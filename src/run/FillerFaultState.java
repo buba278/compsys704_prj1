@@ -22,4 +22,16 @@ public class FillerFaultState {
     public static void armStall()   { stallArmed = true; }
     public static void clearStall() { stallArmed = false; }
     public static boolean isStallArmed() { return stallArmed; }
+
+    // stationFaulted is read/written from FillerControllerCD's own process only (the dosing
+    // decision lives there), unlike the manual-override flags above which belong to
+    // FillerPlantCD. Java static fields are per-JVM: even though FillerControllerCD.sysj
+    // imports this exact same class, each clock domain's process gets its own independent
+    // copy of these fields, never shared across the two - there is no cross-process aliasing
+    // to worry about here.
+    private static volatile boolean stationFaulted = false;
+
+    public static void raiseStationFault() { stationFaulted = true; }
+    public static void clearStationFault() { stationFaulted = false; }
+    public static boolean isStationFaulted() { return stationFaulted; }
 }

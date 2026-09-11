@@ -105,11 +105,13 @@ public class FillerPanel extends JFrame {
               overfillButton.addActionListener(new SignalClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_OVERFILL_M));
               JButton stallButton = new JButton("Stall");
               stallButton.addActionListener(new SignalClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_STALL_M));
-              // Clear Fault is GUI -> Java state directly, not a SystemJ signal: this GUI runs
-              // as a thread inside the same JVM as FillerPlant (see FillerGUI/new Thread in
-              // fillerPlant.sysj), so there's no other process to reach and no reactive .sysj
-              // code needs to observe the click - unlike Overfill/Stall, which the plant's own
-              // reactive threads must see as signals to act on mid-reaction.
+              // Clear Fault does two different things via two different paths. Clearing the
+              // manual overfill/stall overrides and the viz lamp is GUI -> Java state directly:
+              // this GUI runs as a thread inside the same JVM as FillerPlant (see FillerGUI/new
+              // Thread in fillerPlant.sysj), so there's no other process to reach for those.
+              // But the abandon-bottle decision lives in FillerControllerCD, a SEPARATE process
+              // - clearing FillerFaultState here only clears the PLANT's own copy of that class
+              // (Java statics are per-JVM), so that part has to be a real cross-domain signal.
               JButton clearFaultButton = new JButton("Clear Fault");
               clearFaultButton.addActionListener(new java.awt.event.ActionListener() {
                       public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -118,6 +120,7 @@ public class FillerPanel extends JFrame {
                               FillerState.FAULT = false;
                       }
               });
+              clearFaultButton.addActionListener(new SignalClient(Ports.PORT_FILLER_CONTROLLER, Ports.FILLER_CLEAR_FAULT_M));
               JPanel faultPanel = new JPanel();
               faultPanel.setBorder(BorderFactory.createTitledBorder("Fault injection"));
               faultPanel.add(overfillButton);
