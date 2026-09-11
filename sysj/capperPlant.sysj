@@ -1,0 +1,87 @@
+CapperPlant(
+    input signal sendGripperDown;
+    input signal sendGripperTwist;
+    input signal sendGripperUntwist;
+    input signal sendGripCap;
+    input signal sendClamp;
+    
+    output signal bottleAtPos4; 
+    output signal gripperMaxLower;
+    output signal gripperMaxLift;
+    output signal capGripped;
+    output signal gripperInitPos;
+    output signal gripperFullTwist;
+)
+->
+{
+    System.out.println("CapperPlant: Subsystem initialized.");
+
+    {
+        // 1. Bottle arrival simulation
+        while(true){
+            System.out.println("CapperPlant [Turntable]: Delivering new bottle to Position 4...");
+            abort(sendClamp){
+                sustain bottleAtPos4;
+            }
+           
+            System.out.println("CapperPlant [Turntable]: Clamp released. Indexing turntable...");
+            pause;
+  
+        }
+    }
+    ||
+    {
+        // 2. Gripper Z-axis movement simulation
+        while(true){
+            abort(sendGripperDown){
+                sustain gripperMaxLift;
+            }
+            System.out.println("CapperPlant [Z-Axis]: Moving down...");
+            pause; 
+            pause;
+            
+            System.out.println("CapperPlant [Z-Axis]: Reached bottom sensor.");
+            abort(!sendGripperDown){
+                sustain gripperMaxLower;
+            }
+            System.out.println("CapperPlant [Z-Axis]: Moving back up...");
+            pause; 
+            pause;
+        }
+    }
+    || 
+    {
+        // 3. Cap Gripper simulation
+        while(true){
+            // Standby until controller asks to grip the cap
+            await(sendGripCap);
+            System.out.println("CapperPlant [Gripper Jaw]: Closing jaws around cap...");
+            
+            abort(!sendGripCap){
+                sustain capGripped;
+            }
+            System.out.println("CapperPlant [Gripper Jaw]: Jaws opened, cap released.");
+            pause;
+        }
+    }
+    || 
+    {
+        // 4. Gripper rotation simulation
+        while(true){
+            abort(sendGripperTwist){
+                sustain gripperInitPos;
+            }
+            System.out.println("CapperPlant [Rotation]: Twisting cap closed...");
+            pause; 
+            pause;
+            
+            System.out.println("CapperPlant [Rotation]: Full twist achieved.");
+            abort(sendGripperUntwist){
+                sustain gripperFullTwist;
+            }
+            System.out.println("CapperPlant [Rotation]: Untwisting back to start position...");
+            pause; 
+            pause;
+        }
+    }
+}

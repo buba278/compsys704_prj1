@@ -1,0 +1,61 @@
+CapperController(
+    input signal bottleAtPos4; 								
+    input signal gripperMaxLower;							
+    input signal gripperMaxLift;
+    input signal capGripped;
+    input signal gripperInitPos;
+    input signal gripperFullTwist;
+    
+    output signal sendGripperDown;
+    output signal sendGripperTwist;
+    output signal sendGripperUntwist;
+    output signal sendGripCap;
+    output signal sendClamp;
+)
+->
+{
+    System.out.println("CapperController: Initialized and running.");
+    loop {
+        System.out.println("CapperController: Waiting for bottle at Position 4...");
+        await (bottleAtPos4);
+        System.out.println("CapperController: Bottle detected. Starting capping sequence.");
+        
+        abort(gripperFullTwist) {
+            {
+                sustain sendClamp;
+            }
+            ||
+            {
+                System.out.println("CapperController: Lowering gripper...");
+                sustain sendGripperDown;
+            }
+            ||
+            {
+                await(gripperMaxLower);
+                System.out.println("CapperController: Gripper reached lowest position. Gripping cap...");
+                sustain sendGripCap;
+            }
+            ||
+            {
+                await(capGripped);
+                System.out.println("CapperController: Cap secured. Twisting gripper...");
+                emit sendGripperTwist;
+                pause;
+            }
+        }
+        System.out.println("CapperController: Gripper full twist achieved or aborted. Releasing clamp & resetting.");
+     
+        abort(gripperInitPos) {
+        {
+            sustain sendClamp;
+           }
+            ||
+            {
+                System.out.println("CapperController: Untwisting gripper to initial position...");
+                emit sendGripperUntwist;
+                pause;
+            }
+        }
+        System.out.println("CapperController: Gripper returned to initial position. Cycle complete.");
+    }
+}

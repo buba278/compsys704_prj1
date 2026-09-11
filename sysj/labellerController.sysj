@@ -1,0 +1,37 @@
+LabellerController(
+    input signal bottleAtLabeller; 								
+    //input Integer signal liquidARatio, targetVolumeMl;		
+ 	input signal labelPrinted;
+ 	input signal bottleClamped;
+ 	input signal labelApplied;
+ 
+    output signal printLabel;
+    output signal clampBottle;
+    output signal applyLabel;							
+)
+->
+{
+	System.out.println("LabelController: Initialized and running.");
+	loop {
+		System.out.println("LabelController: Waiting for bottle at labeller...");
+		await (bottleAtLabeller);
+		System.out.println("LabelController: Bottle detected. Sending print command...");
+		emit printLabel;
+		await (labelPrinted);
+		System.out.println("LabelController: Label printed. Clamping bottle...");
+
+		abort(labelApplied){
+			{
+				sustain clampBottle;
+			}
+			||
+			{
+				await (bottleClamped);
+				System.out.println("LabelController: Bottle clamped. Applying label...");
+				emit applyLabel;
+				pause;
+			}
+		}
+		System.out.println("LabelController: Label applied. Releasing clamp. Cycle complete.");
+	}
+}
