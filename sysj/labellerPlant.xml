@@ -1,0 +1,16 @@
+<System xmlns="http://systemjtechnology.com">
+      <SubSystem Name="SS2" Local="true">
+              <ClockDomain Name="LabellerPlantCD" Class="LabellerPlant">
+                      <!-- Inputs from Controller -->
+                      <iSignal Name="printLabel"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="clampBottle"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="applyLabel"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+
+                      <!-- Outputs to Controller -->
+                      <oSignal Name="bottleAtLabeller" To="LabellerControllerCD.bottleAtLabeller" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
+                      <oSignal Name="labelPrinted"     To="LabellerControllerCD.labelPrinted"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
+                      <oSignal Name="bottleClamped"    To="LabellerControllerCD.bottleClamped"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
+                      <oSignal Name="labelApplied"     To="LabellerControllerCD.labelApplied"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
+              </ClockDomain>
+      </SubSystem>
+</System>

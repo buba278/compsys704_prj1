@@ -1,0 +1,61 @@
+//import run.FillerGUI;
+
+LabellerPlant(
+   	output signal labelPrinted;
+ 	output signal bottleClamped;
+ 	output signal labelApplied;
+ 	output signal bottleAtLabeller;
+ 
+    input signal printLabel;
+    input signal clampBottle;
+    input signal applyLabel;							
+)
+->
+{ //new Thread(new LabellerGUI()).start();
+	System.out.println("LabellerPlant: Subsystem initialized.");
+
+	{
+		// 0. Bottle arrival simulation (conveyor)
+		while(true){
+			System.out.println("LabellerPlant [Conveyor]: Presenting bottle at labeller...");
+			abort(clampBottle){
+				sustain bottleAtLabeller;
+			}
+			System.out.println("LabellerPlant [Conveyor]: Bottle clamped, holding position...");
+			pause;
+		}
+	}
+	||
+	{
+		// 1. Label printing simulation
+		while(true){
+			await(printLabel);
+			System.out.println("LabellerPlant [Printer]: Printing label...");
+			emit labelPrinted;
+			pause;
+		}
+	}
+	||
+	{
+		// 2. Bottle clamp simulation
+		while(true){
+			await(clampBottle);
+			System.out.println("LabellerPlant [Clamp]: Clamping bottle...");
+			abort(!clampBottle){
+				sustain bottleClamped;
+			}
+			System.out.println("LabellerPlant [Clamp]: Bottle released.");
+			pause;
+		}
+	}
+	||
+	{
+		// 3. Label application simulation
+		while(true){
+			await(applyLabel);
+			System.out.println("LabellerPlant [Applicator]: Applying label...");
+			emit labelApplied;
+			pause;
+		}
+	}
+}
