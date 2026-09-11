@@ -23,7 +23,6 @@ public class FillerState {
       public static void setFillLevel(int level) {
             if (level == 0) {
                   PHASE1_END_LEVEL = 0;
-                  FAULT = false;
             }
             FILL_LEVEL = level;
       }

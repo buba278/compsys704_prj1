@@ -6,6 +6,7 @@
                       <iSignal Name="doseTargetMl" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
                       <iSignal Name="bottleAtPos2" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
                       <iSignal Name="overfillM"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
+                      <iSignal Name="stallM"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
 
                       <oSignal Name="levelAtTarget" To="FillerControllerCD.levelAtTarget" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />
                       <oSignal Name="fillLevelMl"   To="FillerControllerCD.fillLevelMl"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />

@@ -21,6 +21,10 @@ FillerController(
 			int aTarget = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;
 			int bTarget = run.FillerRecipe.getVolume();
 
+			// Same reasoning as the phase1->phase2 guard below: don't start a new bottle's
+			// phase 1 while levelAtTarget might still be held from the PREVIOUS bottle's
+			// phase 2 completion.
+			await (!levelAtTarget);
 			System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget, bTarget);
 			abort (levelAtTarget) {
 				loop {
@@ -30,6 +34,15 @@ FillerController(
 				}
 			}
 			System.out.printf("phase 1 done, dosing to %d%n", bTarget);
+			// Must not re-enter abort(levelAtTarget) while levelAtTarget is still the SAME
+			// presence that just ended phase 1 - the plant widens/holds it for reliable
+			// cross-domain delivery, and entering a fresh abort(levelAtTarget) while it's
+			// still true from phase 1 dies after one tick (abort's condition is checked at
+			// entry too), skipping phase 2's dosing almost entirely. Confirmed directly: this
+			// is exactly why the fill visibly stopped at phase 1's target. Waiting for it to
+			// actually go absent first removes the ambiguity regardless of how long the plant
+			// holds it.
+			await (!levelAtTarget);
 			abort (levelAtTarget) {
 				loop {
 					emit doseTargetMl(bTarget);
@@ -103,6 +116,41 @@ FillerController(
 					System.out.printf("[FC] FAULT: overfill detected, level=%d target=%d%n", level, target);
 					emit fillFaultE;
 				}
+			}
+			pause;
+		}
+	}
+	||
+	{
+		// Fault detection: stalling - a valve held open without levelAtTarget ever arriving,
+		// the IP's literal motivating case. NOT reaction-counted: FillerControllerCD and
+		// FillerPlantCD are separate, independently-ticking GALS domains with no fixed
+		// relationship between their reaction rates. Verified empirically: counting this
+		// domain's own reactions while waiting false-tripped on a completely normal fill,
+		// because this domain idles/spins at its own rate regardless of how many reactions
+		// the plant actually needs to dose. Wall-clock time is the only measure that means
+		// the same thing regardless of either domain's tick speed.
+		boolean stalling = false;
+		boolean faulted = false;
+		long stallStart = 0;
+		loop {
+			present (levelAtTarget || !bottleAtPos2) {
+				stalling = false;        // phase completed normally, or bottle gone
+				faulted = false;
+			} else {
+			present (valve1Open || valve2Open) {
+				if (!stalling) {
+					stalling = true;
+					stallStart = System.currentTimeMillis();
+				} else if (!faulted && System.currentTimeMillis() - stallStart > 8000) {
+					System.out.printf("[FC] FAULT: stall detected, valve held open >8000ms without reaching target%n");
+					emit fillFaultE;
+					faulted = true;   // fire once per stall, not repeatedly while it persists
+				}
+			} else {
+				stalling = false;        // valve closed, between phases: not stalling
+				faulted = false;
+			}
 			}
 			pause;
 		}

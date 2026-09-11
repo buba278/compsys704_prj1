@@ -19,6 +19,8 @@ import org.compsys704.SignalLevelClient;
 import org.compsys704.SignalRadioClient;
 import org.compsys704.SignalServer;
 
+import run.FillerFaultState;
+
 public class FillerPanel extends JFrame {
 
       private JRadioButton defaultRatioButton;
@@ -101,10 +103,29 @@ public class FillerPanel extends JFrame {
 
               JButton overfillButton = new JButton("Overfill");
               overfillButton.addActionListener(new SignalClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_OVERFILL_M));
+              JButton stallButton = new JButton("Stall");
+              stallButton.addActionListener(new SignalClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_STALL_M));
+              // Clear Fault is GUI -> Java state directly, not a SystemJ signal: this GUI runs
+              // as a thread inside the same JVM as FillerPlant (see FillerGUI/new Thread in
+              // fillerPlant.sysj), so there's no other process to reach and no reactive .sysj
+              // code needs to observe the click - unlike Overfill/Stall, which the plant's own
+              // reactive threads must see as signals to act on mid-reaction.
+              JButton clearFaultButton = new JButton("Clear Fault");
+              clearFaultButton.addActionListener(new java.awt.event.ActionListener() {
+                      public void actionPerformed(java.awt.event.ActionEvent e) {
+                              FillerFaultState.clearOverfill();
+                              FillerFaultState.clearStall();
+                              FillerState.FAULT = false;
+                      }
+              });
               JPanel faultPanel = new JPanel();
               faultPanel.setBorder(BorderFactory.createTitledBorder("Fault injection"));
               faultPanel.add(overfillButton);
+              faultPanel.add(stallButton);
+              faultPanel.add(clearFaultButton);
               devButtons.add(overfillButton);
+              devButtons.add(stallButton);
+              devButtons.add(clearFaultButton);
 
               // Auto/Manual just gates whether these DEV stand-ins are allowed to drive
               // bottleAtPos2/liquidARatio/targetVolumeMl by hand, so the same signals can

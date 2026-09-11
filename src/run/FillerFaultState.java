@@ -13,8 +13,13 @@ package run;
  */
 public class FillerFaultState {
     private static volatile boolean overfillArmed = false;
+    private static volatile boolean stallArmed = false;
 
     public static void armOverfill()   { overfillArmed = true; }
     public static void clearOverfill() { overfillArmed = false; }
     public static boolean isOverfillArmed() { return overfillArmed; }
+
+    public static void armStall()   { stallArmed = true; }
+    public static void clearStall() { stallArmed = false; }
+    public static boolean isStallArmed() { return stallArmed; }
 }
