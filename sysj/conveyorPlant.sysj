@@ -1,0 +1,52 @@
+import run.ConveyorGUI;
+
+conveyorPlant(
+		input signal motConveyorOnOff;
+		input signal enable, loadBottle, bottleFromTable;
+		output signal bottleAtPos1, bottleLeftPos5;
+		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
+		)
+->
+{
+	new Thread(new ConveyorGUI()).start();
+
+	{ // Motor status echo to GUI (drives the belt animation)
+		while(true){
+			present(motConveyorOnOff){ emit motorOnE; }
+			pause;
+		}
+	}
+	||
+	{ // Loading-end sensor: an operator-queued empty bottle reaches the
+	  // turntable once the motor is running. Same enable-stepped pattern as
+	  // the Lab 3 pusher: press loadBottle to queue a bottle, then step
+	  // enable to simulate it travelling to Pos 1 and being taken by the
+	  // Rotary Table.
+		while(true){
+			await(loadBottle);
+			abort(motConveyorOnOff && enable){
+				sustain bottleAtPos1;
+			}
+			await(!enable);
+		}
+	}
+	||
+	{ // Exit-end sensor: a finished bottle deposited by the turntable moves
+	  // past Position 5 and off the conveyor while the motor is running.
+	  // bottleFromTable stands in for the Rotary Table's unload handoff
+	  // until that signal is wired in for full-system tests.
+		while(true){
+			await(bottleFromTable);
+			abort(motConveyorOnOff && enable){
+				sustain bottleLeftPos5;
+			}
+			await(!enable);
+		}
+	}
+	||
+	{ // Forward events to the GUI
+		{while(true){present(bottleAtPos1){emit bottleAtPos1E;} pause;}}
+		||
+		{while(true){present(bottleLeftPos5){emit bottleLeftPos5E;} pause;}}
+	}
+}

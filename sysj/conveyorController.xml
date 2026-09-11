@@ -1,0 +1,15 @@
+<System xmlns="http://systemjtechnology.com">
+	<SubSystem Name="SS5" Local="true">
+		<ClockDomain Name="ConveyorControllerCD" Class="conveyorController">
+			<iSignal Name="bottleAtPos1"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10006" />
+			<iSignal Name="bottleLeftPos5" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10006" />
+
+			<oSignal Name="motConveyorOnOff" To="ConveyorPlantCD.motConveyorOnOff" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10007" />
+
+			<!-- mode / conveyorM come straight from the GUI, same pattern as
+			     mode / rotateM going straight to RotaryTableControllerCD. -->
+			<iSignal Name="mode"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10006" />
+			<iSignal Name="conveyorM" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10006" />
+		</ClockDomain>
+	</SubSystem>
+</System>

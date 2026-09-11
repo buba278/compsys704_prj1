@@ -1,0 +1,72 @@
+conveyorController(
+		input signal bottleAtPos1, bottleLeftPos5;
+		output signal motConveyorOnOff;
+		input Integer signal mode;
+		input signal conveyorM;
+		)
+->
+{
+	signal autoMode, manualMode;
+
+	{ // mode selection - same pattern as controller.sysj / rotaryTableController.sysj
+		int currentMode = 0; // default is auto mode
+		loop {
+			present(mode) {
+				currentMode = (Integer)#mode;
+			}
+			if (currentMode == 1) {
+				emit manualMode;
+			}
+			else {
+				emit autoMode;
+			}
+			pause;
+		}
+	}
+	||
+	{ // automatic operation - conveyor clock-domain, per the four-step cycle:
+	  // 1. wait until no bottle is waiting at the far end (Pos 5)
+	  // 2. enable the conveyor motor
+	  // 3. observe a new bottle reaching Pos 1 (handed to the Rotary Table)
+	  // 4/5. keep running until a finished bottle clears Pos 5, then stop
+		loop {
+			await(autoMode);
+			abort(manualMode) {
+				loop {
+					// 1. no bottle currently sitting at the exit end
+					await(!bottleLeftPos5);
+
+					// 2, 4 & 5: run the motor until a finished bottle clears Pos 5
+					abort(bottleLeftPos5) {
+						{
+							sustain motConveyorOnOff;
+						}
+						||
+						{ // 3. log when a bottle reaches Pos 1 while running
+							loop {
+								present(bottleAtPos1) {
+									System.out.printf("Conveyor: bottle at Pos 1 - handing to Rotary Table%n");
+								}
+								pause;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	||
+	{ // manual operation
+		loop {
+			await(manualMode);
+			abort(autoMode) {
+				loop {
+					present(conveyorM) {
+						emit motConveyorOnOff;
+					}
+					pause;
+				}
+			}
+		}
+	}
+}
