@@ -3,6 +3,7 @@ Coordinator(
     input Integer signal orderLiquidARatio, orderTargetVolume, orderQuantity;
     input signal fillDoneE;                                     // filler -> coordinator (repointed)
     input signal fillReady;                                     // filler confirms reset, ready for next bottle
+    input signal fillFaultOut;                                  // filler -> coordinator (station faulted, stop presenting this bottle)
 
     output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
     output signal bottleAtPos2;                                 // coordinator -> fillerController
@@ -28,33 +29,46 @@ Coordinator(
 
         long tRecipe = System.currentTimeMillis();
         while (System.currentTimeMillis() - tRecipe < 50) {
-            emit liquidARatio(ratioA);   // hold for 50ms real time - reliable GALS delivery regardless of tick speed
+            emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
             pause;
         }
 
         long start = System.currentTimeMillis();
         int filled = 0;
+        int attempt = 0;
         while (filled < quantity) {
-            System.out.printf("[Coordinator] abort-block start for bottle %d/%d%n", filled + 1, quantity);
-            abort (fillDoneE) {         // present a bottle until the filler signals fillDoneE
+            attempt = attempt + 1;
+            boolean bottleFaulted = false;
+            System.out.printf("[Coordinator] abort-block start, attempt %d (bottle %d/%d)%n", attempt, filled + 1, quantity);
+            abort (fillDoneE || fillFaultOut) {
                 loop {
                     emit bottleAtPos2;
                     emit bottleAtPos2P;
                     pause;
                 }
             }
-            System.out.printf("[Coordinator] fillDoneE fired for bottle %d/%d, awaiting fillReady%n", filled + 1, quantity);
+            present (fillFaultOut) {
+                bottleFaulted = true;
+                System.out.printf("[Coordinator] fillFaultOut received on attempt %d - station faulted, awaiting recovery%n", attempt);
+            } else {
+                System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
+            }
             await (fillReady);
-            System.out.printf("[Coordinator] fillReady received for bottle %d/%d%n", filled + 1, quantity);
-            filled = filled + 1;
-            System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
+            if (!bottleFaulted) {
+                filled = filled + 1;
+                System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
+            } else {
+                // Not counted toward the batch, since there's no redundant line to reroute to
+                // yet. This retries with a fresh bottle at the same, now-recovered station.
+                System.out.printf("[Coordinator] attempt %d abandoned due to fault, retrying (not counted toward batch)%n", attempt);
+            }
         }
 
         int elapsed = (int)(System.currentTimeMillis() - start);
         long tBatch = System.currentTimeMillis();
         while (System.currentTimeMillis() - tBatch < 50) {
-            emit batchDone(elapsed);    // hold for 50ms real time - reliable GALS delivery regardless of tick speed
+            emit batchDone(elapsed);
             pause;
         }
         System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed);
