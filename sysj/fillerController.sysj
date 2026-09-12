@@ -13,6 +13,7 @@ FillerController(
     output signal fillFaultE;							// fillerController -> UI viz (fault indicator)
     output signal fillDoneCoordE;						// fillerController -> coordinator (separate socket)
     output signal fillReady;							// fillerController -> coordinator (filler reset, ready for next)
+    output signal fillFaultOut;						// fillerController -> coordinator (station faulted, stop presenting this bottle)
 )
 ->
 {
@@ -132,6 +133,27 @@ FillerController(
 					emit fillDoneE;     // viz signal: one-shot is fine (UI just needs the edge)
 				}
 				pause;
+			}
+		}
+	}
+	||
+	{
+		// Escalates a station fault to the Coordinator, same widening pattern as
+		// fillDoneCoordE below: bounded by !bottleAtPos2, which only goes false once the
+		// Coordinator has actually reacted (stopped presenting this bottle) - so by the time
+		// this thread loops back to await(stationFault) for a LATER bottle, stationFault
+		// itself has already cleared (it's cleared before !bottleAtPos2 in the dosing
+		// thread's own abandon-on-fault path), so there's no abort-entry-precondition risk
+		// re-arming here either.
+		loop {
+			await (stationFault);
+			System.out.printf("[FC] fillFaultOut → coordinator (holding)%n");
+			abort (!bottleAtPos2) {
+				long tFault = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tFault < 200) {
+					emit fillFaultOut;
+					pause;
+				}
 			}
 		}
 	}

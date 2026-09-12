@@ -3,6 +3,7 @@ Coordinator(
     input Integer signal orderLiquidARatio, orderTargetVolume, orderQuantity;
     input signal fillDoneE;                                     // filler -> coordinator (repointed)
     input signal fillReady;                                     // filler confirms reset, ready for next bottle
+    input signal fillFaultOut;                                  // filler -> coordinator (station faulted, stop presenting this bottle)
 
     output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
     output signal bottleAtPos2;                                 // coordinator -> fillerController
@@ -35,20 +36,40 @@ Coordinator(
 
         long start = System.currentTimeMillis();
         int filled = 0;
+        int attempt = 0;
         while (filled < quantity) {
-            System.out.printf("[Coordinator] abort-block start for bottle %d/%d%n", filled + 1, quantity);
-            abort (fillDoneE) {         // present a bottle until the filler signals fillDoneE
+            attempt = attempt + 1;
+            boolean bottleFaulted = false;
+            System.out.printf("[Coordinator] abort-block start, attempt %d (bottle %d/%d)%n", attempt, filled + 1, quantity);
+            // Stop presenting this bottle the instant EITHER it completes OR the station
+            // reports a fault - otherwise a faulted station would sit here holding
+            // bottleAtPos2 forever, since fillDoneE never arrives for an abandoned bottle.
+            abort (fillDoneE || fillFaultOut) {
                 loop {
                     emit bottleAtPos2;
                     emit bottleAtPos2P;
                     pause;
                 }
             }
-            System.out.printf("[Coordinator] fillDoneE fired for bottle %d/%d, awaiting fillReady%n", filled + 1, quantity);
+            present (fillFaultOut) {
+                bottleFaulted = true;
+                System.out.printf("[Coordinator] fillFaultOut received on attempt %d - station faulted, awaiting recovery%n", attempt);
+            } else {
+                System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
+            }
+            // fillReady fires either way once the station resets - on the success path once
+            // the finished bottle leaves, on the fault path once the operator clears the
+            // fault and the abandoned bottle is removed (see fillerController.sysj).
             await (fillReady);
-            System.out.printf("[Coordinator] fillReady received for bottle %d/%d%n", filled + 1, quantity);
-            filled = filled + 1;
-            System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
+            if (!bottleFaulted) {
+                filled = filled + 1;
+                System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
+            } else {
+                // Not counted toward the batch - no redundant line to reroute to yet
+                // (Section 6 of the Fault Tolerance IP), so this just retries with a fresh
+                // bottle at the same, now-recovered station rather than losing the batch.
+                System.out.printf("[Coordinator] attempt %d abandoned due to fault, retrying (not counted toward batch)%n", attempt);
+            }
         }
 
         int elapsed = (int)(System.currentTimeMillis() - start);
