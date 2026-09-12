@@ -29,7 +29,7 @@ Coordinator(
 
         long tRecipe = System.currentTimeMillis();
         while (System.currentTimeMillis() - tRecipe < 50) {
-            emit liquidARatio(ratioA);   // hold for 50ms real time - reliable GALS delivery regardless of tick speed
+            emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
             pause;
         }
@@ -41,9 +41,6 @@ Coordinator(
             attempt = attempt + 1;
             boolean bottleFaulted = false;
             System.out.printf("[Coordinator] abort-block start, attempt %d (bottle %d/%d)%n", attempt, filled + 1, quantity);
-            // Stop presenting this bottle the instant EITHER it completes OR the station
-            // reports a fault - otherwise a faulted station would sit here holding
-            // bottleAtPos2 forever, since fillDoneE never arrives for an abandoned bottle.
             abort (fillDoneE || fillFaultOut) {
                 loop {
                     emit bottleAtPos2;
@@ -57,17 +54,13 @@ Coordinator(
             } else {
                 System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
             }
-            // fillReady fires either way once the station resets - on the success path once
-            // the finished bottle leaves, on the fault path once the operator clears the
-            // fault and the abandoned bottle is removed (see fillerController.sysj).
             await (fillReady);
             if (!bottleFaulted) {
                 filled = filled + 1;
                 System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
             } else {
-                // Not counted toward the batch - no redundant line to reroute to yet
-                // (Section 6 of the Fault Tolerance IP), so this just retries with a fresh
-                // bottle at the same, now-recovered station rather than losing the batch.
+                // Not counted toward the batch, since there's no redundant line to reroute to
+                // yet. This retries with a fresh bottle at the same, now-recovered station.
                 System.out.printf("[Coordinator] attempt %d abandoned due to fault, retrying (not counted toward batch)%n", attempt);
             }
         }
@@ -75,7 +68,7 @@ Coordinator(
         int elapsed = (int)(System.currentTimeMillis() - start);
         long tBatch = System.currentTimeMillis();
         while (System.currentTimeMillis() - tBatch < 50) {
-            emit batchDone(elapsed);    // hold for 50ms real time - reliable GALS delivery regardless of tick speed
+            emit batchDone(elapsed);
             pause;
         }
         System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed);

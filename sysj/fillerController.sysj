@@ -17,43 +17,26 @@ FillerController(
 )
 ->
 {
-	// Bridges the Java-side station-fault flag (set by the fault-detection threads below,
-	// cleared by clearFaultM) into a signal the main dosing thread can put in an abort
-	// condition. Continuously re-emitted every tick it's true - never a single-tick pulse -
-	// so there's no entry-precondition risk for whatever aborts on it.
+	// Bridges FillerFaultState.stationFaulted into a signal the dosing thread can abort on.
+	// See CLAUDE.md for the full fault-tolerance signal architecture.
 	signal stationFault;
 
 	{
 		loop {
-			// Defensive, same reasoning as the levelAtTarget guards below: don't start a new
-			// bottle while a fault from the PREVIOUS bottle might still be raised. In normal
-			// operation this is already guaranteed by the abandon-on-fault path itself only
-			// reaching here after stationFault has cleared, but costs nothing to assert again.
 			await (!stationFault);
 			await (bottleAtPos2);
-			// Read recipe from the Java-side store — avoids SystemJ local-signal retention
-			// problems (local signals go absent if not re-emitted each tick → null getpreval).
+			// Java-side store, not a signal. See CLAUDE.md on local-signal retention.
 			int aTarget = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;
 			int bTarget = run.FillerRecipe.getVolume();
 			boolean faulted = false;
-			// Not a fault of THIS station - the bottle it was dosing into is simply gone
-			// (today, only reachable via the dev "no bottle" override standing in for the
-			// Rotary Table; in a real line this is the Rotary Table's own fault to detect and
-			// is out of scope here, per the IP's own Section 5 assumptions). Still needs to
-			// close the valves: dispensing into nothing is a physical-safety gap regardless of
-			// whose fault it conceptually is, so it's handled as basic dosing correctness, not
-			// routed through the FAULT lamp / fillFaultE / Clear Fault machinery above.
-			boolean bottleLost = false;
+			boolean bottleLost = false; // bottle disappeared mid-phase, not a station fault (see CLAUDE.md)
 
-			// Same reasoning as the phase1->phase2 guard below: don't start a new bottle's
-			// phase 1 while levelAtTarget might still be held from the PREVIOUS bottle's
-			// phase 2 completion.
 			await (!levelAtTarget);
 			System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget, bTarget);
 			abort (levelAtTarget || stationFault || !bottleAtPos2) {
 				loop {
-					emit doseTargetMl(aTarget); // continuously reflected for the whole phase - FillerPlant is
-					emit valve1Open;             // guaranteed many ticks to observe it (reliable GALS delivery)
+					emit doseTargetMl(aTarget);
+					emit valve1Open;
 					pause;
 				}
 			}
@@ -66,14 +49,6 @@ FillerController(
 				System.out.printf("[FC] phase 1 aborted: bottle no longer present - valves closed%n");
 			} else {
 				System.out.printf("phase 1 done, dosing to %d%n", bTarget);
-				// Must not re-enter abort(levelAtTarget) while levelAtTarget is still the SAME
-				// presence that just ended phase 1 - the plant widens/holds it for reliable
-				// cross-domain delivery, and entering a fresh abort(levelAtTarget) while it's
-				// still true from phase 1 dies after one tick (abort's condition is checked at
-				// entry too), skipping phase 2's dosing almost entirely. Confirmed directly:
-				// this is exactly why the fill visibly stopped at phase 1's target. Waiting
-				// for it to actually go absent first removes the ambiguity regardless of how
-				// long the plant holds it.
 				await (!levelAtTarget);
 				abort (levelAtTarget || stationFault || !bottleAtPos2) {
 					loop {
@@ -98,28 +73,19 @@ FillerController(
 				System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");
 				emit fillDone;
 			} else if (faulted) {
-				// Safe state already reached (valves closed, the abort above already stopped
-				// emitting them). This bottle is not resumed once cleared - per the group's
-				// own design decision, a faulted bottle's digital twin marks it faulted and
-				// the STATION returns to rotation for the next bottle, rather than magically
-				// un-jamming the same one. So: wait for the operator to clear the fault, then
-				// wait for the bottle to be physically removed, in whichever order they
-				// actually happen - fillDone/fillDoneCoordE are deliberately never emitted for
-				// this bottle.
+				// Abandoned, not resumed. The station returns to rotation for the next
+				// bottle rather than continuing this one (see CLAUDE.md).
 				System.out.printf("[FC] awaiting fault clear before returning to rotation%n");
 				await (!stationFault);
 				System.out.printf("[FC] fault cleared, awaiting bottle removal%n");
 			}
-			// bottleLost: nothing to wait for, no lamp to clear - the bottle's already gone,
-			// fall straight through to the same await(!bottleAtPos2) the other two paths use
-			// (it resolves immediately here, since bottleAtPos2 is already false).
 
 			await (!bottleAtPos2);
 			System.out.printf("[FC] !bottleAtPos2 seen, holding fillReady%n");
-			abort (bottleAtPos2) {       // terminate the instant coordinator starts the next bottle (fast, normal
-				long tFillReady = System.currentTimeMillis(); // path) - the 200ms cap is only a safety net for the
-				while (System.currentTimeMillis() - tFillReady < 200) { // last bottle of a batch, where bottleAtPos2
-					emit fillReady;       // never returns until a new order arrives.
+			abort (bottleAtPos2) {
+				long tFillReady = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tFillReady < 200) {
+					emit fillReady;
 					pause;
 				}
 			}
@@ -130,7 +96,7 @@ FillerController(
 		loop {
 			{
 				present (fillDone) {
-					emit fillDoneE;     // viz signal: one-shot is fine (UI just needs the edge)
+					emit fillDoneE;
 				}
 				pause;
 			}
@@ -139,12 +105,9 @@ FillerController(
 	||
 	{
 		// Escalates a station fault to the Coordinator, same widening pattern as
-		// fillDoneCoordE below: bounded by !bottleAtPos2, which only goes false once the
-		// Coordinator has actually reacted (stopped presenting this bottle) - so by the time
-		// this thread loops back to await(stationFault) for a LATER bottle, stationFault
-		// itself has already cleared (it's cleared before !bottleAtPos2 in the dosing
-		// thread's own abandon-on-fault path), so there's no abort-entry-precondition risk
-		// re-arming here either.
+		// fillDoneCoordE below. The await(!stationFault) at the end matters: stationFault
+		// stays present for the whole fault, and await isn't edge-triggered, so without it
+		// the 200ms hold below would restart every time it expires for as long as the fault lasts.
 		loop {
 			await (stationFault);
 			System.out.printf("[FC] fillFaultOut → coordinator (holding)%n");
@@ -155,17 +118,18 @@ FillerController(
 					pause;
 				}
 			}
+			await (!stationFault);
 		}
 	}
 	||
 	{
 		loop {
-			await (fillDone);           // wait for phase 2 to complete
+			await (fillDone);
 			System.out.printf("[FC] fillDoneCoordE → coordinator (holding)%n");
-			abort (!bottleAtPos2) {      // terminate the instant coordinator stops bottleAtPos2 (fast, normal path -
-				long tFillDoneCoord = System.currentTimeMillis(); // must not bleed into the NEXT bottle's
-				while (System.currentTimeMillis() - tFillDoneCoord < 200) { // fillDoneE check). 200ms cap is only a
-					emit fillDoneCoordE; // safety net in case that ack is somehow missed.
+			abort (!bottleAtPos2) {
+				long tFillDoneCoord = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tFillDoneCoord < 200) {
+					emit fillDoneCoordE;
 					pause;
 				}
 			}
@@ -173,7 +137,6 @@ FillerController(
 	}
 	||
 	{
-		// Update Java-side recipe store and forward target volume to the viz layer.
 		loop {
 			present (liquidARatio)   { run.FillerRecipe.setRatio((Integer)#liquidARatio); }
 			present (targetVolumeMl) {
@@ -185,11 +148,7 @@ FillerController(
 	}
 	||
 	{
-		// Fault detection: compare the plant's reported level against whichever phase
-		// target this controller is currently dosing to (doseTargetMl is re-emitted every
-		// tick of an active phase, so this is always comparing two same-reaction values,
-		// never a stale one). A local fill overflowing its target only happens today via
-		// the GUI's manual overfill trigger, but the check itself doesn't know that.
+		// Raises a fault when the reported level runs past the live dose target (overfill).
 		loop {
 			present (doseTargetMl && fillLevelMl) {
 				int level = (Integer)#fillLevelMl;
@@ -197,7 +156,7 @@ FillerController(
 				if (level > target && !FillerFaultState.isStationFaulted()) {
 					System.out.printf("[FC] FAULT: overfill detected, level=%d target=%d%n", level, target);
 					emit fillFaultE;
-					FillerFaultState.raiseStationFault(); // stops the dosing thread's valve emission next tick
+					FillerFaultState.raiseStationFault();
 				}
 			}
 			pause;
@@ -205,20 +164,14 @@ FillerController(
 	}
 	||
 	{
-		// Fault detection: stalling - a valve held open without levelAtTarget ever arriving,
-		// the IP's literal motivating case. NOT reaction-counted: FillerControllerCD and
-		// FillerPlantCD are separate, independently-ticking GALS domains with no fixed
-		// relationship between their reaction rates. Verified empirically: counting this
-		// domain's own reactions while waiting false-tripped on a completely normal fill,
-		// because this domain idles/spins at its own rate regardless of how many reactions
-		// the plant actually needs to dose. Wall-clock time is the only measure that means
-		// the same thing regardless of either domain's tick speed.
+		// Raises a fault when a valve's been held open too long without levelAtTarget
+		// arriving (stall). Wall-clock timeout, not reaction-counted, see CLAUDE.md.
 		boolean stalling = false;
 		boolean faulted = false;
 		long stallStart = 0;
 		loop {
 			present (levelAtTarget || !bottleAtPos2) {
-				stalling = false;        // phase completed normally, or bottle gone
+				stalling = false;
 				faulted = false;
 			} else {
 			present (valve1Open || valve2Open) {
@@ -228,11 +181,11 @@ FillerController(
 				} else if (!faulted && System.currentTimeMillis() - stallStart > 8000) {
 					System.out.printf("[FC] FAULT: stall detected, valve held open >8000ms without reaching target%n");
 					emit fillFaultE;
-					FillerFaultState.raiseStationFault(); // stops the dosing thread's valve emission next tick
-					faulted = true;   // fire once per stall, not repeatedly while it persists
+					FillerFaultState.raiseStationFault();
+					faulted = true;
 				}
 			} else {
-				stalling = false;        // valve closed, between phases: not stalling
+				stalling = false;
 				faulted = false;
 			}
 			}
@@ -241,16 +194,13 @@ FillerController(
 	}
 	||
 	{
-		// Bridges FillerFaultState.stationFaulted (set by the two fault-detection threads
-		// above) into the stationFault signal the dosing thread aborts on, and latches
-		// clearFaultM - a momentary cross-domain pulse from the GUI - into clearing it.
-		// present(){} here, not abort/sustain: no entry-precondition to get wrong.
+		// Bridges FillerFaultState into stationFault and latches clearFaultM.
 		loop {
 			present (clearFaultM) {
 				FillerFaultState.clearStationFault();
 			}
 			if (FillerFaultState.isStationFaulted()) {
-				emit stationFault; // continuously re-emitted every tick it's true - safe, not a pulse
+				emit stationFault;
 			}
 			pause;
 		}
