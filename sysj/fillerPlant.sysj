@@ -1,17 +1,21 @@
 import run.FillerGUI;
+import run.FillerFaultState;
 
 FillerPlant(
 		input signal valve1Open, valve2Open;					// fillerController -> fillerPlant
 		input Integer signal doseTargetMl;						// fillerController -> fillerPlant
 		input signal bottleAtPos2;								// turntable -> fillerPlant (allowed?)
+		input signal overfillM;									// GUI -> fillerPlant (manual fault injection, overfills this bottle)
+		input signal stallM;									// GUI -> fillerPlant (manual fault injection, freezes the level with the valve still open)
 		output signal levelAtTarget;							// fillerPlant -> fillerController
 		output signal valve1OpenE, valve2OpenE;					// fillerPlant -> fillerGUI
 		output Integer signal fillLevelE;						// fillerPlant -> fillerGUI
+		output Integer signal fillLevelMl;						// fillerPlant -> fillerController (reported level, for fault detection)
 )
 ->
 {
 	new Thread(new FillerGUI()).start();
-	
+
 	int signal fillLevel;
 	emit fillLevel(0);
 	int signal doseTarget;
@@ -26,17 +30,21 @@ FillerPlant(
 			present(!bottleAtPos2) {
 				emit fillLevel(0);
 				emit fillLevelE(0);
+				emit fillLevelMl(0);
+				FillerFaultState.clearOverfill();
+				FillerFaultState.clearStall();
 			} else {
 			present (valve1Open || valve2Open) {
-				// simplified indication of flow over time - might need to make slower
 				int prevLvl = (Integer)#fillLevel;
 				int target = (Integer)#doseTarget;
-				int lvl = Math.min(prevLvl + 1, target);
+				int stopAt = FillerFaultState.isOverfillArmed() ? target + 8 : target;
+				int lvl = FillerFaultState.isStallArmed() ? prevLvl : Math.min(prevLvl + 1, stopAt);
 				emit fillLevel(lvl);
 				emit fillLevelE(lvl);
+				emit fillLevelMl(lvl);
 				System.out.printf("lvl=%d doseTarget=%d%n", lvl, target);
-				if (prevLvl < target && lvl >= target) {
-					System.out.printf("target reached at lvl=%d%n", lvl);
+				if (prevLvl < stopAt && lvl >= stopAt) {
+					System.out.printf("target reached at lvl=%d (nominal target=%d)%n", lvl, target);
 					emit levelAtTargetPulse;
 				}
 			}
@@ -46,9 +54,23 @@ FillerPlant(
 	}
 	||
 	{
+		// Latches the manual overfill/stall triggers into the Java-side flags for this
+		// bottle's fill, cleared above once the bottle leaves.
 		loop {
-            present (valve1Open) { 
-            	emit valve1OpenE; 
+			present (overfillM) {
+				FillerFaultState.armOverfill();
+			}
+			present (stallM) {
+				FillerFaultState.armStall();
+			}
+			pause;
+		}
+	}
+	||
+	{
+		loop {
+            present (valve1Open) {
+            	emit valve1OpenE;
             }
             present (valve2Open) {
             	emit valve2OpenE;
@@ -58,13 +80,14 @@ FillerPlant(
 	}
 	||
 	{
-		// Widen the single-tick "at target" edge into a reliably-delivered hold.
-		// Bounded by the NEXT doseTargetMl (start of the following phase/bottle) rather
-		// than a fixed timer, so it cannot bleed stale into a subsequent phase's check.
+		// Widens the one-tick "at target" edge into a reliably-delivered hold. See CLAUDE.md
+		// for why this is a flat time-bounded hold, not an abort().
 		loop {
 			await (levelAtTargetPulse);
-			abort (doseTargetMl) {
-				sustain levelAtTarget;
+			long t0 = System.currentTimeMillis();
+			while (System.currentTimeMillis() - t0 < 200) {
+				emit levelAtTarget;
+				pause;
 			}
 		}
 	}
