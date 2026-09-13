@@ -16,9 +16,10 @@ LabellerController(
 		System.out.println("LabelController: Waiting for bottle at labeller...");
 		await (bottleAtLabeller);
 		System.out.println("LabelController: Bottle detected. Sending print command...");
-		emit printLabel;
-		await (labelPrinted);
-		System.out.println("LabelController: Label printed. Clamping bottle...");
+        abort(labelPrinted){
+            sustain printLabel;
+        }
+        System.out.println("LabelController: Label printed. Clamping bottle...");
 
 		abort(labelApplied){
 			{
@@ -27,11 +28,11 @@ LabellerController(
 			||
 			{
 				await (bottleClamped);
-				System.out.println("LabelController: Bottle clamped. Applying label...");
-				emit applyLabel;
-				pause;
+            	System.out.println("LabelController: Bottle clamped. Applying label...");
+            	sustain applyLabel;
 			}
 		}
 		System.out.println("LabelController: Label applied. Releasing clamp. Cycle complete.");
+		
 	}
 }

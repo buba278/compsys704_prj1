@@ -11,6 +11,12 @@
                       <oSignal Name="labelPrinted"     To="LabellerControllerCD.labelPrinted"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
                       <oSignal Name="bottleClamped"    To="LabellerControllerCD.bottleClamped"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
                       <oSignal Name="labelApplied"     To="LabellerControllerCD.labelApplied"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
+              			
+              		<oSignal Name="bottleAtLabellerE" To="UI.bottleAtLabellerE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+					<oSignal Name="labelPrintedE"     To="UI.labelPrintedE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+					<oSignal Name="bottleClampedE"    To="UI.bottleClampedE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+					<oSignal Name="labelAppliedE"     To="UI.labelAppliedE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+              
               </ClockDomain>
       </SubSystem>
 </System>
