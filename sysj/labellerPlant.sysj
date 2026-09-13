@@ -1,4 +1,4 @@
-//import run.FillerGUI;
+import run.LabellerGUI;
 
 LabellerPlant(
    	output signal labelPrinted;
@@ -8,10 +8,16 @@ LabellerPlant(
  
     input signal printLabel;
     input signal clampBottle;
-    input signal applyLabel;							
+    input signal applyLabel;
+    input Integer signal liquidARatio, targetVolumeMl;
+    	
+    output signal bottleAtLabellerE;
+	output signal labelPrintedE;
+	output signal bottleClampedE;
+	output signal labelAppliedE;						
 )
 ->
-{ //new Thread(new LabellerGUI()).start();
+{ new Thread(new LabellerGUI()).start();
 	System.out.println("LabellerPlant: Subsystem initialized.");
 
 	{
@@ -22,18 +28,26 @@ LabellerPlant(
 				sustain bottleAtLabeller;
 			}
 			System.out.println("LabellerPlant [Conveyor]: Bottle clamped, holding position...");
-			pause;
+			// Don't re-present a bottle until the current one has actually been
+			// released - clampBottle is held high for the whole print/clamp/apply
+			// phase, so without this wait we immediately loop back around and
+			// re-trigger the abort every tick, which is what made the bottle
+			// flash on/off continuously while nothing else appeared to progress.
+			await(!clampBottle);
+			System.out.println("LabellerPlant [Conveyor]: Bottle released, ready for next.");
 		}
 	}
 	||
 	{
 		// 1. Label printing simulation
 		while(true){
-			await(printLabel);
-			System.out.println("LabellerPlant [Printer]: Printing label...");
-			emit labelPrinted;
-			pause;
-		}
+            await(printLabel);
+            System.out.println("LabellerPlant [Printer]: Printing label...");
+            abort(!printLabel){
+                sustain labelPrinted;
+            }
+            pause;
+        }
 	}
 	||
 	{
@@ -52,10 +66,21 @@ LabellerPlant(
 	{
 		// 3. Label application simulation
 		while(true){
-			await(applyLabel);
-			System.out.println("LabellerPlant [Applicator]: Applying label...");
-			emit labelApplied;
-			pause;
-		}
+            await(applyLabel);
+            System.out.println("LabellerPlant [Applicator]: Applying label...");
+            abort(!applyLabel){
+                sustain labelApplied;
+            }
+            pause;
+        }
 	}
+	||
+    {while(true){present(bottleAtLabeller){emit bottleAtLabellerE;} pause;}}
+    ||
+    {while(true){present(labelPrinted){emit labelPrintedE;} pause;}}
+    ||
+    {while(true){present(bottleClamped){emit bottleClampedE;} pause;}}
+    ||
+    {while(true){present(labelApplied){emit labelAppliedE;} pause;}}
 }
+
