@@ -18,8 +18,8 @@ conveyorPlant(
 	}
 	||
 	{ // Loading-end sensor: an operator-queued empty bottle reaches the
-	  // turntable once the motor is running. Same enable-stepped pattern as
-	  // the Lab 3 pusher: press loadBottle to queue a bottle, then step
+	  // turntable once the motor is running. 
+	  // Press loadBottle to queue a bottle, then step
 	  // enable to simulate it travelling to Pos 1 and being taken by the
 	  // Rotary Table.
 		while(true){
