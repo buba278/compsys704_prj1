@@ -13,6 +13,7 @@ Coordinator(
     output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
     output signal bottleAtPos2;                                 // coordinator -> fillerController
     output signal bottleAtPos2P;                                // coordinator -> fillerPlant (same event, 2nd socket)
+    output Integer signal bottlesNeeded;                        // coordinator -> conveyorPlant (auto-loads one bottle per unit ordered)
 
     output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
 )
@@ -38,6 +39,7 @@ Coordinator(
         while (System.currentTimeMillis() - tRecipe < 50) {
             emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
+            emit bottlesNeeded(quantity);
             pause;
         }
 

@@ -17,6 +17,7 @@
                       <oSignal Name="bottleAtPos2P"  To="FillerPlantCD.bottleAtPos2"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10003" />
 
                       <oSignal Name="batchDone" To="PosCD.batchDone" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
+                      <oSignal Name="bottlesNeeded" To="ConveyorPlantCD.bottlesNeeded" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10007" />
               </ClockDomain>
       </SubSystem>
 </System> 

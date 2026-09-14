@@ -1,11 +1,13 @@
 import run.ConveyorGUI;
 import run.ConveyorLabellerBridge;
 import run.RotaryConveyorBridge;
+import run.LoaderState;
 
 conveyorPlant(
 		input signal motConveyorOnOff;
 		input signal enable, loadBottle, bottleFromTable, pos1TakenAck;
 		input signal labellerTakenAck;
+		input Integer signal bottlesNeeded;
 		output signal bottleAtPos1, bottleLeftPos5;
 		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
 		output signal bottleEnteredE, bottleReceivedE;
@@ -20,6 +22,10 @@ conveyorPlant(
 	// drive the "motor running" indicator
 	signal leftMoving, rightMoving;
 
+	// Stands in for a real Bottle Loader station reacting to the Coordinator,
+	// alongside the manual Load Bottle button - see LoaderState.
+	signal autoLoadBottle;
+
 	{ // Motor status echo to GUI: the belt visibly runs whenever it is
 	  // actually transporting a bottle (auto) or being jogged manually
 		while(true){
@@ -30,13 +36,49 @@ conveyorPlant(
 		}
 	}
 	||
+	{ // Latches the Coordinator's bottlesNeeded into LoaderState - a plain
+	  // Java field is safe here since only this process ever touches it (see
+	  // LoaderState; statics don't cross clock-domain processes, so this has
+	  // to be a real signal from the Coordinator, converted to same-process
+	  // state right here rather than shared directly).
+		while(true){
+			present(bottlesNeeded){
+				LoaderState.addPending((Integer)#bottlesNeeded);
+			}
+			pause;
+		}
+	}
+	||
+	{ // Auto-loader: feeds bottles in automatically as the Coordinator's
+	  // orders need them, standing in for a real Bottle Loader station.
+	  // Paced by bottleAtPos1 itself - only pulses a fresh autoLoadBottle
+	  // once Pos 1 has actually cleared, so it can't outrun the left
+	  // segment's own one-bottle-at-a-time pacing below.
+		while(true){
+			await(!bottleAtPos1);
+			if (LoaderState.tryConsumePending()) {
+				long t0 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t0 < 50) { emit autoLoadBottle; pause; }
+				// Only wait for bottleAtPos1 (confirming this load actually
+				// went through) right after a real pulse - waiting for it
+				// unconditionally would deadlock whenever nothing was
+				// pending yet (e.g. at startup, before any order exists):
+				// bottleAtPos1 would then never become present, since
+				// nothing was ever loaded to cause it.
+				await(bottleAtPos1);
+			} else {
+				pause;
+			}
+		}
+	}
+	||
 	{ // Left segment: Bottle Loader -> Pos 1
 	  // loadBottle stands in for the Bottle Loader
 	  // The belt starts moving by itself the moment a bottle is queued (no
 	  // separate start button needed) provided the system is ready (enable),
 	  // and the bottle is handed to the Rotary Table once it reaches Pos 1.
 		while(true){
-			await(loadBottle);
+			await(loadBottle || autoLoadBottle);
 			await(enable);
 			// tells the GUI a bottle now starts travelling in from the loading
 			// end - held for a bounded time rather than a single tick, since
