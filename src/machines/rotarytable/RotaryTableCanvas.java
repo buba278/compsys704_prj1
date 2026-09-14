@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 public class RotaryTableCanvas extends JPanel {
 
 	private static final int TABLE_CENTER_X = 150;
-	private static final int TABLE_CENTER_Y = 190;
+	private static final int TABLE_CENTER_Y = 225;
 	private static final int TABLE_RADIUS = 90;
 	private static final int SLOT_RADIUS = 16;
 
@@ -54,11 +54,17 @@ public class RotaryTableCanvas extends JPanel {
 		g.setColor(Color.BLACK);
 		g.drawString("Cap on bottle at Pos 1", LABEL_X, POS1_Y + 12);
 
-		// Current bottle stage readout - what the user actually asked to see:
-		// where the bottle on the table is right now.
-		g.setColor(RotaryTableState.BOTTLE_STAGE == 0 ? Color.GRAY : Color.RED.darker());
-		g.drawString("Bottle stage: " + RotaryTableState.STAGE_NAMES[RotaryTableState.BOTTLE_STAGE],
-				LABEL_X, POS1_Y + 30);
+		// Up to three bottles can be on the table at once now, each shown in
+		// its own colour (see RotaryTableState.LANE_COLORS). Labelled "Bottle
+		// A/B/C" rather than "Lane N" - the table only has one physical path,
+		// so "lane" implies a separate track that doesn't exist; these are
+		// just three bottles the table can be working on concurrently.
+		for (int lane = 0; lane < 3; lane++) {
+			int stage = RotaryTableState.LANE_STAGE[lane];
+			g.setColor(stage == 0 ? Color.GRAY : RotaryTableState.LANE_COLORS[lane]);
+			g.drawString("Bottle " + (char) ('A' + lane) + ": " + RotaryTableState.STAGE_NAMES[stage],
+					LABEL_X, POS1_Y + 30 + lane * 15);
+		}
 
 		// the turntable itself, with 6 slots spaced 60 degrees apart (5 active + 1 spare)
 		g.setColor(Color.DARK_GRAY);
@@ -93,20 +99,40 @@ public class RotaryTableCanvas extends JPanel {
 			if (isPos1 && RotaryTableState.CAP_ON_BOTTLE_AT_POS1) fill = LIQUID_B_COLOR;
 			if (isPos5 && RotaryTableState.BOTTLE_AT_POS5) fill = LIQUID_A_COLOR;
 
-			// Highlight whichever station the current bottle's stage says
-			// it's at (see RotaryTableState.BOTTLE_STAGE / STAGE_NAMES).
-			boolean isCurrentStage = (isPos2 && RotaryTableState.BOTTLE_STAGE == 2)
-					|| (isPos3 && RotaryTableState.BOTTLE_STAGE == 4)
-					|| (isPos4 && RotaryTableState.BOTTLE_STAGE == 1);
-			if (isCurrentStage) fill = Color.RED;
+			// Which lane(s), if any, currently have a bottle at this station -
+			// normally at most one (Filler/Lid Placer/Capper are each a single
+			// physical station the lanes take turns claiming - see
+			// RotaryTableState.tryClaimFiller() etc.), but two can briefly
+			// show here at once: one lane's view-delay hold overlapping with
+			// the next lane already having claimed and started at the same
+			// station.
+			java.util.List<Integer> occupyingLanes = new java.util.ArrayList<Integer>();
+			for (int lane = 0; lane < 3; lane++) {
+				int stage = RotaryTableState.LANE_STAGE[lane];
+				boolean laneHere = (isPos2 && stage == 2) || (isPos3 && stage == 4) || (isPos4 && stage == 1);
+				if (laneHere) occupyingLanes.add(lane);
+			}
+			boolean isCurrentStage = !occupyingLanes.isEmpty();
+			if (isCurrentStage) fill = RotaryTableState.LANE_COLORS[occupyingLanes.get(0)];
 
 			Ellipse2D slot = new Ellipse2D.Double(slotX - SLOT_RADIUS, slotY - SLOT_RADIUS, SLOT_RADIUS * 2, SLOT_RADIUS * 2);
 			g.setColor(fill);
 			g.fill(slot);
-			g.setColor(isCurrentStage ? Color.RED.darker() : Color.BLACK);
+			g.setColor(isCurrentStage ? fill.darker() : Color.BLACK);
 			g.setStroke(new java.awt.BasicStroke(isCurrentStage ? 3f : 1f));
 			g.draw(slot);
 			g.setStroke(new java.awt.BasicStroke(1f));
+
+			// A second lane briefly sharing this slot gets a small coloured
+			// ring offset to the side, rather than fully overlapping the
+			// first lane's fill and the position number.
+			if (occupyingLanes.size() > 1) {
+				int ringR = SLOT_RADIUS / 2;
+				g.setColor(RotaryTableState.LANE_COLORS[occupyingLanes.get(1)]);
+				g.fillOval(slotX + SLOT_RADIUS / 2, slotY - ringR, ringR * 2, ringR * 2);
+				g.setColor(Color.BLACK);
+				g.drawOval(slotX + SLOT_RADIUS / 2, slotY - ringR, ringR * 2, ringR * 2);
+			}
 
 			g.setFont(g.getFont().deriveFont(java.awt.Font.BOLD, 20f));
 			g.setColor(isCurrentStage ? Color.WHITE : STATION_BLUE);
