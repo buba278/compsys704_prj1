@@ -39,8 +39,15 @@ CapperController(
             {
                 await(capGripped);
                 System.out.println("CapperController: Cap secured. Twisting gripper...");
-                emit sendGripperTwist;
-                pause;
+                // FIX: was `emit sendGripperTwist; pause;` - a single-tick pulse that the
+                // Plant's independently-clocked Rotation branch could miss entirely (GALS
+                // domains aren't guaranteed to sample on the same tick). Keep asserting it
+                // every tick; the enclosing abort(gripperFullTwist) above still terminates
+                // this loop the instant the Plant acknowledges.
+                loop {
+                    emit sendGripperTwist;
+                    pause;
+                }
             }
         }
         System.out.println("CapperController: Gripper full twist achieved or aborted. Releasing clamp & resetting.");
@@ -52,8 +59,11 @@ CapperController(
             ||
             {
                 System.out.println("CapperController: Untwisting gripper to initial position...");
-                emit sendGripperUntwist;
-                pause;
+                // FIX: same one-shot-pulse issue as sendGripperTwist above.
+                loop {
+                    emit sendGripperUntwist;
+                    pause;
+                }
             }
         }
         System.out.println("CapperController: Gripper returned to initial position. Cycle complete.");

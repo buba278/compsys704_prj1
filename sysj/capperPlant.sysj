@@ -1,3 +1,5 @@
+import run.CapperGUI;
+
 CapperPlant(
     input signal sendGripperDown;
     input signal sendGripperTwist;
@@ -11,9 +13,17 @@ CapperPlant(
     output signal capGripped;
     output signal gripperInitPos;
     output signal gripperFullTwist;
+    
+    output signal bottleAtPos4E;
+    output signal bottleGoneE;      // NEW: explicit "off" companion for bottleAtPos4E
+    output signal gripperMaxLowerE;
+    output signal gripperMaxLiftE;
+    output signal gripperInitPosE;
+    output signal gripperFullTwistE;
 )
 ->
 {
+	new Thread(new CapperGUI()).start();
     System.out.println("CapperPlant: Subsystem initialized.");
 
     {
@@ -83,5 +93,32 @@ CapperPlant(
             pause; 
             pause;
         }
+        
     }
+    ||
+     //To viz
+		{
+			while(true){
+				// FIX: previously only ever emitted bottleAtPos4E when the bottle was
+				// present, so CapperState.BOTTLE_PRESENT/CLAMPED could only ever latch
+				// true and never reflected the bottle leaving. Now explicitly forward the
+				// absent case too, same technique as fillerPlant's `!bottleAtPos2` branch.
+				present(bottleAtPos4){
+					emit bottleAtPos4E;
+				} else {
+					emit bottleGoneE;
+				}
+				pause;
+			}
+		}
+		||
+		{while(true){present(gripperMaxLower){emit gripperMaxLowerE;} pause;}}
+		||
+		{while(true){present(gripperMaxLift){emit gripperMaxLiftE;} pause;}}
+		||
+		{while(true){present(gripperInitPos){emit gripperInitPosE;} pause;}}
+		||
+		{while(true){present(gripperFullTwist){emit gripperFullTwistE;} pause;}}
+    
+    
 }
