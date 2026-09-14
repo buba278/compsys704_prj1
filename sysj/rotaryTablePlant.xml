@@ -1,0 +1,22 @@
+<System xmlns="http://systemjtechnology.com">
+	<SubSystem Name="SS4" Local="true">
+		<ClockDomain Name="RotaryTablePlantCD" Class="rotaryTablePlant">
+			<iSignal Name="rotaryTableTrigger"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10017" />
+			<iSignal Name="start"                     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10017" />
+			<iSignal Name="capperTakenAck"            Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10017" />
+			<iSignal Name="fillerTakenAck"            Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10017" />
+			<iSignal Name="lidPlacedAck"              Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10017" />
+
+			<oSignal Name="tableAlignedWithSensor" To="RotaryTableControllerCD.tableAlignedWithSensor" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10016" />
+			<oSignal Name="bottleAtPos5"           To="RotaryTableControllerCD.bottleAtPos5"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10016" />
+			<oSignal Name="capOnBottleAtPos1"      To="RotaryTableControllerCD.capOnBottleAtPos1"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10016" />
+			<oSignal Name="tableBusy"              To="RotaryTableControllerCD.tableBusy"              Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10016" />
+
+			<oSignal Name="tableAlignedWithSensorE" To="UI.tableAlignedWithSensorE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
+			<oSignal Name="bottleAtPos5E"           To="UI.bottleAtPos5E"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
+			<oSignal Name="capOnBottleAtPos1E"      To="UI.capOnBottleAtPos1E"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
+			<oSignal Name="rotaryTableTriggerE"     To="UI.rotaryTableTriggerE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
+			<oSignal Name="bottleStageE"            To="UI.bottleStageE"            Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
+		</ClockDomain>
+	</SubSystem>
+</System>

@@ -3,6 +3,9 @@ import com.systemj.ClockDomain;
 import com.systemj.Signal;
 import com.systemj.input_Channel;
 import com.systemj.output_Channel;
+import digitaltwin.PlantTwin;//sysj\controller.sysj line: 1, column: 1
+import digitaltwin.TwinClient;//sysj\controller.sysj line: 2, column: 1
+import run.RotaryLidBridge;//sysj\controller.sysj line: 3, column: 1
 
 public class Controller extends ClockDomain{
   public Controller(String name){super(name);}
@@ -29,21 +32,23 @@ public class Controller extends ClockDomain{
   public Signal armDest = new Signal("armDest", Signal.OUTPUT);
   private Signal auto_1;
   private Signal manual_1;
-  private int modeVal_thread_2;//sysj\controller.sysj line: 12, column: 3
-  private int S1147 = 1;
-  private int S33 = 1;
-  private int S6 = 1;
-  private int S1145 = 1;
-  private int S100 = 1;
-  private int S36 = 1;
-  private int S67 = 1;
-  private int S72 = 1;
+  private int modeVal_thread_2;//sysj\controller.sysj line: 16, column: 3
+  private TwinClient twin_thread_3;//sysj\controller.sysj line: 32, column: 3
+  private long tAck_thread_3;//sysj\controller.sysj line: 87, column: 7
+  private int S3697 = 1;
+  private int S1539 = 1;
+  private int S1512 = 1;
+  private int S3695 = 1;
+  private int S1781 = 1;
+  private int S1541 = 1;
+  private int S1574 = 1;
+  private int S1579 = 1;
   
   private int[] ends = new int[6];
   private int[] tdone = new int[6];
   
-  public void thread1158(int [] tdone, int [] ends){
-        switch(S72){
+  public void thread3708(int [] tdone, int [] ends){
+        switch(S1579){
       case 0 : 
         active[5]=0;
         ends[5]=0;
@@ -51,7 +56,7 @@ public class Controller extends ClockDomain{
         break;
       
       case 1 : 
-        armDest.setPresent();//sysj\controller.sysj line: 54, column: 7
+        armDest.setPresent();//sysj\controller.sysj line: 70, column: 8
         currsigs.addElement(armDest);
         active[5]=1;
         ends[5]=1;
@@ -61,8 +66,8 @@ public class Controller extends ClockDomain{
     }
   }
 
-  public void thread1157(int [] tdone, int [] ends){
-        switch(S67){
+  public void thread3707(int [] tdone, int [] ends){
+        switch(S1574){
       case 0 : 
         active[4]=0;
         ends[4]=0;
@@ -70,7 +75,7 @@ public class Controller extends ClockDomain{
         break;
       
       case 1 : 
-        vacOn.setPresent();//sysj\controller.sysj line: 52, column: 7
+        vacOn.setPresent();//sysj\controller.sysj line: 68, column: 8
         currsigs.addElement(vacOn);
         active[4]=1;
         ends[4]=1;
@@ -80,26 +85,26 @@ public class Controller extends ClockDomain{
     }
   }
 
-  public void thread1155(int [] tdone, int [] ends){
-        S72=1;
-    armDest.setPresent();//sysj\controller.sysj line: 54, column: 7
+  public void thread3705(int [] tdone, int [] ends){
+        S1579=1;
+    armDest.setPresent();//sysj\controller.sysj line: 70, column: 8
     currsigs.addElement(armDest);
     active[5]=1;
     ends[5]=1;
     tdone[5]=1;
   }
 
-  public void thread1154(int [] tdone, int [] ends){
-        S67=1;
-    vacOn.setPresent();//sysj\controller.sysj line: 52, column: 7
+  public void thread3704(int [] tdone, int [] ends){
+        S1574=1;
+    vacOn.setPresent();//sysj\controller.sysj line: 68, column: 8
     currsigs.addElement(vacOn);
     active[4]=1;
     ends[4]=1;
     tdone[4]=1;
   }
 
-  public void thread1153(int [] tdone, int [] ends){
-        switch(S1145){
+  public void thread3703(int [] tdone, int [] ends){
+        switch(S3695){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -107,21 +112,22 @@ public class Controller extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S100){
+        switch(S1781){
           case 0 : 
-            if(manual_1.getprestatus()){//sysj\controller.sysj line: 30, column: 11
-              S100=1;
+            if(manual_1.getprestatus()){//sysj\controller.sysj line: 36, column: 11
+              S1781=1;
               active[3]=1;
               ends[3]=1;
               tdone[3]=1;
             }
             else {
-              switch(S36){
+              switch(S1541){
                 case 0 : 
-                  if(request.getprestatus()){//sysj\controller.sysj line: 33, column: 12
-                    System.out.printf("request received%n");//sysj\controller.sysj line: 34, column: 5
-                    S36=1;
-                    armDest.setPresent();//sysj\controller.sysj line: 36, column: 6
+                  if(request.getprestatus()){//sysj\controller.sysj line: 48, column: 13
+                    System.out.printf("request received%n");//sysj\controller.sysj line: 49, column: 6
+                    twin_thread_3.update(PlantTwin.State.IN_PROGRESS);//sysj\controller.sysj line: 50, column: 6
+                    S1541=1;
+                    armDest.setPresent();//sysj\controller.sysj line: 52, column: 7
                     currsigs.addElement(armDest);
                     active[3]=1;
                     ends[3]=1;
@@ -135,16 +141,16 @@ public class Controller extends ClockDomain{
                   break;
                 
                 case 1 : 
-                  if(armAtDest.getprestatus()){//sysj\controller.sysj line: 35, column: 12
-                    S36=2;
-                    pusherExtend.setPresent();//sysj\controller.sysj line: 41, column: 6
+                  if(armAtDest.getprestatus()){//sysj\controller.sysj line: 51, column: 13
+                    S1541=2;
+                    pusherExtend.setPresent();//sysj\controller.sysj line: 57, column: 7
                     currsigs.addElement(pusherExtend);
                     active[3]=1;
                     ends[3]=1;
                     tdone[3]=1;
                   }
                   else {
-                    armDest.setPresent();//sysj\controller.sysj line: 36, column: 6
+                    armDest.setPresent();//sysj\controller.sysj line: 52, column: 7
                     currsigs.addElement(armDest);
                     active[3]=1;
                     ends[3]=1;
@@ -153,14 +159,14 @@ public class Controller extends ClockDomain{
                   break;
                 
                 case 2 : 
-                  if(pusherExtended.getprestatus()){//sysj\controller.sysj line: 40, column: 12
-                    S36=3;
+                  if(pusherExtended.getprestatus()){//sysj\controller.sysj line: 56, column: 13
+                    S1541=3;
                     active[3]=1;
                     ends[3]=1;
                     tdone[3]=1;
                   }
                   else {
-                    pusherExtend.setPresent();//sysj\controller.sysj line: 41, column: 6
+                    pusherExtend.setPresent();//sysj\controller.sysj line: 57, column: 7
                     currsigs.addElement(pusherExtend);
                     active[3]=1;
                     ends[3]=1;
@@ -169,9 +175,9 @@ public class Controller extends ClockDomain{
                   break;
                 
                 case 3 : 
-                  if(pusherRetracted.getprestatus()){//sysj\controller.sysj line: 44, column: 12
-                    S36=4;
-                    armSource.setPresent();//sysj\controller.sysj line: 47, column: 6
+                  if(pusherRetracted.getprestatus()){//sysj\controller.sysj line: 60, column: 13
+                    S1541=4;
+                    armSource.setPresent();//sysj\controller.sysj line: 63, column: 7
                     currsigs.addElement(armSource);
                     active[3]=1;
                     ends[3]=1;
@@ -185,25 +191,25 @@ public class Controller extends ClockDomain{
                   break;
                 
                 case 4 : 
-                  if(armAtSource.getprestatus()){//sysj\controller.sysj line: 46, column: 12
-                    S36=5;
-                    thread1154(tdone,ends);
-                    thread1155(tdone,ends);
-                    int biggest1156 = 0;
-                    if(ends[4]>=biggest1156){
-                      biggest1156=ends[4];
+                  if(armAtSource.getprestatus()){//sysj\controller.sysj line: 62, column: 13
+                    S1541=5;
+                    thread3704(tdone,ends);
+                    thread3705(tdone,ends);
+                    int biggest3706 = 0;
+                    if(ends[4]>=biggest3706){
+                      biggest3706=ends[4];
                     }
-                    if(ends[5]>=biggest1156){
-                      biggest1156=ends[5];
+                    if(ends[5]>=biggest3706){
+                      biggest3706=ends[5];
                     }
-                    if(biggest1156 == 1){
+                    if(biggest3706 == 1){
                       active[3]=1;
                       ends[3]=1;
                       tdone[3]=1;
                     }
                   }
                   else {
-                    armSource.setPresent();//sysj\controller.sysj line: 47, column: 6
+                    armSource.setPresent();//sysj\controller.sysj line: 63, column: 7
                     currsigs.addElement(armSource);
                     active[3]=1;
                     ends[3]=1;
@@ -212,30 +218,30 @@ public class Controller extends ClockDomain{
                   break;
                 
                 case 5 : 
-                  if(WPgripped.getprestatus() && armAtDest.getprestatus()){//sysj\controller.sysj line: 51, column: 12
-                    S36=6;
+                  if(WPgripped.getprestatus() && armAtDest.getprestatus()){//sysj\controller.sysj line: 67, column: 13
+                    S1541=6;
                     active[3]=1;
                     ends[3]=1;
                     tdone[3]=1;
                   }
                   else {
-                    thread1157(tdone,ends);
-                    thread1158(tdone,ends);
-                    int biggest1159 = 0;
-                    if(ends[4]>=biggest1159){
-                      biggest1159=ends[4];
+                    thread3707(tdone,ends);
+                    thread3708(tdone,ends);
+                    int biggest3709 = 0;
+                    if(ends[4]>=biggest3709){
+                      biggest3709=ends[4];
                     }
-                    if(ends[5]>=biggest1159){
-                      biggest1159=ends[5];
+                    if(ends[5]>=biggest3709){
+                      biggest3709=ends[5];
                     }
-                    if(biggest1159 == 1){
+                    if(biggest3709 == 1){
                       active[3]=1;
                       ends[3]=1;
                       tdone[3]=1;
                     }
                     //FINXME code
-                    if(biggest1159 == 0){
-                      S36=6;
+                    if(biggest3709 == 0){
+                      S1541=6;
                       active[3]=1;
                       ends[3]=1;
                       tdone[3]=1;
@@ -244,9 +250,9 @@ public class Controller extends ClockDomain{
                   break;
                 
                 case 6 : 
-                  if(!WPgripped.getprestatus()){//sysj\controller.sysj line: 57, column: 11
-                    S36=7;
-                    armSource.setPresent();//sysj\controller.sysj line: 60, column: 6
+                  if(!WPgripped.getprestatus()){//sysj\controller.sysj line: 73, column: 12
+                    S1541=7;
+                    armSource.setPresent();//sysj\controller.sysj line: 76, column: 7
                     currsigs.addElement(armSource);
                     active[3]=1;
                     ends[3]=1;
@@ -260,15 +266,64 @@ public class Controller extends ClockDomain{
                   break;
                 
                 case 7 : 
-                  if(armAtSource.getprestatus()){//sysj\controller.sysj line: 59, column: 12
-                    S100=1;
+                  if(armAtSource.getprestatus()){//sysj\controller.sysj line: 75, column: 13
+                    twin_thread_3.recordEvent("lid placed");//sysj\controller.sysj line: 78, column: 6
+                    twin_thread_3.update(PlantTwin.State.IDLE);//sysj\controller.sysj line: 79, column: 6
+                    tAck_thread_3 = System.currentTimeMillis();//sysj\controller.sysj line: 87, column: 7
+                    S1541=8;
+                    if(System.currentTimeMillis() - tAck_thread_3 < 200){//sysj\controller.sysj line: 88, column: 14
+                      RotaryLidBridge.setLidPlacedAck(true);//sysj\controller.sysj line: 89, column: 8
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\controller.sysj line: 88, column: 7
+                      RotaryLidBridge.setLidPlacedAck(false);//sysj\controller.sysj line: 92, column: 7
+                      S1541=9;
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                  }
+                  else {
+                    armSource.setPresent();//sysj\controller.sysj line: 76, column: 7
+                    currsigs.addElement(armSource);
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  break;
+                
+                case 8 : 
+                  if(System.currentTimeMillis() - tAck_thread_3 < 200){//sysj\controller.sysj line: 88, column: 14
+                    RotaryLidBridge.setLidPlacedAck(true);//sysj\controller.sysj line: 89, column: 8
                     active[3]=1;
                     ends[3]=1;
                     tdone[3]=1;
                   }
                   else {
-                    armSource.setPresent();//sysj\controller.sysj line: 60, column: 6
-                    currsigs.addElement(armSource);
+                    ends[3]=2;
+                    ;//sysj\controller.sysj line: 88, column: 7
+                    RotaryLidBridge.setLidPlacedAck(false);//sysj\controller.sysj line: 92, column: 7
+                    S1541=9;
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  break;
+                
+                case 9 : 
+                  if(!request.getprestatus()){//sysj\controller.sysj line: 101, column: 13
+                    System.out.printf("Auto: %d%n", 1);//sysj\controller.sysj line: 45, column: 6
+                    twin_thread_3.update(PlantTwin.State.IDLE);//sysj\controller.sysj line: 46, column: 6
+                    S1541=0;
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
                     active[3]=1;
                     ends[3]=1;
                     tdone[3]=1;
@@ -280,20 +335,20 @@ public class Controller extends ClockDomain{
             break;
           
           case 1 : 
-            if(manual_1.getprestatus()){//sysj\controller.sysj line: 63, column: 11
-              System.out.printf("Manual: %d%n", 1);//sysj\controller.sysj line: 64, column: 4
-              S100=2;
-              if(pusherExtendM.getprestatus()){//sysj\controller.sysj line: 67, column: 15
-                pusherExtend.setPresent();//sysj\controller.sysj line: 68, column: 7
+            if(manual_1.getprestatus()){//sysj\controller.sysj line: 104, column: 11
+              System.out.printf("Manual: %d%n", 1);//sysj\controller.sysj line: 105, column: 4
+              S1781=2;
+              if(pusherExtendM.getprestatus()){//sysj\controller.sysj line: 108, column: 15
+                pusherExtend.setPresent();//sysj\controller.sysj line: 109, column: 7
                 currsigs.addElement(pusherExtend);
-                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 70, column: 15
-                  vacOn.setPresent();//sysj\controller.sysj line: 71, column: 7
+                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 111, column: 15
+                  vacOn.setPresent();//sysj\controller.sysj line: 112, column: 7
                   currsigs.addElement(vacOn);
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -306,8 +361,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -321,11 +376,11 @@ public class Controller extends ClockDomain{
                   }
                 }
                 else {
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -338,8 +393,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -354,14 +409,14 @@ public class Controller extends ClockDomain{
                 }
               }
               else {
-                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 70, column: 15
-                  vacOn.setPresent();//sysj\controller.sysj line: 71, column: 7
+                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 111, column: 15
+                  vacOn.setPresent();//sysj\controller.sysj line: 112, column: 7
                   currsigs.addElement(vacOn);
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -374,8 +429,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -389,11 +444,11 @@ public class Controller extends ClockDomain{
                   }
                 }
                 else {
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -406,8 +461,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -430,24 +485,24 @@ public class Controller extends ClockDomain{
             break;
           
           case 2 : 
-            if(auto_1.getprestatus()){//sysj\controller.sysj line: 65, column: 11
-              S100=3;
+            if(auto_1.getprestatus()){//sysj\controller.sysj line: 106, column: 11
+              S1781=3;
               active[3]=1;
               ends[3]=1;
               tdone[3]=1;
             }
             else {
-              if(pusherExtendM.getprestatus()){//sysj\controller.sysj line: 67, column: 15
-                pusherExtend.setPresent();//sysj\controller.sysj line: 68, column: 7
+              if(pusherExtendM.getprestatus()){//sysj\controller.sysj line: 108, column: 15
+                pusherExtend.setPresent();//sysj\controller.sysj line: 109, column: 7
                 currsigs.addElement(pusherExtend);
-                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 70, column: 15
-                  vacOn.setPresent();//sysj\controller.sysj line: 71, column: 7
+                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 111, column: 15
+                  vacOn.setPresent();//sysj\controller.sysj line: 112, column: 7
                   currsigs.addElement(vacOn);
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -460,8 +515,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -475,11 +530,11 @@ public class Controller extends ClockDomain{
                   }
                 }
                 else {
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -492,8 +547,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -508,14 +563,14 @@ public class Controller extends ClockDomain{
                 }
               }
               else {
-                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 70, column: 15
-                  vacOn.setPresent();//sysj\controller.sysj line: 71, column: 7
+                if(vacOnM.getprestatus()){//sysj\controller.sysj line: 111, column: 15
+                  vacOn.setPresent();//sysj\controller.sysj line: 112, column: 7
                   currsigs.addElement(vacOn);
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -528,8 +583,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -543,11 +598,11 @@ public class Controller extends ClockDomain{
                   }
                 }
                 else {
-                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 73, column: 15
-                    armSource.setPresent();//sysj\controller.sysj line: 74, column: 7
+                  if(armSourceM.getprestatus()){//sysj\controller.sysj line: 114, column: 15
+                    armSource.setPresent();//sysj\controller.sysj line: 115, column: 7
                     currsigs.addElement(armSource);
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -560,8 +615,8 @@ public class Controller extends ClockDomain{
                     }
                   }
                   else {
-                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 76, column: 15
-                      armDest.setPresent();//sysj\controller.sysj line: 77, column: 7
+                    if(armDestM.getprestatus()){//sysj\controller.sysj line: 117, column: 15
+                      armDest.setPresent();//sysj\controller.sysj line: 118, column: 7
                       currsigs.addElement(armDest);
                       active[3]=1;
                       ends[3]=1;
@@ -579,10 +634,11 @@ public class Controller extends ClockDomain{
             break;
           
           case 3 : 
-            if(auto_1.getprestatus()){//sysj\controller.sysj line: 82, column: 11
-              S100=0;
-              System.out.printf("Auto: %d%n", 1);//sysj\controller.sysj line: 31, column: 5
-              S36=0;
+            if(auto_1.getprestatus()){//sysj\controller.sysj line: 123, column: 11
+              S1781=0;
+              System.out.printf("Auto: %d%n", 1);//sysj\controller.sysj line: 45, column: 6
+              twin_thread_3.update(PlantTwin.State.IDLE);//sysj\controller.sysj line: 46, column: 6
+              S1541=0;
               active[3]=1;
               ends[3]=1;
               tdone[3]=1;
@@ -600,8 +656,8 @@ public class Controller extends ClockDomain{
     }
   }
 
-  public void thread1152(int [] tdone, int [] ends){
-        switch(S33){
+  public void thread3702(int [] tdone, int [] ends){
+        switch(S1539){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -609,41 +665,41 @@ public class Controller extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S6){
+        switch(S1512){
           case 0 : 
-            S6=0;
-            if(mode.getprestatus()){//sysj\controller.sysj line: 14, column: 13
-              modeVal_thread_2 = (Integer)(mode.getpreval() == null ? null : ((Integer)mode.getpreval()));//sysj\controller.sysj line: 15, column: 5
-              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 17, column: 8
-                manual_1.setPresent();//sysj\controller.sysj line: 18, column: 5
+            S1512=0;
+            if(mode.getprestatus()){//sysj\controller.sysj line: 18, column: 13
+              modeVal_thread_2 = (Integer)(mode.getpreval() == null ? null : ((Integer)mode.getpreval()));//sysj\controller.sysj line: 19, column: 5
+              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 21, column: 8
+                manual_1.setPresent();//sysj\controller.sysj line: 22, column: 5
                 currsigs.addElement(manual_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
               }
               else {
-                auto_1.setPresent();//sysj\controller.sysj line: 21, column: 5
+                auto_1.setPresent();//sysj\controller.sysj line: 25, column: 5
                 currsigs.addElement(auto_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
               }
             }
             else {
-              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 17, column: 8
-                manual_1.setPresent();//sysj\controller.sysj line: 18, column: 5
+              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 21, column: 8
+                manual_1.setPresent();//sysj\controller.sysj line: 22, column: 5
                 currsigs.addElement(manual_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
               }
               else {
-                auto_1.setPresent();//sysj\controller.sysj line: 21, column: 5
+                auto_1.setPresent();//sysj\controller.sysj line: 25, column: 5
                 currsigs.addElement(auto_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -652,40 +708,40 @@ public class Controller extends ClockDomain{
             break;
           
           case 1 : 
-            S6=1;
-            S6=0;
-            if(mode.getprestatus()){//sysj\controller.sysj line: 14, column: 13
-              modeVal_thread_2 = (Integer)(mode.getpreval() == null ? null : ((Integer)mode.getpreval()));//sysj\controller.sysj line: 15, column: 5
-              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 17, column: 8
-                manual_1.setPresent();//sysj\controller.sysj line: 18, column: 5
+            S1512=1;
+            S1512=0;
+            if(mode.getprestatus()){//sysj\controller.sysj line: 18, column: 13
+              modeVal_thread_2 = (Integer)(mode.getpreval() == null ? null : ((Integer)mode.getpreval()));//sysj\controller.sysj line: 19, column: 5
+              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 21, column: 8
+                manual_1.setPresent();//sysj\controller.sysj line: 22, column: 5
                 currsigs.addElement(manual_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
               }
               else {
-                auto_1.setPresent();//sysj\controller.sysj line: 21, column: 5
+                auto_1.setPresent();//sysj\controller.sysj line: 25, column: 5
                 currsigs.addElement(auto_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
               }
             }
             else {
-              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 17, column: 8
-                manual_1.setPresent();//sysj\controller.sysj line: 18, column: 5
+              if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 21, column: 8
+                manual_1.setPresent();//sysj\controller.sysj line: 22, column: 5
                 currsigs.addElement(manual_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
               }
               else {
-                auto_1.setPresent();//sysj\controller.sysj line: 21, column: 5
+                auto_1.setPresent();//sysj\controller.sysj line: 25, column: 5
                 currsigs.addElement(auto_1);
-                S6=1;
+                S1512=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -699,53 +755,56 @@ public class Controller extends ClockDomain{
     }
   }
 
-  public void thread1150(int [] tdone, int [] ends){
-        S1145=1;
-    System.out.printf("main loop entered%n");//sysj\controller.sysj line: 28, column: 3
-    S100=0;
-    System.out.printf("Auto: %d%n", 1);//sysj\controller.sysj line: 31, column: 5
-    S36=0;
+  public void thread3700(int [] tdone, int [] ends){
+        S3695=1;
+    twin_thread_3 = new TwinClient("lid-placer", "127.0.0.1", 9090);//sysj\controller.sysj line: 32, column: 3
+    twin_thread_3.update(PlantTwin.State.IDLE);//sysj\controller.sysj line: 33, column: 3
+    System.out.printf("main loop entered%n");//sysj\controller.sysj line: 34, column: 3
+    S1781=0;
+    System.out.printf("Auto: %d%n", 1);//sysj\controller.sysj line: 45, column: 6
+    twin_thread_3.update(PlantTwin.State.IDLE);//sysj\controller.sysj line: 46, column: 6
+    S1541=0;
     active[3]=1;
     ends[3]=1;
     tdone[3]=1;
   }
 
-  public void thread1149(int [] tdone, int [] ends){
-        S33=1;
-    modeVal_thread_2 = 0;//sysj\controller.sysj line: 12, column: 3
-    S6=0;
-    if(mode.getprestatus()){//sysj\controller.sysj line: 14, column: 13
-      modeVal_thread_2 = (Integer)(mode.getpreval() == null ? null : ((Integer)mode.getpreval()));//sysj\controller.sysj line: 15, column: 5
-      if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 17, column: 8
-        manual_1.setPresent();//sysj\controller.sysj line: 18, column: 5
+  public void thread3699(int [] tdone, int [] ends){
+        S1539=1;
+    modeVal_thread_2 = 0;//sysj\controller.sysj line: 16, column: 3
+    S1512=0;
+    if(mode.getprestatus()){//sysj\controller.sysj line: 18, column: 13
+      modeVal_thread_2 = (Integer)(mode.getpreval() == null ? null : ((Integer)mode.getpreval()));//sysj\controller.sysj line: 19, column: 5
+      if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 21, column: 8
+        manual_1.setPresent();//sysj\controller.sysj line: 22, column: 5
         currsigs.addElement(manual_1);
-        S6=1;
+        S1512=1;
         active[2]=1;
         ends[2]=1;
         tdone[2]=1;
       }
       else {
-        auto_1.setPresent();//sysj\controller.sysj line: 21, column: 5
+        auto_1.setPresent();//sysj\controller.sysj line: 25, column: 5
         currsigs.addElement(auto_1);
-        S6=1;
+        S1512=1;
         active[2]=1;
         ends[2]=1;
         tdone[2]=1;
       }
     }
     else {
-      if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 17, column: 8
-        manual_1.setPresent();//sysj\controller.sysj line: 18, column: 5
+      if(modeVal_thread_2 == 1){//sysj\controller.sysj line: 21, column: 8
+        manual_1.setPresent();//sysj\controller.sysj line: 22, column: 5
         currsigs.addElement(manual_1);
-        S6=1;
+        S1512=1;
         active[2]=1;
         ends[2]=1;
         tdone[2]=1;
       }
       else {
-        auto_1.setPresent();//sysj\controller.sysj line: 21, column: 5
+        auto_1.setPresent();//sysj\controller.sysj line: 25, column: 5
         currsigs.addElement(auto_1);
-        S6=1;
+        S1512=1;
         active[2]=1;
         ends[2]=1;
         tdone[2]=1;
@@ -760,54 +819,54 @@ public class Controller extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S1147){
+      switch(S3697){
         case 0 : 
-          S1147=0;
+          S3697=0;
           break RUN;
         
         case 1 : 
-          S1147=2;
-          S1147=2;
-          auto_1.setClear();//sysj\controller.sysj line: 9, column: 2
-          manual_1.setClear();//sysj\controller.sysj line: 9, column: 2
-          thread1149(tdone,ends);
-          thread1150(tdone,ends);
-          int biggest1151 = 0;
-          if(ends[2]>=biggest1151){
-            biggest1151=ends[2];
+          S3697=2;
+          S3697=2;
+          auto_1.setClear();//sysj\controller.sysj line: 13, column: 2
+          manual_1.setClear();//sysj\controller.sysj line: 13, column: 2
+          thread3699(tdone,ends);
+          thread3700(tdone,ends);
+          int biggest3701 = 0;
+          if(ends[2]>=biggest3701){
+            biggest3701=ends[2];
           }
-          if(ends[3]>=biggest1151){
-            biggest1151=ends[3];
+          if(ends[3]>=biggest3701){
+            biggest3701=ends[3];
           }
-          if(biggest1151 == 1){
+          if(biggest3701 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
         
         case 2 : 
-          auto_1.setClear();//sysj\controller.sysj line: 9, column: 2
-          manual_1.setClear();//sysj\controller.sysj line: 9, column: 2
-          thread1152(tdone,ends);
-          thread1153(tdone,ends);
-          int biggest1160 = 0;
-          if(ends[2]>=biggest1160){
-            biggest1160=ends[2];
+          auto_1.setClear();//sysj\controller.sysj line: 13, column: 2
+          manual_1.setClear();//sysj\controller.sysj line: 13, column: 2
+          thread3702(tdone,ends);
+          thread3703(tdone,ends);
+          int biggest3710 = 0;
+          if(ends[2]>=biggest3710){
+            biggest3710=ends[2];
           }
-          if(ends[3]>=biggest1160){
-            biggest1160=ends[3];
+          if(ends[3]>=biggest3710){
+            biggest3710=ends[3];
           }
-          if(biggest1160 == 1){
+          if(biggest3710 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
           //FINXME code
-          if(biggest1160 == 0){
-            S1147=0;
+          if(biggest3710 == 0){
+            S3697=0;
             active[1]=0;
             ends[1]=0;
-            S1147=0;
+            S3697=0;
             break RUN;
           }
         

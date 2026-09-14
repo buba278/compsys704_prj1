@@ -1,5 +1,6 @@
 import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
+import run.RotaryFillerBridge;
 Coordinator(
     input signal orderReady;                                    // POS -> coordinator
     input Integer signal orderLiquidARatio, orderTargetVolume, orderQuantity;
@@ -7,6 +8,7 @@ Coordinator(
     input signal fillReady;                                     // filler confirms reset, ready for next bottle
     input signal fillFaultOut;                                  // filler -> coordinator (station faulted, stop presenting this bottle)
     input signal sortComplete;
+    input signal bottleReadyForFiller;                          // rotary table -> coordinator (real bottle handoff)
 
     output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
     output signal bottleAtPos2;                                 // coordinator -> fillerController
@@ -45,6 +47,8 @@ Coordinator(
         while (filled < quantity) {
             attempt = attempt + 1;
             boolean bottleFaulted = false;
+            System.out.printf("[Coordinator] awaiting a real bottle handoff from the Rotary Table, attempt %d%n", attempt);
+            await (bottleReadyForFiller);
             System.out.printf("[Coordinator] abort-block start, attempt %d (bottle %d/%d)%n", attempt, filled + 1, quantity);
             abort (fillDoneE || fillFaultOut) {
                 loop {
@@ -59,6 +63,23 @@ Coordinator(
             } else {
                 System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
             }
+            // Tell the Rotary Table this bottle's filling stage is done (whether
+            // filled or faulted) so it can hand the bottle on to Pos 5. Ack-or-
+            // timeout hold, not a bare single-tick emit, since this crosses the
+            // socket to RotaryTablePlantCD and repeats once per bottle - see
+            // CLAUDE.md. Placed here (right after the outcome is known) rather
+            // than after await(fillReady) below - sjc's JavaPrettyPrinter
+            // throws "TerminateNode can have only one child" when a bounded
+            // while/pause loop sits directly between an await(...) and a
+            // following if statement; this position also makes more semantic
+            // sense, since fillReady is about the Filler being ready for the
+            // *next* bottle, not about *this* bottle being finished.
+            long tFillerAck = System.currentTimeMillis();
+            while (System.currentTimeMillis() - tFillerAck < 200) {
+                RotaryFillerBridge.setFillerTakenAck(true);
+                pause;
+            }
+            RotaryFillerBridge.setFillerTakenAck(false);
             await (fillReady);
             if (!bottleFaulted) {
                 filled = filled + 1;

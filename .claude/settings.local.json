@@ -1,6 +1,8 @@
 {
   "permissions": {
     "allow": [
+      "additionalDirectories",
+      "WebSearch",
       "Bash(xargs ls)",
       "Bash(java -version)"
     ]

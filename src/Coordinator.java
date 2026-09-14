@@ -3,6 +3,9 @@ import com.systemj.ClockDomain;
 import com.systemj.Signal;
 import com.systemj.input_Channel;
 import com.systemj.output_Channel;
+import digitaltwin.PlantTwin;//sysj\coordinator.sysj line: 1, column: 1
+import digitaltwin.TwinClient;//sysj\coordinator.sysj line: 2, column: 1
+import run.RotaryFillerBridge;//sysj\coordinator.sysj line: 3, column: 1
 
 public class Coordinator extends ClockDomain{
   public Coordinator(String name){super(name);}
@@ -17,22 +20,29 @@ public class Coordinator extends ClockDomain{
   public Signal orderQuantity = new Signal("orderQuantity", Signal.INPUT);
   public Signal fillDoneE = new Signal("fillDoneE", Signal.INPUT);
   public Signal fillReady = new Signal("fillReady", Signal.INPUT);
+  public Signal fillFaultOut = new Signal("fillFaultOut", Signal.INPUT);
+  public Signal sortComplete = new Signal("sortComplete", Signal.INPUT);
+  public Signal bottleReadyForFiller = new Signal("bottleReadyForFiller", Signal.INPUT);
   public Signal liquidARatio = new Signal("liquidARatio", Signal.OUTPUT);
   public Signal targetVolumeMl = new Signal("targetVolumeMl", Signal.OUTPUT);
   public Signal bottleAtPos2 = new Signal("bottleAtPos2", Signal.OUTPUT);
   public Signal bottleAtPos2P = new Signal("bottleAtPos2P", Signal.OUTPUT);
   public Signal batchDone = new Signal("batchDone", Signal.OUTPUT);
-  private int ratioA_thread_1;//sysj\coordinator.sysj line: 18, column: 9
-  private int volume_thread_1;//sysj\coordinator.sysj line: 21, column: 9
-  private int quantity_thread_1;//sysj\coordinator.sysj line: 24, column: 9
-  private long tRecipe_thread_1;//sysj\coordinator.sysj line: 29, column: 9
-  private long start_thread_1;//sysj\coordinator.sysj line: 36, column: 9
-  private int filled_thread_1;//sysj\coordinator.sysj line: 37, column: 9
-  private int elapsed_thread_1;//sysj\coordinator.sysj line: 54, column: 9
-  private long tBatch_thread_1;//sysj\coordinator.sysj line: 55, column: 9
-  private int S2134 = 1;
-  private int S1163 = 1;
-  private int S1192 = 1;
+  private TwinClient twin_thread_1;//sysj\coordinator.sysj line: 21, column: 2
+  private int ratioA_thread_1;//sysj\coordinator.sysj line: 25, column: 9
+  private int volume_thread_1;//sysj\coordinator.sysj line: 28, column: 9
+  private int quantity_thread_1;//sysj\coordinator.sysj line: 31, column: 9
+  private long tRecipe_thread_1;//sysj\coordinator.sysj line: 36, column: 9
+  private long start_thread_1;//sysj\coordinator.sysj line: 44, column: 9
+  private int filled_thread_1;//sysj\coordinator.sysj line: 45, column: 9
+  private int attempt_thread_1;//sysj\coordinator.sysj line: 46, column: 9
+  private long tFillerAck_thread_1;//sysj\coordinator.sysj line: 77, column: 13
+  private boolean bottleFaulted_thread_1;//sysj\coordinator.sysj line: 49, column: 13
+  private int elapsed_thread_1;//sysj\coordinator.sysj line: 95, column: 9
+  private long tBatch_thread_1;//sysj\coordinator.sysj line: 97, column: 9
+  private int S13004 = 1;
+  private int S6985 = 1;
+  private int S7006 = 1;
   
   private int[] ends = new int[2];
   private int[] tdone = new int[2];
@@ -44,27 +54,28 @@ public class Coordinator extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S2134){
+      switch(S13004){
         case 0 : 
-          S2134=0;
+          S13004=0;
           break RUN;
         
         case 1 : 
-          S2134=2;
-          S2134=2;
-          System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 16, column: 9
-          S1163=0;
+          S13004=2;
+          S13004=2;
+          twin_thread_1 = new TwinClient("coordinator", "127.0.0.1", 9090);//sysj\coordinator.sysj line: 21, column: 2
+          System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 23, column: 9
+          S6985=0;
           active[1]=1;
           ends[1]=1;
           break RUN;
         
         case 2 : 
-          switch(S1163){
+          switch(S6985){
             case 0 : 
-              if(orderLiquidARatio.getprestatus()){//sysj\coordinator.sysj line: 17, column: 16
-                ratioA_thread_1 = (Integer)(orderLiquidARatio.getpreval() == null ? null : ((Integer)orderLiquidARatio.getpreval()));//sysj\coordinator.sysj line: 18, column: 9
-                System.out.printf("[Coordinator] got ratioA=%d, waiting for orderTargetVolume%n", ratioA_thread_1);//sysj\coordinator.sysj line: 19, column: 9
-                S1163=1;
+              if(orderLiquidARatio.getprestatus()){//sysj\coordinator.sysj line: 24, column: 16
+                ratioA_thread_1 = (Integer)(orderLiquidARatio.getpreval() == null ? null : ((Integer)orderLiquidARatio.getpreval()));//sysj\coordinator.sysj line: 25, column: 9
+                System.out.printf("[Coordinator] got ratioA=%d, waiting for orderTargetVolume%n", ratioA_thread_1);//sysj\coordinator.sysj line: 26, column: 9
+                S6985=1;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
@@ -76,10 +87,10 @@ public class Coordinator extends ClockDomain{
               }
             
             case 1 : 
-              if(orderTargetVolume.getprestatus()){//sysj\coordinator.sysj line: 20, column: 16
-                volume_thread_1 = (Integer)(orderTargetVolume.getpreval() == null ? null : ((Integer)orderTargetVolume.getpreval()));//sysj\coordinator.sysj line: 21, column: 9
-                System.out.printf("[Coordinator] got volume=%d, waiting for orderQuantity%n", volume_thread_1);//sysj\coordinator.sysj line: 22, column: 9
-                S1163=2;
+              if(orderTargetVolume.getprestatus()){//sysj\coordinator.sysj line: 27, column: 16
+                volume_thread_1 = (Integer)(orderTargetVolume.getpreval() == null ? null : ((Integer)orderTargetVolume.getpreval()));//sysj\coordinator.sysj line: 28, column: 9
+                System.out.printf("[Coordinator] got volume=%d, waiting for orderQuantity%n", volume_thread_1);//sysj\coordinator.sysj line: 29, column: 9
+                S6985=2;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
@@ -91,10 +102,10 @@ public class Coordinator extends ClockDomain{
               }
             
             case 2 : 
-              if(orderQuantity.getprestatus()){//sysj\coordinator.sysj line: 23, column: 16
-                quantity_thread_1 = (Integer)(orderQuantity.getpreval() == null ? null : ((Integer)orderQuantity.getpreval()));//sysj\coordinator.sysj line: 24, column: 9
-                System.out.printf("[Coordinator] got quantity=%d, waiting for orderReady%n", quantity_thread_1);//sysj\coordinator.sysj line: 25, column: 9
-                S1163=3;
+              if(orderQuantity.getprestatus()){//sysj\coordinator.sysj line: 30, column: 16
+                quantity_thread_1 = (Integer)(orderQuantity.getpreval() == null ? null : ((Integer)orderQuantity.getpreval()));//sysj\coordinator.sysj line: 31, column: 9
+                System.out.printf("[Coordinator] got quantity=%d, waiting for orderReady%n", quantity_thread_1);//sysj\coordinator.sysj line: 32, column: 9
+                S6985=3;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
@@ -106,58 +117,59 @@ public class Coordinator extends ClockDomain{
               }
             
             case 3 : 
-              if(orderReady.getprestatus()){//sysj\coordinator.sysj line: 26, column: 16
-                System.out.printf("[Coordinator] order ratioA=%d vol=%d qty=%d%n", ratioA_thread_1, volume_thread_1, quantity_thread_1);//sysj\coordinator.sysj line: 27, column: 9
-                tRecipe_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 29, column: 9
-                S1163=4;
-                if(System.currentTimeMillis() - tRecipe_thread_1 < 50){//sysj\coordinator.sysj line: 30, column: 16
-                  liquidARatio.setPresent();//sysj\coordinator.sysj line: 31, column: 13
+              if(orderReady.getprestatus()){//sysj\coordinator.sysj line: 33, column: 16
+                System.out.printf("[Coordinator] order ratioA=%d vol=%d qty=%d%n", ratioA_thread_1, volume_thread_1, quantity_thread_1);//sysj\coordinator.sysj line: 34, column: 9
+                tRecipe_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 36, column: 9
+                twin_thread_1.startBatch("batch" + tRecipe_thread_1, quantity_thread_1);//sysj\coordinator.sysj line: 37, column: 9
+                S6985=4;
+                if(System.currentTimeMillis() - tRecipe_thread_1 < 50){//sysj\coordinator.sysj line: 38, column: 16
+                  liquidARatio.setPresent();//sysj\coordinator.sysj line: 39, column: 13
                   currsigs.addElement(liquidARatio);
-                  liquidARatio.setValue(ratioA_thread_1);//sysj\coordinator.sysj line: 31, column: 13
-                  targetVolumeMl.setPresent();//sysj\coordinator.sysj line: 32, column: 13
+                  liquidARatio.setValue(ratioA_thread_1);//sysj\coordinator.sysj line: 39, column: 13
+                  targetVolumeMl.setPresent();//sysj\coordinator.sysj line: 40, column: 13
                   currsigs.addElement(targetVolumeMl);
-                  targetVolumeMl.setValue(volume_thread_1);//sysj\coordinator.sysj line: 32, column: 13
+                  targetVolumeMl.setValue(volume_thread_1);//sysj\coordinator.sysj line: 40, column: 13
                   active[1]=1;
                   ends[1]=1;
                   break RUN;
                 }
                 else {
                   ends[1]=2;
-                  ;//sysj\coordinator.sysj line: 30, column: 9
-                  start_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 36, column: 9
-                  filled_thread_1 = 0;//sysj\coordinator.sysj line: 37, column: 9
-                  S1163=5;
-                  if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 38, column: 16
-                    System.out.printf("[Coordinator] abort-block start for bottle %d/%d%n", filled_thread_1 + 1, quantity_thread_1);//sysj\coordinator.sysj line: 39, column: 13
-                    S1192=0;
-                    bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 42, column: 21
-                    currsigs.addElement(bottleAtPos2);
-                    bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 43, column: 21
-                    currsigs.addElement(bottleAtPos2P);
+                  ;//sysj\coordinator.sysj line: 38, column: 9
+                  start_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 44, column: 9
+                  filled_thread_1 = 0;//sysj\coordinator.sysj line: 45, column: 9
+                  attempt_thread_1 = 0;//sysj\coordinator.sysj line: 46, column: 9
+                  S6985=5;
+                  if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 47, column: 16
+                    attempt_thread_1 = attempt_thread_1 + 1;//sysj\coordinator.sysj line: 48, column: 13
+                    bottleFaulted_thread_1 = false;//sysj\coordinator.sysj line: 49, column: 13
+                    System.out.printf("[Coordinator] awaiting a real bottle handoff from the Rotary Table, attempt %d%n", attempt_thread_1);//sysj\coordinator.sysj line: 50, column: 13
+                    S7006=0;
                     active[1]=1;
                     ends[1]=1;
                     break RUN;
                   }
                   else {
                     ends[1]=2;
-                    ;//sysj\coordinator.sysj line: 38, column: 9
-                    elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 54, column: 9
-                    tBatch_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 55, column: 9
-                    S1163=6;
-                    if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 56, column: 16
-                      batchDone.setPresent();//sysj\coordinator.sysj line: 57, column: 13
+                    ;//sysj\coordinator.sysj line: 47, column: 9
+                    elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 95, column: 9
+                    twin_thread_1.reportBatchElapsed(elapsed_thread_1);//sysj\coordinator.sysj line: 96, column: 9
+                    tBatch_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 97, column: 9
+                    S6985=6;
+                    if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 98, column: 16
+                      batchDone.setPresent();//sysj\coordinator.sysj line: 99, column: 13
                       currsigs.addElement(batchDone);
-                      batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 57, column: 13
+                      batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 99, column: 13
                       active[1]=1;
                       ends[1]=1;
                       break RUN;
                     }
                     else {
                       ends[1]=2;
-                      ;//sysj\coordinator.sysj line: 56, column: 9
-                      System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 60, column: 9
-                      System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 16, column: 9
-                      S1163=0;
+                      ;//sysj\coordinator.sysj line: 98, column: 9
+                      System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 102, column: 9
+                      System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 23, column: 9
+                      S6985=0;
                       active[1]=1;
                       ends[1]=1;
                       break RUN;
@@ -172,54 +184,54 @@ public class Coordinator extends ClockDomain{
               }
             
             case 4 : 
-              if(System.currentTimeMillis() - tRecipe_thread_1 < 50){//sysj\coordinator.sysj line: 30, column: 16
-                liquidARatio.setPresent();//sysj\coordinator.sysj line: 31, column: 13
+              if(System.currentTimeMillis() - tRecipe_thread_1 < 50){//sysj\coordinator.sysj line: 38, column: 16
+                liquidARatio.setPresent();//sysj\coordinator.sysj line: 39, column: 13
                 currsigs.addElement(liquidARatio);
-                liquidARatio.setValue(ratioA_thread_1);//sysj\coordinator.sysj line: 31, column: 13
-                targetVolumeMl.setPresent();//sysj\coordinator.sysj line: 32, column: 13
+                liquidARatio.setValue(ratioA_thread_1);//sysj\coordinator.sysj line: 39, column: 13
+                targetVolumeMl.setPresent();//sysj\coordinator.sysj line: 40, column: 13
                 currsigs.addElement(targetVolumeMl);
-                targetVolumeMl.setValue(volume_thread_1);//sysj\coordinator.sysj line: 32, column: 13
+                targetVolumeMl.setValue(volume_thread_1);//sysj\coordinator.sysj line: 40, column: 13
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
               }
               else {
                 ends[1]=2;
-                ;//sysj\coordinator.sysj line: 30, column: 9
-                start_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 36, column: 9
-                filled_thread_1 = 0;//sysj\coordinator.sysj line: 37, column: 9
-                S1163=5;
-                if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 38, column: 16
-                  System.out.printf("[Coordinator] abort-block start for bottle %d/%d%n", filled_thread_1 + 1, quantity_thread_1);//sysj\coordinator.sysj line: 39, column: 13
-                  S1192=0;
-                  bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 42, column: 21
-                  currsigs.addElement(bottleAtPos2);
-                  bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 43, column: 21
-                  currsigs.addElement(bottleAtPos2P);
+                ;//sysj\coordinator.sysj line: 38, column: 9
+                start_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 44, column: 9
+                filled_thread_1 = 0;//sysj\coordinator.sysj line: 45, column: 9
+                attempt_thread_1 = 0;//sysj\coordinator.sysj line: 46, column: 9
+                S6985=5;
+                if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 47, column: 16
+                  attempt_thread_1 = attempt_thread_1 + 1;//sysj\coordinator.sysj line: 48, column: 13
+                  bottleFaulted_thread_1 = false;//sysj\coordinator.sysj line: 49, column: 13
+                  System.out.printf("[Coordinator] awaiting a real bottle handoff from the Rotary Table, attempt %d%n", attempt_thread_1);//sysj\coordinator.sysj line: 50, column: 13
+                  S7006=0;
                   active[1]=1;
                   ends[1]=1;
                   break RUN;
                 }
                 else {
                   ends[1]=2;
-                  ;//sysj\coordinator.sysj line: 38, column: 9
-                  elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 54, column: 9
-                  tBatch_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 55, column: 9
-                  S1163=6;
-                  if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 56, column: 16
-                    batchDone.setPresent();//sysj\coordinator.sysj line: 57, column: 13
+                  ;//sysj\coordinator.sysj line: 47, column: 9
+                  elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 95, column: 9
+                  twin_thread_1.reportBatchElapsed(elapsed_thread_1);//sysj\coordinator.sysj line: 96, column: 9
+                  tBatch_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 97, column: 9
+                  S6985=6;
+                  if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 98, column: 16
+                    batchDone.setPresent();//sysj\coordinator.sysj line: 99, column: 13
                     currsigs.addElement(batchDone);
-                    batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 57, column: 13
+                    batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 99, column: 13
                     active[1]=1;
                     ends[1]=1;
                     break RUN;
                   }
                   else {
                     ends[1]=2;
-                    ;//sysj\coordinator.sysj line: 56, column: 9
-                    System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 60, column: 9
-                    System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 16, column: 9
-                    S1163=0;
+                    ;//sysj\coordinator.sysj line: 98, column: 9
+                    System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 102, column: 9
+                    System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 23, column: 9
+                    S6985=0;
                     active[1]=1;
                     ends[1]=1;
                     break RUN;
@@ -228,61 +240,136 @@ public class Coordinator extends ClockDomain{
               }
             
             case 5 : 
-              switch(S1192){
+              switch(S7006){
                 case 0 : 
-                  if(fillDoneE.getprestatus()){//sysj\coordinator.sysj line: 40, column: 20
-                    System.out.printf("[Coordinator] fillDoneE fired for bottle %d/%d, awaiting fillReady%n", filled_thread_1 + 1, quantity_thread_1);//sysj\coordinator.sysj line: 47, column: 13
-                    S1192=1;
+                  if(bottleReadyForFiller.getprestatus()){//sysj\coordinator.sysj line: 51, column: 20
+                    System.out.printf("[Coordinator] abort-block start, attempt %d (bottle %d/%d)%n", attempt_thread_1, filled_thread_1 + 1, quantity_thread_1);//sysj\coordinator.sysj line: 52, column: 13
+                    S7006=1;
+                    bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 55, column: 21
+                    currsigs.addElement(bottleAtPos2);
+                    bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 56, column: 21
+                    currsigs.addElement(bottleAtPos2P);
                     active[1]=1;
                     ends[1]=1;
                     break RUN;
                   }
                   else {
-                    bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 42, column: 21
-                    currsigs.addElement(bottleAtPos2);
-                    bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 43, column: 21
-                    currsigs.addElement(bottleAtPos2P);
                     active[1]=1;
                     ends[1]=1;
                     break RUN;
                   }
                 
                 case 1 : 
-                  if(fillReady.getprestatus()){//sysj\coordinator.sysj line: 48, column: 20
-                    System.out.printf("[Coordinator] fillReady received for bottle %d/%d%n", filled_thread_1 + 1, quantity_thread_1);//sysj\coordinator.sysj line: 49, column: 13
-                    filled_thread_1 = filled_thread_1 + 1;//sysj\coordinator.sysj line: 50, column: 13
-                    System.out.printf("[Coordinator] bottle %d/%d done%n", filled_thread_1, quantity_thread_1);//sysj\coordinator.sysj line: 51, column: 13
-                    if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 38, column: 16
-                      System.out.printf("[Coordinator] abort-block start for bottle %d/%d%n", filled_thread_1 + 1, quantity_thread_1);//sysj\coordinator.sysj line: 39, column: 13
-                      S1192=0;
-                      bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 42, column: 21
-                      currsigs.addElement(bottleAtPos2);
-                      bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 43, column: 21
-                      currsigs.addElement(bottleAtPos2P);
+                  if(fillDoneE.getprestatus() || fillFaultOut.getprestatus()){//sysj\coordinator.sysj line: 53, column: 20
+                    if(fillFaultOut.getprestatus()){//sysj\coordinator.sysj line: 60, column: 22
+                      bottleFaulted_thread_1 = true;//sysj\coordinator.sysj line: 61, column: 17
+                      System.out.printf("[Coordinator] fillFaultOut received on attempt %d - station faulted, awaiting recovery%n", attempt_thread_1);//sysj\coordinator.sysj line: 62, column: 17
+                      tFillerAck_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 77, column: 13
+                      S7006=2;
+                      if(System.currentTimeMillis() - tFillerAck_thread_1 < 200){//sysj\coordinator.sysj line: 78, column: 20
+                        RotaryFillerBridge.setFillerTakenAck(true);//sysj\coordinator.sysj line: 79, column: 17
+                        active[1]=1;
+                        ends[1]=1;
+                        break RUN;
+                      }
+                      else {
+                        ends[1]=3;
+                        ;//sysj\coordinator.sysj line: 78, column: 13
+                        RotaryFillerBridge.setFillerTakenAck(false);//sysj\coordinator.sysj line: 82, column: 13
+                        S7006=3;
+                        active[1]=1;
+                        ends[1]=1;
+                        break RUN;
+                      }
+                    }
+                    else {
+                      System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt_thread_1);//sysj\coordinator.sysj line: 64, column: 17
+                      tFillerAck_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 77, column: 13
+                      S7006=2;
+                      if(System.currentTimeMillis() - tFillerAck_thread_1 < 200){//sysj\coordinator.sysj line: 78, column: 20
+                        RotaryFillerBridge.setFillerTakenAck(true);//sysj\coordinator.sysj line: 79, column: 17
+                        active[1]=1;
+                        ends[1]=1;
+                        break RUN;
+                      }
+                      else {
+                        ends[1]=3;
+                        ;//sysj\coordinator.sysj line: 78, column: 13
+                        RotaryFillerBridge.setFillerTakenAck(false);//sysj\coordinator.sysj line: 82, column: 13
+                        S7006=3;
+                        active[1]=1;
+                        ends[1]=1;
+                        break RUN;
+                      }
+                    }
+                  }
+                  else {
+                    bottleAtPos2.setPresent();//sysj\coordinator.sysj line: 55, column: 21
+                    currsigs.addElement(bottleAtPos2);
+                    bottleAtPos2P.setPresent();//sysj\coordinator.sysj line: 56, column: 21
+                    currsigs.addElement(bottleAtPos2P);
+                    active[1]=1;
+                    ends[1]=1;
+                    break RUN;
+                  }
+                
+                case 2 : 
+                  if(System.currentTimeMillis() - tFillerAck_thread_1 < 200){//sysj\coordinator.sysj line: 78, column: 20
+                    RotaryFillerBridge.setFillerTakenAck(true);//sysj\coordinator.sysj line: 79, column: 17
+                    active[1]=1;
+                    ends[1]=1;
+                    break RUN;
+                  }
+                  else {
+                    ends[1]=3;
+                    ;//sysj\coordinator.sysj line: 78, column: 13
+                    RotaryFillerBridge.setFillerTakenAck(false);//sysj\coordinator.sysj line: 82, column: 13
+                    S7006=3;
+                    active[1]=1;
+                    ends[1]=1;
+                    break RUN;
+                  }
+                
+                case 3 : 
+                  if(fillReady.getprestatus()){//sysj\coordinator.sysj line: 83, column: 20
+                    if(!bottleFaulted_thread_1) {//sysj\coordinator.sysj line: 84, column: 33
+                      filled_thread_1 = filled_thread_1 + 1;//sysj\coordinator.sysj line: 85, column: 17
+                      twin_thread_1.reportProgress(filled_thread_1);//sysj\coordinator.sysj line: 86, column: 17
+                      System.out.printf("[Coordinator] bottle %d/%d done%n", filled_thread_1, quantity_thread_1);//sysj\coordinator.sysj line: 87, column: 17
+                    }
+                    else {//sysj\coordinator.sysj line: 88, column: 20
+                      System.out.printf("[Coordinator] attempt %d abandoned due to fault, retrying (not counted toward batch)%n", attempt_thread_1);//sysj\coordinator.sysj line: 91, column: 17
+                    }
+                    if(filled_thread_1 < quantity_thread_1){//sysj\coordinator.sysj line: 47, column: 16
+                      attempt_thread_1 = attempt_thread_1 + 1;//sysj\coordinator.sysj line: 48, column: 13
+                      bottleFaulted_thread_1 = false;//sysj\coordinator.sysj line: 49, column: 13
+                      System.out.printf("[Coordinator] awaiting a real bottle handoff from the Rotary Table, attempt %d%n", attempt_thread_1);//sysj\coordinator.sysj line: 50, column: 13
+                      S7006=0;
                       active[1]=1;
                       ends[1]=1;
                       break RUN;
                     }
                     else {
                       ends[1]=2;
-                      ;//sysj\coordinator.sysj line: 38, column: 9
-                      elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 54, column: 9
-                      tBatch_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 55, column: 9
-                      S1163=6;
-                      if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 56, column: 16
-                        batchDone.setPresent();//sysj\coordinator.sysj line: 57, column: 13
+                      ;//sysj\coordinator.sysj line: 47, column: 9
+                      elapsed_thread_1 = (int)(System.currentTimeMillis() - start_thread_1);//sysj\coordinator.sysj line: 95, column: 9
+                      twin_thread_1.reportBatchElapsed(elapsed_thread_1);//sysj\coordinator.sysj line: 96, column: 9
+                      tBatch_thread_1 = System.currentTimeMillis();//sysj\coordinator.sysj line: 97, column: 9
+                      S6985=6;
+                      if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 98, column: 16
+                        batchDone.setPresent();//sysj\coordinator.sysj line: 99, column: 13
                         currsigs.addElement(batchDone);
-                        batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 57, column: 13
+                        batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 99, column: 13
                         active[1]=1;
                         ends[1]=1;
                         break RUN;
                       }
                       else {
                         ends[1]=2;
-                        ;//sysj\coordinator.sysj line: 56, column: 9
-                        System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 60, column: 9
-                        System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 16, column: 9
-                        S1163=0;
+                        ;//sysj\coordinator.sysj line: 98, column: 9
+                        System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 102, column: 9
+                        System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 23, column: 9
+                        S6985=0;
                         active[1]=1;
                         ends[1]=1;
                         break RUN;
@@ -299,20 +386,20 @@ public class Coordinator extends ClockDomain{
               break;
             
             case 6 : 
-              if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 56, column: 16
-                batchDone.setPresent();//sysj\coordinator.sysj line: 57, column: 13
+              if(System.currentTimeMillis() - tBatch_thread_1 < 50){//sysj\coordinator.sysj line: 98, column: 16
+                batchDone.setPresent();//sysj\coordinator.sysj line: 99, column: 13
                 currsigs.addElement(batchDone);
-                batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 57, column: 13
+                batchDone.setValue(elapsed_thread_1);//sysj\coordinator.sysj line: 99, column: 13
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
               }
               else {
                 ends[1]=2;
-                ;//sysj\coordinator.sysj line: 56, column: 9
-                System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 60, column: 9
-                System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 16, column: 9
-                S1163=0;
+                ;//sysj\coordinator.sysj line: 98, column: 9
+                System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed_thread_1);//sysj\coordinator.sysj line: 102, column: 9
+                System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");//sysj\coordinator.sysj line: 23, column: 9
+                S6985=0;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
@@ -352,6 +439,9 @@ public class Coordinator extends ClockDomain{
           orderQuantity.gethook();
           fillDoneE.gethook();
           fillReady.gethook();
+          fillFaultOut.gethook();
+          sortComplete.gethook();
+          bottleReadyForFiller.gethook();
           df = true;
         }
         runClockDomain();
@@ -362,6 +452,9 @@ public class Coordinator extends ClockDomain{
       orderQuantity.setpreclear();
       fillDoneE.setpreclear();
       fillReady.setpreclear();
+      fillFaultOut.setpreclear();
+      sortComplete.setpreclear();
+      bottleReadyForFiller.setpreclear();
       liquidARatio.setpreclear();
       targetVolumeMl.setpreclear();
       bottleAtPos2.setpreclear();
@@ -391,6 +484,15 @@ public class Coordinator extends ClockDomain{
       dummyint = fillReady.getStatus() ? fillReady.setprepresent() : fillReady.setpreclear();
       fillReady.setpreval(fillReady.getValue());
       fillReady.setClear();
+      dummyint = fillFaultOut.getStatus() ? fillFaultOut.setprepresent() : fillFaultOut.setpreclear();
+      fillFaultOut.setpreval(fillFaultOut.getValue());
+      fillFaultOut.setClear();
+      dummyint = sortComplete.getStatus() ? sortComplete.setprepresent() : sortComplete.setpreclear();
+      sortComplete.setpreval(sortComplete.getValue());
+      sortComplete.setClear();
+      dummyint = bottleReadyForFiller.getStatus() ? bottleReadyForFiller.setprepresent() : bottleReadyForFiller.setpreclear();
+      bottleReadyForFiller.setpreval(bottleReadyForFiller.getValue());
+      bottleReadyForFiller.setClear();
       liquidARatio.sethook();
       liquidARatio.setClear();
       targetVolumeMl.sethook();
@@ -409,6 +511,9 @@ public class Coordinator extends ClockDomain{
         orderQuantity.gethook();
         fillDoneE.gethook();
         fillReady.gethook();
+        fillFaultOut.gethook();
+        sortComplete.gethook();
+        bottleReadyForFiller.gethook();
       }
       runFinisher();
       if(active[1] == 0){

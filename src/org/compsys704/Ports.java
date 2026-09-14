@@ -27,6 +27,49 @@ public class Ports {
 	public static final String FILLER_LIQUID_A_RATIO            = "FillerControllerCD.liquidARatio";
 	public static final String FILLER_TARGET_VOLUME_ML          = "FillerControllerCD.targetVolumeMl";
 
+	// === ROTARY TABLE ===
+	// Reassigned off their original ports (10004/10005 collided with
+	// PORT_COORDINATOR/PORT_POS) now that the Rotary Table genuinely needs to
+	// run alongside the Coordinator for the Filler link below.
+	public static final int PORT_ROTARYTABLE_CONTROLLER = 10016;
+	public static final int PORT_ROTARYTABLE_PLANT      = 10017;
+	public static final int PORT_ROTARYTABLE_VIZ        = 20002;
+
+	// real controller inputs
+	public static final String ROTARYTABLE_MODE             = "RotaryTableControllerCD.mode";
+	public static final String ROTARYTABLE_ROTATE_M         = "RotaryTableControllerCD.rotateM";
+
+	// for debug: stand in for signals that will come from Conveyor once it exists
+	public static final String ROTARYTABLE_READY_TO_ROTATE              = "RotaryTableControllerCD.readyToRotate";
+
+	// kicks the plant's sensor loop off (it sits at await(start) until this fires)
+	public static final String ROTARYTABLE_START = "RotaryTablePlantCD.start";
+
+	// Rotary Table <-> Filler (Coordinator) handoff, mirroring the Capper
+	// handoff below: the table offers a bottle once it's capped, and the
+	// Coordinator acks once it's genuinely filled.
+	public static final String ROTARYTABLE_FILLER_TAKEN_ACK       = "RotaryTablePlantCD.fillerTakenAck";
+	public static final String COORDINATOR_BOTTLE_READY_FOR_FILLER = "CoordinatorCD.bottleReadyForFiller";
+
+	// Pos 1 handoff handshake with the Conveyor
+	public static final String CONVEYOR_CONTROLLER_POS1_TAKEN_ACK = "ConveyorControllerCD.pos1TakenAck";
+	public static final String CONVEYOR_PLANT_POS1_TAKEN_ACK      = "ConveyorPlantCD.pos1TakenAck";
+
+	// === CONVEYOR ===
+	public static final int PORT_CONVEYOR_CONTROLLER = 10006;
+	public static final int PORT_CONVEYOR_PLANT      = 10007;
+	public static final int PORT_CONVEYOR_VIZ        = 20003;
+ 
+	// real controller inputs
+	public static final String CONVEYOR_MODE       = "ConveyorControllerCD.mode";
+	public static final String CONVEYOR_CONVEYOR_M = "ConveyorControllerCD.conveyorM";
+ 
+	// for debug: stand in for a signal that will come from a Loader once it exists
+	public static final String CONVEYOR_ENABLE            = "ConveyorPlantCD.enable";
+	public static final String CONVEYOR_LOAD_BOTTLE       = "ConveyorPlantCD.loadBottle";
+	// real: driven automatically by RotaryConveyorBridge, not a GUI button
+	public static final String CONVEYOR_BOTTLE_FROM_TABLE = "ConveyorPlantCD.bottleFromTable";
+
 	// fault tolerance: manual fault injection from the Filler GUI
 	public static final String FILLER_OVERFILL_M                = "FillerPlantCD.overfillM";
 	public static final String FILLER_STALL_M                   = "FillerPlantCD.stallM";
@@ -34,10 +77,46 @@ public class Ports {
 	// dosing/abandon-bottle decision lives), not the plant
 	public static final String FILLER_CLEAR_FAULT_M             = "FillerControllerCD.clearFaultM";
 
+	// === CAPPER ===
+	// Reassigned off their original ports (CapperControllerCD was 10005, colliding with
+	// PORT_ROTARYTABLE_PLANT and PORT_POS; CapperPlantCD was split across 10003, colliding
+	// with PORT_FILLER_PLANT, and 10015) now that Capper genuinely needs to run alongside
+	// those stations for the RotaryTable<->Capper link below.
+	public static final int PORT_CAPPER_CONTROLLER = 10010;
+	public static final int PORT_CAPPER_PLANT      = 10011;
+
+	// RotaryTable <-> Capper handoff (bottle capped at the Rotary Table's capper position)
+	public static final String CAPPER_BOTTLE_AT_POS4            = "CapperPlantCD.bottleAtPos4";
+	public static final String CAPPER_BOTTLE_AT_POS4_CONTROLLER = "CapperControllerCD.bottleAtPos4";
+	public static final String ROTARYTABLE_CAPPER_TAKEN_ACK     = "RotaryTablePlantCD.capperTakenAck";
+
+	// RotaryTable <-> Lid Placer (Pos 3, the original Lab-3 Controller/Plant) handoff.
+	// Reuses REQUEST_SIGNAL/ENABLE_SIGNAL/PORT_LOADER_* above (this IS that station).
+	public static final String LID_PLACED_ACK = "RotaryTablePlantCD.lidPlacedAck";
+
+	// === LABELLER ===
+	public static final int PORT_LABELLER_CONTROLLER = 10008;
+	public static final int PORT_LABELLER_PLANT      = 10009;
+
+	// Conveyor <-> Labeller handoff (collection point)
+	public static final String LABELLER_BOTTLE_FROM_CONVEYOR = "LabellerPlantCD.bottleFromConveyor";
+	public static final String CONVEYOR_LABELLER_TAKEN_ACK   = "ConveyorPlantCD.labellerTakenAck";
+
+	// Labeller <-> Sorter handoff
+	public static final String SORTER_BOTTLE_FROM_LABELLER = "SorterPlantCD.bottleFromLabeller";
+	public static final String LABELLER_SORTER_TAKEN_ACK   = "LabellerPlantCD.sorterTakenAck";
+
+	// === SORTER ===
+	public static final int PORT_SORTER_CONTROLLER = 10025;
+	public static final int PORT_SORTER_PLANT      = 10023;
+
 	// === COORDINATOR + POS ===
 	public static final int PORT_COORDINATOR = 10004;
 	public static final int PORT_POS         = 10005;
-	public static final int PORT_POS_VIZ     = 20002;
+	// Reassigned off 20002 - that was colliding with PORT_ROTARYTABLE_VIZ,
+	// so whichever GUI started second would fail to bind its live-event
+	// port (BindException) and its display just wouldn't update.
+	public static final int PORT_POS_VIZ     = 20004;
 
 	// GUI order-form -> Pos clock domain
 	public static final String POS_SUBMIT        = "PosCD.submit";
@@ -46,4 +125,5 @@ public class Ports {
 	public static final String COORD_LIQUID_A      = "CoordinatorCD.orderLiquidARatio";
 	public static final String COORD_TARGET_VOLUME = "CoordinatorCD.orderTargetVolume";
 	public static final String COORD_QUANTITY      = "CoordinatorCD.orderQuantity";
+	
 }

@@ -19,8 +19,8 @@ public class Pos extends ClockDomain{
   public Signal completionTimeE = new Signal("completionTimeE", Signal.OUTPUT);
   private long tOrderReady_thread_1;//sysj\pos.sysj line: 19, column: 9
   private int t_thread_1;//sysj\pos.sysj line: 25, column: 9
-  private int S5160 = 1;
-  private int S5046 = 1;
+  private int S19025 = 1;
+  private int S18911 = 1;
   
   private int[] ends = new int[2];
   private int[] tdone = new int[2];
@@ -32,27 +32,27 @@ public class Pos extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S5160){
+      switch(S19025){
         case 0 : 
-          S5160=0;
+          S19025=0;
           break RUN;
         
         case 1 : 
-          S5160=2;
-          S5160=2;
+          S19025=2;
+          S19025=2;
           new Thread(new PosGUI()).start();//sysj\pos.sysj line: 14, column: 5
-          S5046=0;
+          S18911=0;
           active[1]=1;
           ends[1]=1;
           break RUN;
         
         case 2 : 
-          switch(S5046){
+          switch(S18911){
             case 0 : 
               if(submit.getprestatus()){//sysj\pos.sysj line: 17, column: 16
                 System.out.printf("[POS] order submitted%n");//sysj\pos.sysj line: 18, column: 9
                 tOrderReady_thread_1 = System.currentTimeMillis();//sysj\pos.sysj line: 19, column: 9
-                S5046=1;
+                S18911=1;
                 if(System.currentTimeMillis() - tOrderReady_thread_1 < 50){//sysj\pos.sysj line: 20, column: 16
                   orderReady.setPresent();//sysj\pos.sysj line: 21, column: 13
                   currsigs.addElement(orderReady);
@@ -63,7 +63,7 @@ public class Pos extends ClockDomain{
                 else {
                   ends[1]=2;
                   ;//sysj\pos.sysj line: 20, column: 9
-                  S5046=2;
+                  S18911=2;
                   active[1]=1;
                   ends[1]=1;
                   break RUN;
@@ -86,7 +86,7 @@ public class Pos extends ClockDomain{
               else {
                 ends[1]=2;
                 ;//sysj\pos.sysj line: 20, column: 9
-                S5046=2;
+                S18911=2;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
@@ -101,7 +101,7 @@ public class Pos extends ClockDomain{
                 batchDoneE.setPresent();//sysj\pos.sysj line: 27, column: 9
                 currsigs.addElement(batchDoneE);
                 System.out.printf("[POS] batch complete in %d ms%n", t_thread_1);//sysj\pos.sysj line: 28, column: 9
-                S5046=0;
+                S18911=0;
                 active[1]=1;
                 ends[1]=1;
                 break RUN;

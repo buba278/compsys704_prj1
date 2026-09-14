@@ -1,0 +1,119 @@
+import run.RotaryConveyorBridge;
+
+rotaryTableController(
+		input signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1, readyToRotate;
+		input signal tableBusy;
+		output signal rotaryTableTrigger, tableRotationComplete;
+		input Integer signal mode;
+		input signal rotateM; // manually rotate table
+		)
+->
+{
+	signal autoMode; 	// 0
+	signal manualMode; 	// 1
+
+	// Ack side of the Pos 1 handoff handshake with the Conveyor. Pushed
+	// straight to the Conveyor Controller (so it knows to drop its request)
+	// and to the Conveyor Plant (so it knows it's safe to release
+	// bottleAtPos1) the instant this controller commits to taking the
+	// bottle. We hold the ack true and only drop it once we see the
+	// Conveyor has dropped its own request (await(!readyToRotate) below) -
+	// that's what makes this handoff correct regardless of how the two
+	// machines' independently-clocked ticks happen to line up, instead of
+	// both sides guessing a fixed number of ticks and hoping they match.
+	// Sent via RotaryConveyorBridge (a single-segment "run" package class)
+	// rather than declaring the SignalLevelClients inline here - this build
+	// of sjc crashes resolving types from multi-segment packages such as
+	// org.compsys704 when used for a local instance declaration inside a
+	// .sysj reactive body (confirmed by isolated repro).
+
+	{	// mode selection
+		int currentMode = 0; // default is auto mode
+
+		loop {
+			present(mode) {
+				currentMode = (Integer)#mode;
+			}
+			if (currentMode == 1) {
+				emit manualMode;
+			}
+			else {
+				emit autoMode;
+			}
+			pause;
+		}
+	}
+	||
+	{ 	// auto mode
+
+		loop {
+
+			await(autoMode);
+
+			abort(manualMode) {
+				// don't start rotating a new bottle in until the previous
+				// one has fully cleared the table (capped, filled, and
+				// handed off to Pos 5) - tableBusy is held by
+				// rotaryTablePlant.sysj for that whole duration, unlike
+				// bottleAtPos5/capOnBottleAtPos1 below, which are now both
+				// brief automatic pulses and so give almost no real
+				// protection against starting a second bottle's rotation
+				// while the first is still mid-cycle.
+				present(tableBusy) {
+					await(!tableBusy);
+				}
+
+				await(readyToRotate);
+
+				// don't start rotating a new bottle in until the previous
+				// one has actually cleared Position 5
+				present(bottleAtPos5) {
+					await(!bottleAtPos5);
+				}
+
+				present(capOnBottleAtPos1) {
+					await(!capOnBottleAtPos1);
+				}
+
+				// commit to taking the bottle from Pos 1
+				RotaryConveyorBridge.setPos1AckToController(true);
+				RotaryConveyorBridge.setPos1AckToPlant(true);
+
+				abort(tableAlignedWithSensor) {
+					loop {
+						emit rotaryTableTrigger;
+						pause;
+					}
+				}
+
+				emit tableRotationComplete;
+
+				// complete the handshake: wait for the Conveyor Controller
+				// to see our ack and drop its request before we drop ours,
+				// so the ack can't be missed and this is safely re-armed
+				// for the next bottle.
+				await(!readyToRotate);
+				RotaryConveyorBridge.setPos1AckToController(false);
+				RotaryConveyorBridge.setPos1AckToPlant(false);
+
+				pause;
+			}
+		}
+	}
+	||
+	{	// manual mode
+		loop {
+			await(manualMode);
+
+			abort(autoMode) {
+				loop {
+					present(rotateM) {
+						emit rotaryTableTrigger;
+					}
+					pause;
+				}
+			}
+		}
+	}
+
+}

@@ -1,16 +1,20 @@
 import run.LabellerGUI;
+import run.ConveyorLabellerBridge;
+import run.LabellerSorterBridge;
 
 LabellerPlant(
    	output signal labelPrinted;
  	output signal bottleClamped;
  	output signal labelApplied;
  	output signal bottleAtLabeller;
- 
+
     input signal printLabel;
     input signal clampBottle;
     input signal applyLabel;
     input Integer signal liquidARatio, targetVolumeMl;
-    	
+    input signal bottleFromConveyor;
+    input signal sorterTakenAck;
+
     output signal bottleAtLabellerE;
 	output signal labelPrintedE;
 	output signal bottleClampedE;
@@ -21,13 +25,24 @@ LabellerPlant(
 	System.out.println("LabellerPlant: Subsystem initialized.");
 
 	{
-		// 0. Bottle arrival simulation (conveyor)
+		// 0. Bottle arrival: real handoff from the Conveyor's collection
+		// point, via ConveyorLabellerBridge (see conveyorPlant.sysj for the
+		// other side of this handshake), rather than free-running.
 		while(true){
+			await(bottleFromConveyor);
+			// commit to taking the bottle: ack back to the Conveyor so it
+			// can drop its offer, same two-phase shape as the Pos1 handoff
+			// in rotaryTableController.sysj.
+			ConveyorLabellerBridge.setLabellerTakenAck(true);
 			System.out.println("LabellerPlant [Conveyor]: Presenting bottle at labeller...");
 			abort(clampBottle){
 				sustain bottleAtLabeller;
 			}
 			System.out.println("LabellerPlant [Conveyor]: Bottle clamped, holding position...");
+			// complete the handshake: wait for the Conveyor to see our ack
+			// and drop its own offer before we drop ours.
+			await(!bottleFromConveyor);
+			ConveyorLabellerBridge.setLabellerTakenAck(false);
 			// Don't re-present a bottle until the current one has actually been
 			// released - clampBottle is held high for the whole print/clamp/apply
 			// phase, so without this wait we immediately loop back around and
@@ -35,6 +50,19 @@ LabellerPlant(
 			// flash on/off continuously while nothing else appeared to progress.
 			await(!clampBottle);
 			System.out.println("LabellerPlant [Conveyor]: Bottle released, ready for next.");
+
+			// hand the finished bottle off to the Sorter. Ack-or-timeout
+			// hold via LabellerSorterBridge, same shape as the Rotary
+			// Table -> Capper handoff in rotaryTablePlant.sysj.
+			abort(sorterTakenAck) {
+				long tSort = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tSort < 5000) {
+					LabellerSorterBridge.setBottleFromLabeller(true);
+					pause;
+				}
+			}
+			LabellerSorterBridge.setBottleFromLabeller(false);
+			await(!sorterTakenAck);
 		}
 	}
 	||

@@ -25,8 +25,8 @@ public class LabellerController extends ClockDomain{
   private long tPrint_thread_1;//sysj\labellerController.sysj line: 33, column: 3
   private long tClamp_thread_1;//sysj\labellerController.sysj line: 42, column: 3
   private long tApply_thread_1;//sysj\labellerController.sysj line: 51, column: 3
-  private int S9755 = 1;
-  private int S8963 = 1;
+  private int S16970 = 1;
+  private int S16544 = 1;
   
   private int[] ends = new int[2];
   private int[] tdone = new int[2];
@@ -38,25 +38,25 @@ public class LabellerController extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S9755){
+      switch(S16970){
         case 0 : 
-          S9755=0;
+          S16970=0;
           break RUN;
         
         case 1 : 
-          S9755=2;
-          S9755=2;
+          S16970=2;
+          S16970=2;
           twin_thread_1 = new TwinClient("labeller", "127.0.0.1", 9090);//sysj\labellerController.sysj line: 16, column: 2
           System.out.println("LabelController: Initialized and running.");//sysj\labellerController.sysj line: 17, column: 2
           twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 20, column: 3
           System.out.println("LabelController: Waiting for bottle at labeller...");//sysj\labellerController.sysj line: 21, column: 3
-          S8963=0;
+          S16544=0;
           active[1]=1;
           ends[1]=1;
           break RUN;
         
         case 2 : 
-          switch(S8963){
+          switch(S16544){
             case 0 : 
               if(bottleAtLabeller.getprestatus()){//sysj\labellerController.sysj line: 22, column: 10
                 productId_thread_1 = twin_thread_1.getProductIdAtPosition(5);//sysj\labellerController.sysj line: 24, column: 3
@@ -66,7 +66,7 @@ public class LabellerController extends ClockDomain{
                 System.out.println("LabelController: Bottle detected. Starting sequence...");//sysj\labellerController.sysj line: 29, column: 3
                 twin_thread_1.update(PlantTwin.State.IN_PROGRESS);//sysj\labellerController.sysj line: 30, column: 3
                 tPrint_thread_1 = System.currentTimeMillis();//sysj\labellerController.sysj line: 33, column: 3
-                S8963=1;
+                S16544=1;
                 if(System.currentTimeMillis() - tPrint_thread_1 < 1000){//sysj\labellerController.sysj line: 34, column: 10
                   printLabel.setPresent();//sysj\labellerController.sysj line: 35, column: 4
                   currsigs.addElement(printLabel);
@@ -79,7 +79,7 @@ public class LabellerController extends ClockDomain{
                   ;//sysj\labellerController.sysj line: 34, column: 3
                   System.out.println("LabelController: Label printed. Clamping bottle...");//sysj\labellerController.sysj line: 39, column: 3
                   tClamp_thread_1 = System.currentTimeMillis();//sysj\labellerController.sysj line: 42, column: 3
-                  S8963=2;
+                  S16544=2;
                   if(System.currentTimeMillis() - tClamp_thread_1 < 1000){//sysj\labellerController.sysj line: 43, column: 10
                     clampBottle.setPresent();//sysj\labellerController.sysj line: 44, column: 4
                     currsigs.addElement(clampBottle);
@@ -92,7 +92,7 @@ public class LabellerController extends ClockDomain{
                     ;//sysj\labellerController.sysj line: 43, column: 3
                     System.out.println("LabelController: Bottle clamped. Applying label...");//sysj\labellerController.sysj line: 48, column: 3
                     tApply_thread_1 = System.currentTimeMillis();//sysj\labellerController.sysj line: 51, column: 3
-                    S8963=3;
+                    S16544=3;
                     if(System.currentTimeMillis() - tApply_thread_1 < 1500){//sysj\labellerController.sysj line: 52, column: 10
                       clampBottle.setPresent();//sysj\labellerController.sysj line: 53, column: 4
                       currsigs.addElement(clampBottle);
@@ -108,9 +108,7 @@ public class LabellerController extends ClockDomain{
                       twin_thread_1.recordEvent("Label applied", productId_thread_1);//sysj\labellerController.sysj line: 59, column: 3
                       System.out.println("LabelController: Label applied, Release complete.");//sysj\labellerController.sysj line: 60, column: 3
                       twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 62, column: 3
-                      twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 20, column: 3
-                      System.out.println("LabelController: Waiting for bottle at labeller...");//sysj\labellerController.sysj line: 21, column: 3
-                      S8963=0;
+                      S16544=4;
                       active[1]=1;
                       ends[1]=1;
                       break RUN;
@@ -137,7 +135,7 @@ public class LabellerController extends ClockDomain{
                 ;//sysj\labellerController.sysj line: 34, column: 3
                 System.out.println("LabelController: Label printed. Clamping bottle...");//sysj\labellerController.sysj line: 39, column: 3
                 tClamp_thread_1 = System.currentTimeMillis();//sysj\labellerController.sysj line: 42, column: 3
-                S8963=2;
+                S16544=2;
                 if(System.currentTimeMillis() - tClamp_thread_1 < 1000){//sysj\labellerController.sysj line: 43, column: 10
                   clampBottle.setPresent();//sysj\labellerController.sysj line: 44, column: 4
                   currsigs.addElement(clampBottle);
@@ -150,7 +148,7 @@ public class LabellerController extends ClockDomain{
                   ;//sysj\labellerController.sysj line: 43, column: 3
                   System.out.println("LabelController: Bottle clamped. Applying label...");//sysj\labellerController.sysj line: 48, column: 3
                   tApply_thread_1 = System.currentTimeMillis();//sysj\labellerController.sysj line: 51, column: 3
-                  S8963=3;
+                  S16544=3;
                   if(System.currentTimeMillis() - tApply_thread_1 < 1500){//sysj\labellerController.sysj line: 52, column: 10
                     clampBottle.setPresent();//sysj\labellerController.sysj line: 53, column: 4
                     currsigs.addElement(clampBottle);
@@ -166,9 +164,7 @@ public class LabellerController extends ClockDomain{
                     twin_thread_1.recordEvent("Label applied", productId_thread_1);//sysj\labellerController.sysj line: 59, column: 3
                     System.out.println("LabelController: Label applied, Release complete.");//sysj\labellerController.sysj line: 60, column: 3
                     twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 62, column: 3
-                    twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 20, column: 3
-                    System.out.println("LabelController: Waiting for bottle at labeller...");//sysj\labellerController.sysj line: 21, column: 3
-                    S8963=0;
+                    S16544=4;
                     active[1]=1;
                     ends[1]=1;
                     break RUN;
@@ -189,7 +185,7 @@ public class LabellerController extends ClockDomain{
                 ;//sysj\labellerController.sysj line: 43, column: 3
                 System.out.println("LabelController: Bottle clamped. Applying label...");//sysj\labellerController.sysj line: 48, column: 3
                 tApply_thread_1 = System.currentTimeMillis();//sysj\labellerController.sysj line: 51, column: 3
-                S8963=3;
+                S16544=3;
                 if(System.currentTimeMillis() - tApply_thread_1 < 1500){//sysj\labellerController.sysj line: 52, column: 10
                   clampBottle.setPresent();//sysj\labellerController.sysj line: 53, column: 4
                   currsigs.addElement(clampBottle);
@@ -205,9 +201,7 @@ public class LabellerController extends ClockDomain{
                   twin_thread_1.recordEvent("Label applied", productId_thread_1);//sysj\labellerController.sysj line: 59, column: 3
                   System.out.println("LabelController: Label applied, Release complete.");//sysj\labellerController.sysj line: 60, column: 3
                   twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 62, column: 3
-                  twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 20, column: 3
-                  System.out.println("LabelController: Waiting for bottle at labeller...");//sysj\labellerController.sysj line: 21, column: 3
-                  S8963=0;
+                  S16544=4;
                   active[1]=1;
                   ends[1]=1;
                   break RUN;
@@ -230,9 +224,22 @@ public class LabellerController extends ClockDomain{
                 twin_thread_1.recordEvent("Label applied", productId_thread_1);//sysj\labellerController.sysj line: 59, column: 3
                 System.out.println("LabelController: Label applied, Release complete.");//sysj\labellerController.sysj line: 60, column: 3
                 twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 62, column: 3
+                S16544=4;
+                active[1]=1;
+                ends[1]=1;
+                break RUN;
+              }
+            
+            case 4 : 
+              if(!bottleAtLabeller.getprestatus()){//sysj\labellerController.sysj line: 72, column: 9
                 twin_thread_1.update(PlantTwin.State.IDLE);//sysj\labellerController.sysj line: 20, column: 3
                 System.out.println("LabelController: Waiting for bottle at labeller...");//sysj\labellerController.sysj line: 21, column: 3
-                S8963=0;
+                S16544=0;
+                active[1]=1;
+                ends[1]=1;
+                break RUN;
+              }
+              else {
                 active[1]=1;
                 ends[1]=1;
                 break RUN;
