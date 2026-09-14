@@ -1,5 +1,6 @@
 import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
+import run.LabellerSorterBridge;
 
 SorterController(
     input signal bottleAtSorter;
@@ -21,7 +22,20 @@ SorterController(
     loop {
         System.out.println("SorterController: Waiting for bottle at sorter...");
         await (bottleAtSorter);
-        
+
+        // Tell the Labeller the bottle's been taken, so it can widen this
+        // into a real handoff and release. Ack-or-timeout hold, not a bare
+        // single-tick emit, since this crosses the socket to
+        // LabellerPlantCD - see CLAUDE.md.
+        {
+            long tAck = System.currentTimeMillis();
+            while (System.currentTimeMillis() - tAck < 200) {
+                LabellerSorterBridge.setSorterTakenAck(true);
+                pause;
+            }
+            LabellerSorterBridge.setSorterTakenAck(false);
+        }
+
         // 1. Fetch live product ID at Position 6 (Sorter)
         String productId = twin.getProductIdAtPosition(6);  
         if (productId == null || productId.isEmpty()) {

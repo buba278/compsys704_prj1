@@ -1,12 +1,13 @@
 <System xmlns="http://systemjtechnology.com">
       <SubSystem Name="SS2" Local="true">
               <ClockDomain Name="SorterPlantCD" Class="SorterPlant">
-                      <!-- Input Signals received from SorterControllerCD -->
+                      <!-- Input Signals received from SorterControllerCD / the Labeller handoff -->
                       <iSignal Name="extendPusher" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10023" />
-                      <iSignal Name="bottleAtSorter" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="100" />
- 
+                      <iSignal Name="bottleFromLabeller" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10023" />
+
                       <!-- Output Signals transmitted back to SorterControllerCD -->
-      
+
+                      <oSignal Name="bottleAtSorter"   To="SorterControllerCD.bottleAtSorter"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
                       <oSignal Name="bottleDefective"  To="SorterControllerCD.bottleDefective"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
                       <oSignal Name="pusherExtended"   To="SorterControllerCD.pusherExtended"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
                       <oSignal Name="pusherRetracted"  To="SorterControllerCD.pusherRetracted"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />

@@ -2,7 +2,7 @@ import run.SorterGUI;
 
 SorterPlant(
     input signal extendPusher;
-    input signal coordBottleAtSorter;     // External Coordinator signal (Auto Mode)
+    input signal bottleFromLabeller;      // Labeller -> Sorter handoff (Auto Mode)
 
     // Manual Mode Inputs (from Java UI)
     input signal manualMode;
@@ -35,8 +35,8 @@ SorterPlant(
                     emit bottleAtSorter;
                 }
             } else {
-                // AUTO MODE: Pass-through external Coordinator signal
-                present (coordBottleAtSorter) {
+                // AUTO MODE: Pass-through the Labeller's handoff
+                present (bottleFromLabeller) {
                     emit bottleAtSorter;
                 }
             }
