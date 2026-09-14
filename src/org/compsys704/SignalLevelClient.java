@@ -32,7 +32,13 @@ public class SignalLevelClient {
 		try {
 			if (s.isClosed()) {
 				s = new Socket();
-				s.connect(new InetSocketAddress(ip, port), 10);
+				// 10ms was too tight for a loopback connect right after every
+				// station launches at once (all 14+ JVMs contending for CPU) -
+				// every retry in that window failed silently and the caller
+				// (a bounded ack-or-timeout loop) just ran out its clock with
+				// nothing ever delivered. 500ms matches OrderQueue's client,
+				// which doesn't hit this.
+				s.connect(new InetSocketAddress(ip, port), 500);
 				oos = new ObjectOutputStream(s.getOutputStream());
 				oos.writeObject(dest);
 				int resp = s.getInputStream().read();
@@ -41,6 +47,9 @@ public class SignalLevelClient {
 			}
 			oos.writeObject(new Object[]{state});
 		} catch (IOException ee) {
+			// Was silently swallowed before - made every failed send here
+			// indistinguishable from a working one in the logs.
+			System.err.println("[SignalLevelClient] send to " + dest + " failed: " + ee);
 			try { s.close(); } catch (IOException e1) {
 				e1.printStackTrace();
 				System.exit(1);
