@@ -1,3 +1,5 @@
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
 LabellerController(
     input signal bottleAtLabeller; 								
     //input Integer signal liquidARatio, targetVolumeMl;		
@@ -11,11 +13,14 @@ LabellerController(
 )
 ->
 {
+	TwinClient twin = new TwinClient("labeller", "127.0.0.1", 9090);
 	System.out.println("LabelController: Initialized and running.");
 	loop {
+		twin.update(PlantTwin.State.IDLE);
 		System.out.println("LabelController: Waiting for bottle at labeller...");
 		await (bottleAtLabeller);
 		System.out.println("LabelController: Bottle detected. Sending print command...");
+		twin.update(PlantTwin.State.IN_PROGRESS);
         abort(labelPrinted){
             sustain printLabel;
         }
@@ -32,7 +37,9 @@ LabellerController(
             	sustain applyLabel;
 			}
 		}
+		twin.recordEvent("Label applied", null);
 		System.out.println("LabelController: Label applied. Releasing clamp. Cycle complete.");
+		twin.update(PlantTwin.State.IDLE);
 		
 	}
 }
