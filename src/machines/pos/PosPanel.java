@@ -111,7 +111,7 @@ public class PosPanel extends JFrame {
         this.add(main);
         this.setTitle("Purchase Order System");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        org.compsys704.WindowTile.place(this, "pos");
         this.setResizable(false);
     }
 

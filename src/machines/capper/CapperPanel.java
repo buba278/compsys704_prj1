@@ -26,7 +26,7 @@ public class CapperPanel extends JFrame {
 
         this.setTitle("Capper Visualizer");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        org.compsys704.WindowTile.place(this, "capper");
         this.setResizable(false);
 
         // "enable" and "simulate bottle" DEV buttons removed - both signals

@@ -99,7 +99,7 @@ public class CapLoader extends JFrame {
 		
 		this.setTitle("Cap Loader");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setLocationRelativeTo(null);
+		WindowTile.place(this, "loader");
 		this.setResizable(false);
 	}
 

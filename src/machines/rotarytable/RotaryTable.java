@@ -85,7 +85,7 @@ public class RotaryTable extends JFrame {
 
 		this.setTitle("Rotary Table");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setLocationRelativeTo(null);
+		org.compsys704.WindowTile.place(this, "rotarytable");
 		this.setResizable(false);
 	}
 

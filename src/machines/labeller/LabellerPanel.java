@@ -54,7 +54,7 @@ public class LabellerPanel extends JFrame {
 
         this.setTitle("Labeller Visualizer");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        org.compsys704.WindowTile.place(this, "labeller");
         this.setResizable(false);
     }
 

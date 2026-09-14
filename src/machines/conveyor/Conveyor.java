@@ -136,7 +136,7 @@ public class Conveyor extends JFrame {
 
 		this.setTitle("Conveyor Belt");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setLocationRelativeTo(null);
+		org.compsys704.WindowTile.place(this, "conveyor");
 		this.setResizable(false);
 	}
 

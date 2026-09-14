@@ -110,7 +110,7 @@ public class SorterPanel extends JFrame {
 
         this.setTitle("Sorter Visualizer");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        org.compsys704.WindowTile.place(this, "sorter");
         this.setResizable(false);
     }
 
