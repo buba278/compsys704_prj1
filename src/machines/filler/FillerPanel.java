@@ -96,7 +96,7 @@ public class FillerPanel extends JFrame {
               }
 
               JPanel devControls = new JPanel();
-              devControls.setBorder(BorderFactory.createTitledBorder("RotaryTable / Coordinator emulator + extra testing functionalities)"));
+              devControls.setBorder(BorderFactory.createTitledBorder("Manual overrides"));
               devControls.add(bottlePanel);
               devControls.add(ratioPanel);
               devControls.add(volumePanel);
@@ -153,11 +153,14 @@ public class FillerPanel extends JFrame {
 
               this.setLayout(new GridBagLayout());
               GridBagConstraints c = new GridBagConstraints();
-              c.gridx = 0; c.gridy = 0;
-              this.add(canvas, c);
+              c.gridx = 0; c.gridy = 0; c.fill = GridBagConstraints.HORIZONTAL;
+              this.add(org.compsys704.StationHeader.make("STATION 2 — FILLER"), c);
+              c.fill = GridBagConstraints.NONE;
               c.gridy = 1;
-              this.add(devControls, c);
+              this.add(canvas, c);
               c.gridy = 2;
+              this.add(devControls, c);
+              c.gridy = 3;
               this.add(bottomRow, c);
 
               this.setTitle("Filler");

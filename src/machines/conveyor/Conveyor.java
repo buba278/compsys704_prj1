@@ -77,6 +77,7 @@ public class Conveyor extends JFrame {
 		});
 
 		JPanel devControls = new JPanel();
+		devControls.setLayout(new javax.swing.BoxLayout(devControls, javax.swing.BoxLayout.LINE_AXIS));
 		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-in for Loader)"));
 		devControls.add(enablePanel);
 		devControls.add(loadBottleButton);
@@ -127,11 +128,14 @@ public class Conveyor extends JFrame {
 
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 0;
-		this.add(canvas, c);
+		c.gridx = 0; c.gridy = 0; c.fill = GridBagConstraints.HORIZONTAL;
+		this.add(org.compsys704.StationHeader.make("STATIONS 1 & 5 — CONVEYOR (LOAD / COLLECT)"), c);
+		c.fill = GridBagConstraints.NONE;
 		c.gridy = 1;
-		this.add(devControls, c);
+		this.add(canvas, c);
 		c.gridy = 2;
+		this.add(devControls, c);
+		c.gridy = 3;
 		this.add(modePanel, c);
 
 		this.setTitle("Conveyor Belt");

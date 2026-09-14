@@ -27,11 +27,7 @@ public class RotaryTableCanvas extends JPanel {
 
 	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // light blue, matches FillerCanvas
 	private static final Color LIQUID_B_COLOR = new Color(255, 195, 130);  // light orange, matches FillerCanvas
-
-	private static final String[] SLOT_NAMES = {
-			"Pos1: Load/Unload", "Pos2: Filling", "Pos3: Lid Placing",
-			"Pos4: Cap Screwing", "Pos5: Collection", "Spare (fault reroute)"
-	};
+	private static final Color STATION_BLUE = new Color(30, 40, 60);       // matches StationHeader's banner colour
 
 	@Override
 	protected void paintComponent(Graphics gOrig) {
@@ -111,14 +107,12 @@ public class RotaryTableCanvas extends JPanel {
 			g.setStroke(new java.awt.BasicStroke(isCurrentStage ? 3f : 1f));
 			g.draw(slot);
 			g.setStroke(new java.awt.BasicStroke(1f));
-			g.setColor(isCurrentStage ? Color.WHITE : Color.BLACK);
-			g.drawString(String.valueOf(i + 1), slotX - 4, slotY + 4);
-		}
 
-		// static legend mapping slot numbers to station names
-		int legendY = getHeight() - (SLOT_NAMES.length * 12) - 4;
-		for (int i = 0; i < SLOT_NAMES.length; i++) {
-			g.drawString((i + 1) + " - " + SLOT_NAMES[i], 10, legendY + i * 12);
+			g.setFont(g.getFont().deriveFont(java.awt.Font.BOLD, 20f));
+			g.setColor(isCurrentStage ? Color.WHITE : STATION_BLUE);
+			String label = String.valueOf(i + 1);
+			java.awt.FontMetrics fm = g.getFontMetrics();
+			g.drawString(label, slotX - fm.stringWidth(label) / 2, slotY + fm.getAscent() / 2 - 2);
 		}
 	}
 }

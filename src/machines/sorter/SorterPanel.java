@@ -99,13 +99,16 @@ public class SorterPanel extends JFrame {
         // --- Layout Construction ---
         this.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0; c.gridy = 0;
+        c.gridx = 0; c.gridy = 0; c.fill = GridBagConstraints.HORIZONTAL;
+        this.add(org.compsys704.StationHeader.make("STATION 8 — SORTER"), c);
+        c.fill = GridBagConstraints.NONE;
+        c.gridy = 1;
         this.add(canvas, c);
 
-        c.gridy = 1;
+        c.gridy = 2;
         this.add(manualControls, c);
 
-        c.gridy = 2;
+        c.gridy = 3;
         this.add(modePanel, c);
 
         this.setTitle("Sorter Visualizer");
