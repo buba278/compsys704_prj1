@@ -7,17 +7,16 @@
                       <iSignal Name="sendGripperUntwist" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
                       <iSignal Name="sendGripCap"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
                       <iSignal Name="sendClamp"          Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003" />
+                      <iSignal Name="enable" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10015"  />
+                      <iSignal Name="bottleAtPos4" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10003"/> 
  
                       <!-- Output Signals transmitted back to the CapperControllerCD -->
-                      <oSignal Name="bottleAtPos4"     To="CapperControllerCD.bottleAtPos4"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       <oSignal Name="gripperMaxLower"  To="CapperControllerCD.gripperMaxLower"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       <oSignal Name="gripperMaxLift"   To="CapperControllerCD.gripperMaxLift"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       <oSignal Name="capGripped"       To="CapperControllerCD.capGripped"       Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       <oSignal Name="gripperInitPos"   To="CapperControllerCD.gripperInitPos"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       <oSignal Name="gripperFullTwist" To="CapperControllerCD.gripperFullTwist" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       
-                      <oSignal Name="bottleAtPos4E"      To="UI.bottleAtPos4E"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
-                      <oSignal Name="bottleGoneE"        To="UI.bottleGoneE"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
                       <oSignal Name="gripperMaxLowerE"   To="UI.gripperMaxLowerE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
                       <oSignal Name="gripperMaxLiftE"    To="UI.gripperMaxLiftE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
                       <oSignal Name="gripperInitPosE"    To="UI.gripperInitPosE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />

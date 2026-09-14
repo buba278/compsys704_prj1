@@ -26,8 +26,6 @@ public class CapperCanvas extends JPanel {
             g.setColor(Color.BLACK);
             g.drawRect(centerX - 20, baseY - 80, 40, 80);
             
-            // Bottle Neck/Cap Area
-            g.fillRect(centerX - 10, baseY - 95, 20, 15);
         }
 
         // 2. Draw Clamps (2 Squares)
