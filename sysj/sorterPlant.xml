@@ -11,8 +11,10 @@
                       <oSignal Name="pusherRetracted"  To="SorterControllerCD.pusherRetracted"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
  
                       <!-- Same-domain viz-mirror outputs to the UI SignalServer -->
-                      <oSignal Name="pusherExtendedE"  To="UI.pusherExtendedE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
-                      <oSignal Name="pusherRetractedE" To="UI.pusherRetractedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
+                      <oSignal Name="bottleAtSorterE" To="UI.bottleAtSorterE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
+						<oSignal Name="bottleDefectiveE" To="UI.bottleDefectiveE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
+						<oSignal Name="pusherExtendedE" To="UI.pusherExtendedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030" />
+						<oSignal Name="pusherRetractedE" To="UI.pusherRetractedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
               </ClockDomain>
       </SubSystem>
 </System>

@@ -123,7 +123,7 @@ public class TwinVisualiser extends JFrame {
      */
     public void updateDashboard(String jsonString) {
         try {
-            JsonObject root = GSON.fromJson(jsonString, JsonObject.class);
+            JsonObject root = GSON.fromJson(jsonString, JsonObject.class); 
 
             // 1. Update Header Stats
             String batchId = root.has("batchId") && !root.get("batchId").isJsonNull() ? root.get("batchId").getAsString() : "—";

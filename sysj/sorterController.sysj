@@ -5,7 +5,7 @@ SorterController(
     input signal bottleAtSorter;
     input signal bottleDefective;
     input signal pusherExtended;
-    input signal pusherRetracted; // not yet used for stall detection -- see note below
+    input signal pusherRetracted;
 
     output signal extendPusher;
     output signal sortedE;
@@ -15,31 +15,33 @@ SorterController(
 ->
 {
     TwinClient twin = new TwinClient("sorter", "127.0.0.1", 9090);
-
     System.out.println("SorterController: Initialized and running.");
     twin.update(PlantTwin.State.IDLE);
 
     loop {
         System.out.println("SorterController: Waiting for bottle at sorter...");
         await (bottleAtSorter);
-        System.out.println("SorterController: Bottle detected. Inspecting...");
+        
+        // 1. Fetch live product ID at Position 6 (Sorter)
+        String productId = twin.getProductIdAtPosition(6);  
+        if (productId == null || productId.isEmpty()) {
+            productId = "UNKNOWN";
+        }
+
+        System.out.println("SorterController: Bottle (" + productId + ") detected. Inspecting...");
         twin.update(PlantTwin.State.IN_PROGRESS);
 
         present (bottleDefective) {
             System.out.println("SorterController: Defect detected - diverting bottle.");
 
-            // Guard against the abort() entry-precondition pitfall (CLAUDE.md):
-            // confirm the pusher is actually retracted before arming a fresh
-            // abort(pusherExtended){...} for this bottle, rather than assuming it.
+            // Guard: ensure pusher is fully retracted before issuing extend command
             await (!pusherExtended);
             abort (pusherExtended) {
                 sustain extendPusher;
             }
             System.out.println("SorterController: Pusher confirmed extended. Holding to divert...");
 
-            // Time-bounded hold, not a bare single-tick emit, since extendPusher
-            // and rejectedE both cross the socket to SorterPlant / UI (CLAUDE.md's
-            // cross-clock-domain reliability section).
+            // Time-bounded hold for cross-clock-domain reliability
             long t0 = System.currentTimeMillis();
             while (System.currentTimeMillis() - t0 < 300) {
                 emit extendPusher;
@@ -47,13 +49,9 @@ SorterController(
                 pause;
             }
 
-            // productId is null here for now -- the same not-yet-wired
-            // per-bottle correlation gap as capperController/labellerController.
-            // Once real productId threading exists, this is also where the
-            // Sorter should call twin.archiveProduct(productId, true) --
-            // archiving the ProductTwin is specifically the Sorter's role
-            // per TwinServer's PRODUCT_ARCHIVE command.
-            twin.recordEvent("Rejected", null);
+            // Digital Twin Updates: record rejection event and archive product as rejected
+            twin.recordEvent("Rejected", productId);
+            twin.archiveProduct(productId, true);
 
             System.out.println("SorterController: Releasing pusher.");
             await (!bottleAtSorter);
@@ -66,12 +64,15 @@ SorterController(
                 pause;
             }
 
-            // See the note above -- once wired, this is twin.archiveProduct(productId, false).
-            twin.recordEvent("Sorted OK", null);
+            // Digital Twin Updates: record pass event and archive product as non-defective
+            twin.recordEvent("Sorted OK", productId);
+            twin.archiveProduct(productId, false);
 
             await (!bottleAtSorter);
         }
-        
+
+        // Emit sort complete signal to notify Coordinator/System
+        emit sortComplete;
 
         System.out.println("SorterController: Cycle complete. Returning to idle.");
         twin.update(PlantTwin.State.IDLE);

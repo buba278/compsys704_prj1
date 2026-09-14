@@ -1,3 +1,4 @@
+import run.SorterGUI;
 SorterPlant(
     input signal extendPusher;
 
@@ -6,27 +7,33 @@ SorterPlant(
     output signal pusherExtended;
     output signal pusherRetracted;
 
-    // Same-domain viz-mirror outputs (see CLAUDE.md: "...E-suffixed viz-mirror
-    // signals are not a separate clock domain" -- extra oSignals to the UI
-    // SignalServer, not sent to SorterController).
+    // Visualizer mirror outputs
+    output signal bottleAtSorterE;
+    output signal bottleDefectiveE;
     output signal pusherExtendedE;
     output signal pusherRetractedE;
 )
 ->
 {
     System.out.println("SorterPlant: Subsystem initialized.");
+    new Thread(new SorterGUI()).start();
 
     {
         // 1. Bottle arrival / conveyor feed simulation.
         while (true) {
             System.out.println("SorterPlant [Feed]: Presenting bottle at sorter...");
+
+            // Sustain the bottle's presence, but bound it with a timeout so a
+            // non-defective bottle isn't held here forever. If extendPusher
+            // fires first (defective bottle), the abort cuts this short.
             abort (extendPusher) {
-                sustain bottleAtSorter;
+                long t0 = System.currentTimeMillis();
+                while (System.currentTimeMillis() - t0 < 300) {
+                    emit bottleAtSorter;
+                    pause;
+                }
             }
 
-            // Reached because extendPusher fired (defective bottle) rather than
-            // because the abort's own body ran to completion (it can't -- sustain
-            // never returns on its own) -- present() tells us which way we got here.
             present (extendPusher) {
                 System.out.println("SorterPlant [Feed]: Bottle being diverted by pusher, waiting for release...");
                 await (!extendPusher);
@@ -41,9 +48,7 @@ SorterPlant(
     }
     ||
     {
-        // 2. Quality sensor simulation -- flags roughly 1 in 7 bottles while present.
-        // Held for as long as the bottle is present (never a bare single-tick
-        // emit -- see CLAUDE.md's cross-clock-domain reliability section).
+        // 2. Quality sensor simulation -- flags defective bottles
         while (true) {
             await (bottleAtSorter);
             if (Math.random() < 0.15) {
@@ -58,7 +63,7 @@ SorterPlant(
     }
     ||
     {
-        // 3. Pusher actuator -- same extend/retract idiom as CapperPlant's Z-Axis thread.
+        // 3. Pusher actuator simulation
         while (true) {
             abort (extendPusher) {
                 sustain pusherRetracted;
@@ -77,18 +82,14 @@ SorterPlant(
         }
     }
     ||
+    // To viz
     {
-        // 4. Viz-mirrors for the pusher's two limit-switch states. Re-checked
-        // and re-emitted every tick (not `sustain`, which would never return
-        // and lock this thread onto whichever branch fired first) -- cheap
-        // per CLAUDE.md, since SimpleClient only actually sends on a change.
-        while (true) {
-            present (pusherExtended) {
-                emit pusherExtendedE;
-            } else {
-                emit pusherRetractedE;
-            }
-            pause;
-        }
+        {while(true){present(bottleAtSorter){emit bottleAtSorterE;} pause;}}
+        ||
+        {while(true){present(bottleDefective){emit bottleDefectiveE;} pause;}}
+        ||
+        {while(true){present(pusherExtended){emit pusherExtendedE;} pause;}}
+        ||
+        {while(true){present(pusherRetracted){emit pusherRetractedE;} pause;}}
     }
 }

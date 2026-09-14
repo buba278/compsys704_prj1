@@ -12,10 +12,9 @@
                       
                       <oSignal Name="sortComplete" To="CooordinatorCD.sortComplete" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
 
- 
                       <!-- Same-domain viz-mirror outputs to the UI SignalServer -->
-                      <oSignal Name="sortedE"   To="UI.sortedE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
-                      <oSignal Name="rejectedE" To="UI.rejectedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
+                      <oSignal Name="sortedE"   To="UI.sortedE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030" />
+                      <oSignal Name="rejectedE" To="UI.rejectedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030" />
               </ClockDomain>
       </SubSystem>
 </System>
