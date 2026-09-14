@@ -231,9 +231,8 @@ public class TwinVisualiser extends JFrame {
             TwinVisualiser app = new TwinVisualiser();
             app.setVisible(true);
 
-            // Optional: Feed a dummy JSON string here to test the layout immediately
             TwinListener listener = new TwinListener();
-            listener.connectToTwin("127.0.0.1", 8080, app);
+            listener.connectToTwin("127.0.0.1", 7070, app);
         });
     }
     

@@ -39,7 +39,7 @@ import java.nio.charset.StandardCharsets;
 public class TwinServer {
  
     public static void main(String[] args) {
-        int visualiserPort = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+        int visualiserPort = args.length > 0 ? Integer.parseInt(args[0]) : 7070;
         int controlPort = args.length > 1 ? Integer.parseInt(args[1]) : 9090;
  
         // Touch every station singleton once so they're all registered with
