@@ -7,4 +7,6 @@ public class SorterState {
     public static volatile boolean SORTED = false;
     public static volatile boolean REJECTED = false;
     public static volatile boolean MANUAL_MODE = false;
+    public static volatile int SORTED_COUNT = 0;
+    public static volatile int REJECTED_COUNT = 0;
 }

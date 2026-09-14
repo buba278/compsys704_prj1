@@ -49,6 +49,7 @@ public class SorterCanvas extends JPanel {
         g.drawRect(rejectBoxX, rejectBoxY, boxSize, boxSize);
         g.setColor(Color.WHITE);
         g.drawString("REJECT", rejectBoxX + 8, rejectBoxY + 35);
+        g.drawString(String.valueOf(SorterState.REJECTED_COUNT), rejectBoxX + 22, rejectBoxY + 50);
 
         // 3. Draw Box Directly in Front of Platform (Sorted Bin at Bottom)
         int sortedBoxX = centerX - 35;
@@ -62,6 +63,7 @@ public class SorterCanvas extends JPanel {
         g.drawRect(sortedBoxX, sortedBoxY, sortedBoxW, sortedBoxH);
         g.setColor(Color.WHITE);
         g.drawString("SORTED", sortedBoxX + 12, sortedBoxY + 30);
+        g.drawString(String.valueOf(SorterState.SORTED_COUNT), sortedBoxX + 27, sortedBoxY + 45);
 
         // 4. Draw Rectangle Pusher Arm
         // Extends laterally from the left across the platform when active

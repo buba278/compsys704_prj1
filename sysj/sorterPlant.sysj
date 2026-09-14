@@ -20,6 +20,7 @@ SorterPlant(
     output signal bottleDefectiveE;
     output signal pusherExtendedE;
     output signal pusherRetractedE;
+    output Integer signal sortedCountE, rejectedCountE;
 )
 ->
 {
@@ -46,6 +47,8 @@ SorterPlant(
     ||
     {
         // 2. Defect Sensor Logic
+        int sortedCount = 0;
+        int rejectedCount = 0;
         while (true) {
             present (manualMode) {
                 // MANUAL MODE: UI checkbox drives defect signal
@@ -61,8 +64,20 @@ SorterPlant(
                     abort (!bottleAtSorter || manualMode) {
                         sustain bottleDefective;
                     }
+                    rejectedCount = rejectedCount + 1;
+                    // Widened hold, not a bare single-tick emit - this
+                    // crosses the socket to the UI process (see CLAUDE.md).
+                    {
+                        long tCount = System.currentTimeMillis();
+                        while (System.currentTimeMillis() - tCount < 100) { emit rejectedCountE(rejectedCount); pause; }
+                    }
                 } else {
                     await (!bottleAtSorter || manualMode);
+                    sortedCount = sortedCount + 1;
+                    {
+                        long tCount = System.currentTimeMillis();
+                        while (System.currentTimeMillis() - tCount < 100) { emit sortedCountE(sortedCount); pause; }
+                    }
                 }
             }
         }
