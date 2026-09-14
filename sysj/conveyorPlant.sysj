@@ -2,7 +2,10 @@ import run.ConveyorGUI;
 import run.ConveyorLabellerBridge;
 import run.RotaryConveyorBridge;
 import run.LoaderState;
+<<<<<<< HEAD
 import run.TableOccupancy;
+=======
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
 
 conveyorPlant(
 		input signal motConveyorOnOff;
@@ -43,6 +46,7 @@ conveyorPlant(
 	  // LoaderState; statics don't cross clock-domain processes, so this has
 	  // to be a real signal from the Coordinator, converted to same-process
 	  // state right here rather than shared directly).
+<<<<<<< HEAD
 		boolean sawBottlesNeeded = false;
 		while(true){
 			present(bottlesNeeded){
@@ -56,6 +60,11 @@ conveyorPlant(
 				}
 			} else {
 				sawBottlesNeeded = false;
+=======
+		while(true){
+			present(bottlesNeeded){
+				LoaderState.addPending((Integer)#bottlesNeeded);
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
 			}
 			pause;
 		}
@@ -66,6 +75,7 @@ conveyorPlant(
 	  // Paced by bottleAtPos1 itself - only pulses a fresh autoLoadBottle
 	  // once Pos 1 has actually cleared, so it can't outrun the left
 	  // segment's own one-bottle-at-a-time pacing below.
+<<<<<<< HEAD
 		boolean printedWaiting = false;
 		while(true){
 			await(!bottleAtPos1);
@@ -84,6 +94,13 @@ conveyorPlant(
 				// pulse to exactly that gap.
 				long t0 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t0 < 300) { emit autoLoadBottle; pause; }
+=======
+		while(true){
+			await(!bottleAtPos1);
+			if (LoaderState.tryConsumePending()) {
+				long t0 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t0 < 50) { emit autoLoadBottle; pause; }
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
 				// Only wait for bottleAtPos1 (confirming this load actually
 				// went through) right after a real pulse - waiting for it
 				// unconditionally would deadlock whenever nothing was
@@ -92,10 +109,13 @@ conveyorPlant(
 				// nothing was ever loaded to cause it.
 				await(bottleAtPos1);
 			} else {
+<<<<<<< HEAD
 				if (!printedWaiting) {
 					printedWaiting = true;
 					System.out.printf("[Conveyor] auto-loader idle, nothing pending%n");
 				}
+=======
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
 				pause;
 			}
 		}

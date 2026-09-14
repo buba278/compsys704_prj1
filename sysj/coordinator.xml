@@ -18,8 +18,11 @@
 
                       <oSignal Name="batchDone" To="PosCD.batchDone" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       <oSignal Name="bottlesNeeded" To="ConveyorPlantCD.bottlesNeeded" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10007" />
+<<<<<<< HEAD
                       <oSignal Name="liquidARatioL"   To="LabellerPlantCD.liquidARatio"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
                       <oSignal Name="targetVolumeMlL" To="LabellerPlantCD.targetVolumeMl" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
+=======
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
               </ClockDomain>
       </SubSystem>
 </System> 

@@ -14,7 +14,10 @@ Coordinator(
     output signal bottleAtPos2;                                 // coordinator -> fillerController
     output signal bottleAtPos2P;                                // coordinator -> fillerPlant (same event, 2nd socket)
     output Integer signal bottlesNeeded;                        // coordinator -> conveyorPlant (auto-loads one bottle per unit ordered)
+<<<<<<< HEAD
     output Integer signal liquidARatioL, targetVolumeMlL;       // coordinator -> labellerPlant (same recipe, 3rd socket, so the label matches what's actually in the bottle)
+=======
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
 
     output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
 )
@@ -49,8 +52,11 @@ Coordinator(
             emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
             emit bottlesNeeded(quantity);
+<<<<<<< HEAD
             emit liquidARatioL(ratioA);
             emit targetVolumeMlL(volume);
+=======
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
             pause;
         }
 
