@@ -24,31 +24,11 @@ public class RotaryTable extends JFrame {
 		canvas.setPreferredSize(new Dimension(300, 400));
 		canvas.setBackground(Color.WHITE);
 
-		// --- DEV stand-ins for stations not yet wired in (Conveyor / Sorting) ---
-		// readyToRotate, bottleAtPos5 and capOnBottleAtPos1 are real controller/plant
-		// inputs that will eventually be driven by the Conveyor and Sorting stations;
-		// until those exist these radio pairs let us drive them by hand.
-
-		final SignalLevelClient readyClient = new SignalLevelClient(Ports.PORT_ROTARYTABLE_CONTROLLER, Ports.ROTARYTABLE_READY_TO_ROTATE);
-		JRadioButton notReady = new JRadioButton("not ready");
-		notReady.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				readyClient.send(false);
-			}
-		});
-		JRadioButton ready = new JRadioButton("ready to rotate");
-		ready.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				readyClient.send(true);
-			}
-		});
-		notReady.setSelected(true);
-		ButtonGroup readyGroup = new ButtonGroup();
-		readyGroup.add(notReady);
-		readyGroup.add(ready);
-		JPanel readyPanel = new JPanel();
-		readyPanel.add(notReady);
-		readyPanel.add(ready);
+		// --- DEV stand-ins for stations not yet wired in (Sorting / Cap Screwing) ---
+		// readyToRotate is driven by the Conveyor (see ConveyorVizWorker,
+		// which forwards its bottleAtPos1E straight into this signal) - watch the
+		// Conveyor GUI's "Bottle at Pos 1" light for its current state.
+		// bottleAtPos5 and capOnBottleAtPos1 still need DEV toggles 
 
 		final SignalLevelClient pos5Client = new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_BOTTLE_AT_POS5_TOGGLE);
 		JRadioButton noBottlePos5 = new JRadioButton("no bottle");
@@ -93,13 +73,12 @@ public class RotaryTable extends JFrame {
 		capPanel.add(capPos1);
 
 		JPanel devControls = new JPanel();
-		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-ins for Conveyor / Sorting)"));
-		devControls.add(readyPanel);
+		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-ins for Sorting / Cap Screwing)"));
 		devControls.add(pos5Panel);
 		devControls.add(capPanel);
 
 		// --- controller inputs: mode + manual jog ---
-
+		
 		final SignalRadioClient modeClient = new SignalRadioClient(Ports.PORT_ROTARYTABLE_CONTROLLER, Ports.ROTARYTABLE_MODE);
 		modeClient.setCheckBoxComponent(new JPanel());
 		final JRadioButton autoMode = new JRadioButton("Auto");

@@ -44,6 +44,20 @@ public class Ports {
 	// kicks the plant's sensor loop off (it sits at await(start) until this fires)
 	public static final String ROTARYTABLE_START = "RotaryTablePlantCD.start";
 
+	// === CONVEYOR ===
+	public static final int PORT_CONVEYOR_CONTROLLER = 10006;
+	public static final int PORT_CONVEYOR_PLANT      = 10007;
+	public static final int PORT_CONVEYOR_VIZ        = 20003;
+ 
+	// real controller inputs
+	public static final String CONVEYOR_MODE       = "ConveyorControllerCD.mode";
+	public static final String CONVEYOR_CONVEYOR_M = "ConveyorControllerCD.conveyorM";
+ 
+	// for debug: stand in for signals that will come from Loader/RotaryTable once those exist
+	public static final String CONVEYOR_ENABLE            = "ConveyorPlantCD.enable";
+	public static final String CONVEYOR_LOAD_BOTTLE       = "ConveyorPlantCD.loadBottle";
+	public static final String CONVEYOR_BOTTLE_FROM_TABLE = "ConveyorPlantCD.bottleFromTable";
+	
 	// fault tolerance: manual fault injection from the Filler GUI
 	public static final String FILLER_OVERFILL_M                = "FillerPlantCD.overfillM";
 	public static final String FILLER_STALL_M                   = "FillerPlantCD.stallM";
