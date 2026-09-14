@@ -1,3 +1,6 @@
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
+
 Controller(
 		input signal pusherRetracted,pusherExtended,WPgripped,armAtSource,armAtDest,empty,request;
 		output signal pusherExtend,vacOn,armSource,armDest;
@@ -25,13 +28,17 @@ Controller(
 	}
 	||
 	{
+		TwinClient twin = new TwinClient("lid-placer", "127.0.0.1", 9090);
+		twin.update(PlantTwin.State.IDLE);
 		System.out.printf("main loop entered%n");
 		loop {
 			abort (manual) {
 				System.out.printf("Auto: %d%n", 1);
+				twin.update(PlantTwin.State.IDLE);
 				// 1. The arm swivels to the position extended if a new workpiece is requested (request).
 				await (request);
 				System.out.printf("request received%n");
+				twin.update(PlantTwin.State.IN_PROGRESS);
 				abort (armAtDest) {
 					sustain armDest;
 				}
@@ -59,6 +66,8 @@ Controller(
 				abort (armAtSource) {
 					sustain armSource;
 				}
+				twin.recordEvent("lid placed");
+				twin.update(PlantTwin.State.IDLE);
 			}
 			await (manual);
 			System.out.printf("Manual: %d%n", 1);

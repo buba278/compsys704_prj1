@@ -71,6 +71,23 @@ public final class TwinClient {
     public synchronized void archiveProduct(String productId, boolean rejected) {
         sendCommand("PRODUCT_ARCHIVE|" + productId + "|" + rejected);
     }
+    
+    public synchronized void startBatch(String batchId, int targetCount) {
+        sendCommand("BATCH_START|" + safe(batchId) + "|" + targetCount);
+    }
+    
+
+    public synchronized void reportBatchElapsed(long elapsedMs) {
+    	sendCommand("BATCH_ELAPSED|" + elapsedMs);
+    }
+    
+    public synchronized void reportProgress(int completedCount) {
+        sendCommand("BATCH_PROGRESS|" + completedCount);
+    }
+    
+    public synchronized void reportBatchDone(int elapsedMs) {
+        sendCommand("BATCH_DONE|" + elapsedMs);
+    }
 
     /** Returns the full SystemTwin JSON feed, or null if the server is unreachable. */
     public synchronized String querySystemJson() {

@@ -1,3 +1,5 @@
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
 Coordinator(
     input signal orderReady;                                    // POS -> coordinator
     input Integer signal orderLiquidARatio, orderTargetVolume, orderQuantity;
@@ -13,6 +15,7 @@ Coordinator(
 )
 ->
 {
+	TwinClient twin = new TwinClient("coordinator", "127.0.0.1", 9090);
     loop {
         System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");
         await (orderLiquidARatio);
@@ -26,8 +29,9 @@ Coordinator(
         System.out.printf("[Coordinator] got quantity=%d, waiting for orderReady%n", quantity);
         await (orderReady);
         System.out.printf("[Coordinator] order ratioA=%d vol=%d qty=%d%n", ratioA, volume, quantity);
-
+		
         long tRecipe = System.currentTimeMillis();
+        twin.startBatch("batch" + tRecipe, quantity);
         while (System.currentTimeMillis() - tRecipe < 50) {
             emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
@@ -57,6 +61,7 @@ Coordinator(
             await (fillReady);
             if (!bottleFaulted) {
                 filled = filled + 1;
+                twin.reportProgress(filled);
                 System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
             } else {
                 // Not counted toward the batch, since there's no redundant line to reroute to
@@ -66,6 +71,7 @@ Coordinator(
         }
 
         int elapsed = (int)(System.currentTimeMillis() - start);
+        twin.reportBatchElapsed(elapsed);
         long tBatch = System.currentTimeMillis();
         while (System.currentTimeMillis() - tBatch < 50) {
             emit batchDone(elapsed);

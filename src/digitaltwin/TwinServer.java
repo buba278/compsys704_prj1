@@ -48,6 +48,8 @@ public class TwinServer {
         // e.g. RotaryPlantTwin.getInstance(), FillingPlantTwin.getInstance(), etc.
         CapperPlantTwin.getInstance();
         LabellerPlantTwin.getInstance();
+        FillerPlantTwin.getInstance();
+        LidPlacingPlantTwin.getInstance();
  
         startVisualiserSocket(visualiserPort);
         startControlSocket(controlPort);
@@ -146,6 +148,25 @@ public class TwinServer {
             String cmd = parts[0];
  
             switch (cmd) {
+            	case "BATCH_START": {
+            		String batchId = parts[1];
+            		int targetCount = Integer.parseInt(parts[2]);
+            		SystemTwin.getInstance().startBatch(batchId, targetCount);
+            		return "OK";
+            	}
+            	
+            	case "BATCH_PROGRESS": {
+            	    int completedCount = Integer.parseInt(parts[1]);
+            	    SystemTwin.getInstance().reportBatchProgress(completedCount);
+            	    return "OK";
+            	}
+            	
+            	case "BATCH_DONE": {
+            	    int elapsedMs = Integer.parseInt(parts[1]);
+            	    SystemTwin.getInstance().reportBatchDone(elapsedMs);
+            	    return "OK";
+            	}
+            	
                 case "PLANT_UPDATE": {
                     PlantTwin twin = requireStation(parts[1]);
                     PlantTwin.State state = PlantTwin.State.valueOf(parts[2]);

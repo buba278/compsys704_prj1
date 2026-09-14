@@ -26,6 +26,8 @@ public class SystemTwin {
     private int batchCompletedCount = 0;
     private int rejectedCount = 0;
     private int rotaryTurnCount = 0;
+    private int productSequence = 0;
+    private long lastBatchElapsedMs = 0;
  
     private SystemTwin() {
     }
@@ -47,6 +49,14 @@ public class SystemTwin {
         this.rejectedCount = 0;
         System.out.println("SystemTwin: Batch " + batchId + " started, target " + targetCount + " bottles.");
     }
+    
+    public synchronized void reportBatchProgress(int completedCount) {
+        this.batchCompletedCount = completedCount;
+    }
+    
+    public synchronized void reportBatchDone(int elapsedMs) {
+        this.lastBatchElapsedMs = elapsedMs;
+    }
  
     public synchronized void onRotaryTurn() {
         rotaryTurnCount++;
@@ -56,13 +66,18 @@ public class SystemTwin {
     }
  
     synchronized String createProductTwin(double volumeMl, double liquidRatio) {
-        String productId = UUID.randomUUID().toString();
-        ProductTwin twin = new ProductTwin(productId, batchId, volumeMl, liquidRatio);
+        productSequence++;
+        
+        // Inherit batchId (or fallback to 'BATCH' if null) and append increasing sequence number
+        String activeBatch = (this.batchId != null && !this.batchId.isEmpty()) ? this.batchId : "BATCH";
+        String productId = String.format("%s-%03d", activeBatch, productSequence); // Produces e.g. "BATCH-001-001"
+
+        // ProductTwin automatically receives the active batchId
+        ProductTwin twin = new ProductTwin(productId, this.batchId, volumeMl, liquidRatio);
         activeProducts.put(productId, twin);
         System.out.println("SystemTwin: ProductTwin " + productId + " created for batch " + batchId + ".");
         return productId;
     }
- 
     public ProductTwin getProductTwin(String productId) {
         return activeProducts.get(productId);
     }
