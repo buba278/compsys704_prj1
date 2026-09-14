@@ -25,11 +25,11 @@ public class WindowTile {
 		POSITIONS.put("conveyor",    new double[]{ 0.00, 0.00 });
 		POSITIONS.put("pos",         new double[]{ 0.40, 0.00 });
 		POSITIONS.put("filler",      new double[]{ 0.00, 0.33 });
-		POSITIONS.put("loader",      new double[]{ 0.80, 0.00 });
+		POSITIONS.put("loader",      new double[]{ 0.75, 0.00 });
 		POSITIONS.put("capper",      new double[]{ 0.80, 0.60 });
-		POSITIONS.put("rotarytable", new double[]{ 0.50, 0.33 });
-		POSITIONS.put("labeller",    new double[]{ 0.00, 0.66 });
-		POSITIONS.put("sorter",      new double[]{ 0.25, 0.66 });
+		POSITIONS.put("rotarytable", new double[]{ 0.35, 0.33 });
+		POSITIONS.put("labeller",    new double[]{ 0.00, 0.70 });
+		POSITIONS.put("sorter",      new double[]{ 0.60, 0.55 });
 	}
 
 	public static void place(JFrame frame, String key) {
