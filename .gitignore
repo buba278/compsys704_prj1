@@ -3,6 +3,7 @@
 
 # Log file
 *.log
+/logs/
 
 # BlueJ files
 *.ctxt
@@ -23,3 +24,9 @@
 hs_err_pid*
 replay_pid*
 /bin/
+
+# Generated clock-domain Java, one per sysj/*.sysj - edit the .sysj and
+# regenerate instead (see CLAUDE.md). Only the top-level src/*.java files are
+# generated; src/machines, src/run, src/org, src/digitaltwin are hand-written
+# and stay tracked.
+/src/*.java

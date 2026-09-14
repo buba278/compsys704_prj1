@@ -10,7 +10,9 @@ Eclipse is the reference IDE (`.project`/`.classpath`/`.settings` and `.launch` 
 
 ## Source of truth: edit `.sysj`, not `.java`
 
-Every `src/*.java` clock-domain file (`Controller.java`, `Plant.java`, `Coordinator.java`, `FillerController.java`, `FillerPlant.java`, `Pos.java`) is **generated output** from the matching `sysj/*.sysj` file via the SystemJ compiler (`sjc`). Checked into `src/` only because the Eclipse launch configs run compiled Java directly. Never hand-edit generated Java — edit the `.sysj` source and regenerate.
+Every top-level `src/*.java` clock-domain file (`Controller.java`, `Plant.java`, `Coordinator.java`, `FillerController.java`, `FillerPlant.java`, `Pos.java`, plus one pair per later station) is **generated output** from the matching `sysj/*.sysj` file via the SystemJ compiler (`sjc`). Never hand-edit generated Java — edit the `.sysj` source and regenerate.
+
+These files are gitignored (`/src/*.java`, top-level only — `src/machines/`, `src/run/`, `src/org/`, `src/digitaltwin/` are hand-written and stay tracked), since regenerating the whole batch together renumbers internal state variables in files you didn't touch and that was showing up as noise in unrelated diffs. This means a fresh clone (or anyone who doesn't already have them from a previous build) has no `src/*.java` at all until they run the regenerate step below — Eclipse's launch configs will fail to find the class until then.
 
 Generated files are dense synchronous-execution state machines (per-thread `switch` over integer state variables, `active`/`ends`/`tdone` arrays for parallel-thread rendezvous, `setPresent`/`getprestatus`/`sethook`/`gethook` for signal handshaking). Don't hand-trace or "clean up" this code — reason about behavior from the `.sysj` source instead.
 
