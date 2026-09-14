@@ -1,3 +1,5 @@
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
 CapperController(
     input signal bottleAtPos4; 								
     input signal gripperMaxLower;							
@@ -14,11 +16,18 @@ CapperController(
 )
 ->
 {
+	TwinClient twin = new TwinClient("cap-screwer", "127.0.0.1", 9090);
+	
     System.out.println("CapperController: Initialized and running.");
+    twin.update(PlantTwin.State.IDLE);
+    
     loop {
+    	
         System.out.println("CapperController: Waiting for bottle at Position 4...");
         await (bottleAtPos4);
+        String productId = twin.getProductIdAtPosition(4);
         System.out.println("CapperController: Bottle detected. Starting capping sequence.");
+        twin.update(PlantTwin.State.IN_PROGRESS);
         
         abort(gripperFullTwist) {
             {
@@ -51,7 +60,7 @@ CapperController(
             }
         }
         System.out.println("CapperController: Gripper full twist achieved or aborted. Releasing clamp & resetting.");
-     
+     	twin.recordEvent("Cap screwed on", productId);
         abort(gripperInitPos) {
         {
             sustain sendClamp;
@@ -67,5 +76,6 @@ CapperController(
             }
         }
         System.out.println("CapperController: Gripper returned to initial position. Cycle complete.");
+        twin.update(PlantTwin.State.IDLE);
     }
 }

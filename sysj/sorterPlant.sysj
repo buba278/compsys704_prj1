@@ -1,0 +1,95 @@
+import run.SorterGUI;
+SorterPlant(
+    input signal extendPusher;
+
+    output signal bottleAtSorter;
+    output signal bottleDefective;
+    output signal pusherExtended;
+    output signal pusherRetracted;
+
+    // Visualizer mirror outputs
+    output signal bottleAtSorterE;
+    output signal bottleDefectiveE;
+    output signal pusherExtendedE;
+    output signal pusherRetractedE;
+)
+->
+{
+    System.out.println("SorterPlant: Subsystem initialized.");
+    new Thread(new SorterGUI()).start();
+
+    {
+        // 1. Bottle arrival / conveyor feed simulation.
+        while (true) {
+            System.out.println("SorterPlant [Feed]: Presenting bottle at sorter...");
+
+            // Sustain the bottle's presence, but bound it with a timeout so a
+            // non-defective bottle isn't held here forever. If extendPusher
+            // fires first (defective bottle), the abort cuts this short.
+            abort (extendPusher) {
+                long t0 = System.currentTimeMillis();
+                while (System.currentTimeMillis() - t0 < 300) {
+                    emit bottleAtSorter;
+                    pause;
+                }
+            }
+
+            present (extendPusher) {
+                System.out.println("SorterPlant [Feed]: Bottle being diverted by pusher, waiting for release...");
+                await (!extendPusher);
+                System.out.println("SorterPlant [Feed]: Bottle diverted.");
+            } else {
+                System.out.println("SorterPlant [Feed]: Bottle passed through, unobstructed.");
+            }
+
+            pause;
+            pause; // conveyor gap before the next bottle
+        }
+    }
+    ||
+    {
+        // 2. Quality sensor simulation -- flags defective bottles
+        while (true) {
+            await (bottleAtSorter);
+            if (Math.random() < 0.15) {
+                System.out.println("SorterPlant [Sensor]: Defect detected on this bottle.");
+                abort (!bottleAtSorter) {
+                    sustain bottleDefective;
+                }
+            } else {
+                await (!bottleAtSorter);
+            }
+        }
+    }
+    ||
+    {
+        // 3. Pusher actuator simulation
+        while (true) {
+            abort (extendPusher) {
+                sustain pusherRetracted;
+            }
+            System.out.println("SorterPlant [Pusher]: Extending...");
+            pause;
+            pause;
+
+            System.out.println("SorterPlant [Pusher]: Fully extended.");
+            abort (!extendPusher) {
+                sustain pusherExtended;
+            }
+            System.out.println("SorterPlant [Pusher]: Retracting...");
+            pause;
+            pause;
+        }
+    }
+    ||
+    // To viz
+    {
+        {while(true){present(bottleAtSorter){emit bottleAtSorterE;} pause;}}
+        ||
+        {while(true){present(bottleDefective){emit bottleDefectiveE;} pause;}}
+        ||
+        {while(true){present(pusherExtended){emit pusherExtendedE;} pause;}}
+        ||
+        {while(true){present(pusherRetracted){emit pusherRetractedE;} pause;}}
+    }
+}

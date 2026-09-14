@@ -9,6 +9,7 @@ Plant(
 ->
 {
 	new Thread(new GUI()).start();
+	
 
 	signal capDec;
 	int signal capPos;

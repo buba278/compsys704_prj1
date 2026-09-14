@@ -1,4 +1,6 @@
 import run.FillerFaultState;
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
 
 FillerController(
     input signal bottleAtPos2; 								// turntable -> fillerController
@@ -22,16 +24,22 @@ FillerController(
 	signal stationFault;
 
 	{
+	TwinClient twin = new TwinClient("filler", "127.0.0.1", 9090);
+	
 		loop {
+			twin.update(PlantTwin.State.IDLE);
 			await (!stationFault);
 			await (bottleAtPos2);
 			// Java-side store, not a signal. See CLAUDE.md on local-signal retention.
 			int aTarget = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;
 			int bTarget = run.FillerRecipe.getVolume();
+			int ratio = run.FillerRecipe.getRatio();
+			String currentProductId = twin.createProduct(bTarget, ratio);
 			boolean faulted = false;
 			boolean bottleLost = false; // bottle disappeared mid-phase, not a station fault (see CLAUDE.md)
 
 			await (!levelAtTarget);
+			twin.update(PlantTwin.State.IN_PROGRESS);
 			System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget, bTarget);
 			abort (levelAtTarget || stationFault || !bottleAtPos2) {
 				loop {
@@ -43,6 +51,8 @@ FillerController(
 			present (stationFault) {
 				faulted = true;
 				System.out.printf("[FC] phase 1 aborted by fault - valves closed, bottle abandoned%n");
+				twin.update(PlantTwin.State.ERROR);
+				twin.recordEvent("Fill aborted (Phase 1 fault)", currentProductId);
 			} else {
 			present (!bottleAtPos2) {
 				bottleLost = true;
@@ -60,10 +70,13 @@ FillerController(
 				present (stationFault) {
 					faulted = true;
 					System.out.printf("[FC] phase 2 aborted by fault - valves closed, bottle abandoned%n");
+					twin.update(PlantTwin.State.ERROR);
+					twin.recordEvent("Fill aborted (Phase 2 fault)", currentProductId);
 				} else {
 				present (!bottleAtPos2) {
 					bottleLost = true;
 					System.out.printf("[FC] phase 2 aborted: bottle no longer present - valves closed%n");
+					twin.recordEvent("Bottle removed prematurely", currentProductId);
 				}
 				}
 			}
@@ -71,6 +84,7 @@ FillerController(
 
 			if (!faulted && !bottleLost) {
 				System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");
+				twin.recordEvent("Bottle filled", currentProductId);
 				emit fillDone;
 			} else if (faulted) {
 				// Abandoned, not resumed. The station returns to rotation for the next
@@ -95,6 +109,7 @@ FillerController(
 	{
 		loop {
 			{
+			TwinClient twin = new TwinClient("filler", "127.0.0.1", 9090);
 				present (fillDone) {
 					emit fillDoneE;
 				}
@@ -123,7 +138,9 @@ FillerController(
 	}
 	||
 	{
+		TwinClient twin = new TwinClient("filler", "127.0.0.1", 9090);
 		loop {
+			twin.update(PlantTwin.State.IDLE);
 			await (fillDone);
 			System.out.printf("[FC] fillDoneCoordE → coordinator (holding)%n");
 			abort (!bottleAtPos2) {
@@ -166,6 +183,7 @@ FillerController(
 	{
 		// Raises a fault when a valve's been held open too long without levelAtTarget
 		// arriving (stall). Wall-clock timeout, not reaction-counted, see CLAUDE.md.
+		TwinClient twin = new TwinClient("filler", "127.0.0.1", 9090);
 		boolean stalling = false;
 		boolean faulted = false;
 		long stallStart = 0;
@@ -180,6 +198,7 @@ FillerController(
 					stallStart = System.currentTimeMillis();
 				} else if (!faulted && System.currentTimeMillis() - stallStart > 8000) {
 					System.out.printf("[FC] FAULT: stall detected, valve held open >8000ms without reaching target%n");
+					twin.update(PlantTwin.State.ERROR, "Valve stall detected");
 					emit fillFaultE;
 					FillerFaultState.raiseStationFault();
 					faulted = true;
@@ -194,9 +213,12 @@ FillerController(
 	}
 	||
 	{
+		
 		// Bridges FillerFaultState into stationFault and latches clearFaultM.
+		TwinClient twin = new TwinClient("filler", "127.0.0.1", 9090);
 		loop {
 			present (clearFaultM) {
+				twin.update(PlantTwin.State.IDLE);
 				FillerFaultState.clearStationFault();
 			}
 			if (FillerFaultState.isStationFaulted()) {

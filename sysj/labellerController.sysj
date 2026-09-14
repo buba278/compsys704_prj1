@@ -1,38 +1,66 @@
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
+
 LabellerController(
     input signal bottleAtLabeller; 								
-    //input Integer signal liquidARatio, targetVolumeMl;		
- 	input signal labelPrinted;
- 	input signal bottleClamped;
- 	input signal labelApplied;
+    input signal labelPrinted;
+    input signal bottleClamped;
+    input signal labelApplied;
  
     output signal printLabel;
     output signal clampBottle;
-    output signal applyLabel;							
+    output signal applyLabel;				
 )
 ->
 {
+	TwinClient twin = new TwinClient("labeller", "127.0.0.1", 9090);
 	System.out.println("LabelController: Initialized and running.");
+
 	loop {
+		twin.update(PlantTwin.State.IDLE);
 		System.out.println("LabelController: Waiting for bottle at labeller...");
 		await (bottleAtLabeller);
-		System.out.println("LabelController: Bottle detected. Sending print command...");
-        abort(labelPrinted){
-            sustain printLabel;
-        }
-        System.out.println("LabelController: Label printed. Clamping bottle...");
-
-		abort(labelApplied){
-			{
-				sustain clampBottle;
-			}
-			||
-			{
-				await (bottleClamped);
-            	System.out.println("LabelController: Bottle clamped. Applying label...");
-            	sustain applyLabel;
-			}
-		}
-		System.out.println("LabelController: Label applied. Releasing clamp. Cycle complete.");
 		
+		String productId = twin.getProductIdAtPosition(5);
+		if (productId == null || productId.isEmpty()) {
+			productId = "UNKNOWN";
+		}
+		
+		System.out.println("LabelController: Bottle detected. Starting sequence...");
+		twin.update(PlantTwin.State.IN_PROGRESS);
+
+		// Step 1: Print Label (Hold for 1000ms)
+		long tPrint = System.currentTimeMillis();
+		while (System.currentTimeMillis() - tPrint < 1000) {
+			emit printLabel;
+			pause;
+		}
+		// FIX: Deleted await(labelPrinted) here
+		System.out.println("LabelController: Label printed. Clamping bottle...");
+
+		// Step 2: Clamp Bottle (Hold for 1000ms)
+		long tClamp = System.currentTimeMillis();
+		while (System.currentTimeMillis() - tClamp < 1000) {
+			emit clampBottle;
+			pause;
+		}
+		// FIX: Deleted await(bottleClamped) here
+		System.out.println("LabelController: Bottle clamped. Applying label...");
+
+		// Step 3: Apply Label (Hold clamp & apply for 1500ms)
+		long tApply = System.currentTimeMillis();
+		while (System.currentTimeMillis() - tApply < 1500) {
+			emit clampBottle;
+			emit applyLabel;
+			pause;
+		}
+		// FIX: Deleted await(labelApplied) here
+
+		twin.recordEvent("Label applied", productId);
+		System.out.println("LabelController: Label applied, Release complete.");
+		
+		twin.update(PlantTwin.State.IDLE);
+
+		// FIX: Deleted await(!bottleAtLabeller) here so the cycle can instantly restart
 	}
 }

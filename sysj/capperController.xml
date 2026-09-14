@@ -8,6 +8,7 @@
                       <iSignal Name="capGripped"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
                       <iSignal Name="gripperInitPos"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
                       <iSignal Name="gripperFullTwist"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10005" />
+                      
 
                       <!-- Output Signals mapped to a Client transmitter (assumed targeting CapperPlantCD) -->
                       <oSignal Name="sendGripperDown"    To="CapperPlantCD.sendGripperDown"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10003" />

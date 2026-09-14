@@ -1,0 +1,80 @@
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
+
+SorterController(
+    input signal bottleAtSorter;
+    input signal bottleDefective;
+    input signal pusherExtended;
+    input signal pusherRetracted;
+
+    output signal extendPusher;
+    output signal sortedE;
+    output signal rejectedE;
+    output signal sortComplete;
+)
+->
+{
+    TwinClient twin = new TwinClient("sorter", "127.0.0.1", 9090);
+    System.out.println("SorterController: Initialized and running.");
+    twin.update(PlantTwin.State.IDLE);
+
+    loop {
+        System.out.println("SorterController: Waiting for bottle at sorter...");
+        await (bottleAtSorter);
+        
+        // 1. Fetch live product ID at Position 6 (Sorter)
+        String productId = twin.getProductIdAtPosition(6);  
+        if (productId == null || productId.isEmpty()) {
+            productId = "UNKNOWN";
+        }
+
+        System.out.println("SorterController: Bottle (" + productId + ") detected. Inspecting...");
+        twin.update(PlantTwin.State.IN_PROGRESS);
+
+        present (bottleDefective) {
+            System.out.println("SorterController: Defect detected - diverting bottle.");
+
+            // Guard: ensure pusher is fully retracted before issuing extend command
+            await (!pusherExtended);
+            abort (pusherExtended) {
+                sustain extendPusher;
+            }
+            System.out.println("SorterController: Pusher confirmed extended. Holding to divert...");
+
+            // Time-bounded hold for cross-clock-domain reliability
+            long t0 = System.currentTimeMillis();
+            while (System.currentTimeMillis() - t0 < 300) {
+                emit extendPusher;
+                emit rejectedE;
+                pause;
+            }
+
+            // Digital Twin Updates: record rejection event and archive product as rejected
+            twin.recordEvent("Rejected", productId);
+            twin.archiveProduct(productId, true);
+
+            System.out.println("SorterController: Releasing pusher.");
+            await (!bottleAtSorter);
+        } else {
+            System.out.println("SorterController: Bottle OK - passing through.");
+
+            long t0 = System.currentTimeMillis();
+            while (System.currentTimeMillis() - t0 < 300) {
+                emit sortedE;
+                pause;
+            }
+
+            // Digital Twin Updates: record pass event and archive product as non-defective
+            twin.recordEvent("Sorted OK", productId);
+            twin.archiveProduct(productId, false);
+
+            await (!bottleAtSorter);
+        }
+
+        // Emit sort complete signal to notify Coordinator/System
+        emit sortComplete;
+
+        System.out.println("SorterController: Cycle complete. Returning to idle.");
+        twin.update(PlantTwin.State.IDLE);
+    }
+}

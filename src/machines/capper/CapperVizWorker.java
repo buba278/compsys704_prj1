@@ -27,6 +27,8 @@ public class CapperVizWorker extends Worker {
                 if (status) {
                     CapperState.GRIP_HEIGHT = 40; // Lowers to cap level
                     CapperState.GRIPPED = true;
+                    CapperState.BOTTLE_PRESENT = true;
+                    CapperState.CLAMPED = true;
                 }
                 break;
             case "gripperMaxLiftE":
@@ -36,7 +38,11 @@ public class CapperVizWorker extends Worker {
                 }
                 break;
             case "gripperInitPosE":
-                if (status) CapperState.TWIST_ANGLE = 0; // Untwisted
+                if (status) { 
+                	CapperState.TWIST_ANGLE = 0; // Untwisted
+                	CapperState.BOTTLE_PRESENT = false;
+                	CapperState.CLAMPED = false;
+                }
                 break;
             case "gripperFullTwistE":
                 if (status) CapperState.TWIST_ANGLE = 270; // Fully twisted

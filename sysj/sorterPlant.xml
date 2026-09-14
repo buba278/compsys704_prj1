@@ -1,0 +1,20 @@
+<System xmlns="http://systemjtechnology.com">
+      <SubSystem Name="SS2" Local="true">
+              <ClockDomain Name="SorterPlantCD" Class="SorterPlant">
+                      <!-- Input Signals received from SorterControllerCD -->
+                      <iSignal Name="extendPusher" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10023" />
+ 
+                      <!-- Output Signals transmitted back to SorterControllerCD -->
+                      <oSignal Name="bottleAtSorter"   To="SorterControllerCD.bottleAtSorter"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
+                      <oSignal Name="bottleDefective"  To="SorterControllerCD.bottleDefective"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
+                      <oSignal Name="pusherExtended"   To="SorterControllerCD.pusherExtended"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
+                      <oSignal Name="pusherRetracted"  To="SorterControllerCD.pusherRetracted"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />
+ 
+                      <!-- Same-domain viz-mirror outputs to the UI SignalServer -->
+                      <oSignal Name="bottleAtSorterE" To="UI.bottleAtSorterE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
+						<oSignal Name="bottleDefectiveE" To="UI.bottleDefectiveE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
+						<oSignal Name="pusherExtendedE" To="UI.pusherExtendedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030" />
+						<oSignal Name="pusherRetractedE" To="UI.pusherRetractedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
+              </ClockDomain>
+      </SubSystem>
+</System>
