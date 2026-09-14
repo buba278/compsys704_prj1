@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -52,7 +53,48 @@ public class LoggingLauncher {
 		File logDir = new File(new File("logs"), runId);
 		logDir.mkdirs();
 		File logFile = new File(logDir, station + ".log");
-		return new PrintStream(new FileOutputStream(logFile), true);
+		return new PrintStream(new TimestampingOutputStream(new FileOutputStream(logFile)), true);
+	}
+
+	/**
+	 * Prefixes every line written with a HH:mm:ss.SSS timestamp, at the byte
+	 * level so it works uniformly under print/println/printf - lets you see
+	 * real elapsed time between log lines (including across different
+	 * stations' separate log files) instead of just their relative order,
+	 * which is what actually shows up an unexpectedly long gap between two
+	 * steps rather than just that one happened after the other.
+	 */
+	static class TimestampingOutputStream extends OutputStream {
+		private final OutputStream out;
+		private final SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
+		private boolean atLineStart = true;
+
+		TimestampingOutputStream(OutputStream out) { this.out = out; }
+
+		@Override
+		public synchronized void write(int b) throws IOException {
+			if (atLineStart) {
+				out.write((fmt.format(new Date()) + " ").getBytes(StandardCharsets.UTF_8));
+				atLineStart = false;
+			}
+			out.write(b);
+			if (b == '\n') {
+				atLineStart = true;
+			}
+		}
+
+		@Override
+		public synchronized void write(byte[] buf, int off, int len) throws IOException {
+			for (int i = 0; i < len; i++) {
+				write(buf[off + i]);
+			}
+		}
+
+		@Override
+		public void flush() throws IOException { out.flush(); }
+
+		@Override
+		public void close() throws IOException { out.close(); }
 	}
 
 	static class TeeOutputStream extends OutputStream {
