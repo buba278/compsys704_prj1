@@ -18,7 +18,8 @@ LabellerPlant(
     output signal bottleAtLabellerE;
 	output signal labelPrintedE;
 	output signal bottleClampedE;
-	output signal labelAppliedE;						
+	output signal labelAppliedE;
+	output Integer signal liquidARatioE, targetVolumeMlE;
 )
 ->
 { new Thread(new LabellerGUI()).start();
@@ -110,5 +111,16 @@ LabellerPlant(
     {while(true){present(bottleClamped){emit bottleClampedE;} pause;}}
     ||
     {while(true){present(labelApplied){emit labelAppliedE;} pause;}}
+    ||
+    {
+        // Mirrors the Coordinator's recipe for this batch into the GUI, so
+        // the bottle drawn here matches what the Filler actually put in it,
+        // same shape as the other viz-mirror threads above.
+        while(true){
+            present(liquidARatio){ emit liquidARatioE((Integer)#liquidARatio); }
+            present(targetVolumeMl){ emit targetVolumeMlE((Integer)#targetVolumeMl); }
+            pause;
+        }
+    }
 }
 

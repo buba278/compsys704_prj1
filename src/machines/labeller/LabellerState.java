@@ -6,12 +6,13 @@ public class LabellerState {
     public static volatile boolean LABEL_PRINTED = false;
     public static volatile boolean LABEL_APPLIED = false;
  
-    // --- Temporary/placeholder label data ---
-    // Real values should eventually come from the (currently unused/commented-out)
-    // liquidARatio / targetVolumeMl int signals. Hardcoded for now per request.
     public static volatile int LABEL_COUNTER = 0;
     public static volatile String CURRENT_LABEL_ID = "----";
-    public static volatile int BOTTLE_SIZE_ML = 500;
-    public static volatile int LIQUID_RATIO = 100;
+
+    // Driven by the Coordinator's liquidARatioE/targetVolumeMlE (see
+    // labellerPlant.sysj) - the same recipe the Filler actually put in this
+    // bottle, so the drawing matches what's really inside it.
+    public static volatile int BOTTLE_SIZE_ML = 330;
+    public static volatile int LIQUID_RATIO = 50;
 }
 
