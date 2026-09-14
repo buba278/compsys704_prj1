@@ -6,4 +6,5 @@ public class SorterState {
     public static volatile boolean PUSHER_EXTENDED = false;
     public static volatile boolean SORTED = false;
     public static volatile boolean REJECTED = false;
+    public static volatile boolean MANUAL_MODE = false;
 }

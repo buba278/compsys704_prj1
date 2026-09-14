@@ -1,7 +1,15 @@
 import run.SorterGUI;
+
 SorterPlant(
     input signal extendPusher;
+    input signal coordBottleAtSorter;     // External Coordinator signal (Auto Mode)
 
+    // Manual Mode Inputs (from Java UI)
+    input signal manualMode;
+    input signal manualBottleAtSorter;
+    input signal manualBottleDefective;
+
+    // Output signals sent to SorterController
     output signal bottleAtSorter;
     output signal bottleDefective;
     output signal pusherExtended;
@@ -19,70 +27,66 @@ SorterPlant(
     new Thread(new SorterGUI()).start();
 
     {
-        // 1. Bottle arrival / conveyor feed simulation.
+        // 1. Bottle Presence Multiplexer (No auto-timer simulation)
         while (true) {
-            System.out.println("SorterPlant [Feed]: Presenting bottle at sorter...");
-
-            // Sustain the bottle's presence, but bound it with a timeout so a
-            // non-defective bottle isn't held here forever. If extendPusher
-            // fires first (defective bottle), the abort cuts this short.
-            abort (extendPusher) {
-                long t0 = System.currentTimeMillis();
-                while (System.currentTimeMillis() - t0 < 300) {
+            present (manualMode) {
+                // MANUAL MODE: UI checkbox drives bottle presence
+                present (manualBottleAtSorter) {
                     emit bottleAtSorter;
-                    pause;
+                }
+            } else {
+                // AUTO MODE: Pass-through external Coordinator signal
+                present (coordBottleAtSorter) {
+                    emit bottleAtSorter;
                 }
             }
-
-            present (extendPusher) {
-                System.out.println("SorterPlant [Feed]: Bottle being diverted by pusher, waiting for release...");
-                await (!extendPusher);
-                System.out.println("SorterPlant [Feed]: Bottle diverted.");
-            } else {
-                System.out.println("SorterPlant [Feed]: Bottle passed through, unobstructed.");
-            }
-
             pause;
-            pause; // conveyor gap before the next bottle
         }
     }
     ||
     {
-        // 2. Quality sensor simulation -- flags defective bottles
+        // 2. Defect Sensor Logic
         while (true) {
-            await (bottleAtSorter);
-            if (Math.random() < 0.15) {
-                System.out.println("SorterPlant [Sensor]: Defect detected on this bottle.");
-                abort (!bottleAtSorter) {
-                    sustain bottleDefective;
+            present (manualMode) {
+                // MANUAL MODE: UI checkbox drives defect signal
+                present (manualBottleDefective) {
+                    emit bottleDefective;
                 }
+                pause;
             } else {
-                await (!bottleAtSorter);
+                // AUTO MODE: Random defect sensor on bottle arrival
+                await (bottleAtSorter);
+                if (Math.random() < 0.25) {
+                    System.out.println("SorterPlant [Sensor]: Defect detected on bottle!");
+                    abort (!bottleAtSorter || manualMode) {
+                        sustain bottleDefective;
+                    }
+                } else {
+                    await (!bottleAtSorter || manualMode);
+                }
             }
         }
     }
     ||
     {
-        // 3. Pusher actuator simulation
+        // 3. Pusher Actuator Simulation (Pacing ticks for smooth animation)
         while (true) {
             abort (extendPusher) {
                 sustain pusherRetracted;
             }
             System.out.println("SorterPlant [Pusher]: Extending...");
-            pause;
-            pause;
+            pause; pause; pause;
 
             System.out.println("SorterPlant [Pusher]: Fully extended.");
             abort (!extendPusher) {
                 sustain pusherExtended;
             }
             System.out.println("SorterPlant [Pusher]: Retracting...");
-            pause;
-            pause;
+            pause; pause; pause;
         }
     }
     ||
-    // To viz
+    // Viz Mirror Outputs
     {
         {while(true){present(bottleAtSorter){emit bottleAtSorterE;} pause;}}
         ||

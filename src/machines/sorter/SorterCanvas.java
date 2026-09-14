@@ -4,10 +4,23 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import javax.swing.JPanel;
+import java.awt.GridLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 public class SorterCanvas extends JPanel {
 
     private static final long serialVersionUID = 1L;
+
+    private void resetState() {
+        SorterState.BOTTLE_PRESENT = false;
+        SorterState.BOTTLE_DEFECTIVE = false;
+        SorterState.PUSHER_EXTENDED = false;
+        SorterState.SORTED = false;
+        SorterState.REJECTED = false;
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
