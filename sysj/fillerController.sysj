@@ -33,7 +33,8 @@ FillerController(
 			// Java-side store, not a signal. See CLAUDE.md on local-signal retention.
 			int aTarget = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;
 			int bTarget = run.FillerRecipe.getVolume();
-			String currentProductId = twin.createProduct(aTarget, bTarget);
+			int ratio = run.FillerRecipe.getRatio();
+			String currentProductId = twin.createProduct(bTarget, ratio);
 			boolean faulted = false;
 			boolean bottleLost = false; // bottle disappeared mid-phase, not a station fault (see CLAUDE.md)
 
@@ -50,6 +51,7 @@ FillerController(
 			present (stationFault) {
 				faulted = true;
 				System.out.printf("[FC] phase 1 aborted by fault - valves closed, bottle abandoned%n");
+				twin.update(PlantTwin.State.ERROR);
 				twin.recordEvent("Fill aborted (Phase 1 fault)", currentProductId);
 			} else {
 			present (!bottleAtPos2) {
@@ -68,6 +70,7 @@ FillerController(
 				present (stationFault) {
 					faulted = true;
 					System.out.printf("[FC] phase 2 aborted by fault - valves closed, bottle abandoned%n");
+					twin.update(PlantTwin.State.ERROR);
 					twin.recordEvent("Fill aborted (Phase 2 fault)", currentProductId);
 				} else {
 				present (!bottleAtPos2) {

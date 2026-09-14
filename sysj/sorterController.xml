@@ -1,0 +1,22 @@
+<System xmlns="http://systemjtechnology.com">
+      <SubSystem Name="SS1" Local="true">
+              <ClockDomain Name="SorterControllerCD" Class="SorterController">
+                      <!-- Input Signals mapped to a Server receiver -->
+                      <iSignal Name="bottleAtSorter"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10025" />
+                      <iSignal Name="bottleDefective"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10025" />
+                      <iSignal Name="pusherExtended"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10025" />
+                      <iSignal Name="pusherRetracted"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10025" />
+ 
+                      <!-- Output Signals mapped to a Client transmitter (targeting SorterPlantCD) -->
+                      <oSignal Name="extendPusher" To="SorterPlantCD.extendPusher" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10023" />
+                      
+                      <oSignal Name="sortComplete" To="CooordinatorCD.sortComplete" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
+
+ 
+                      <!-- Same-domain viz-mirror outputs to the UI SignalServer -->
+                      <oSignal Name="sortedE"   To="UI.sortedE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
+                      <oSignal Name="rejectedE" To="UI.rejectedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
+              </ClockDomain>
+      </SubSystem>
+</System>
+ 

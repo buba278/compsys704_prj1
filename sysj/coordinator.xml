@@ -5,6 +5,7 @@
                       <iSignal Name="orderLiquidARatio" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
                       <iSignal Name="orderTargetVolume" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
                       <iSignal Name="orderQuantity"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+                      <iSignal Name="sortComplete"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
                       <iSignal Name="fillDoneE"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
                       <iSignal Name="fillReady" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
                       <iSignal Name="fillFaultOut" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />

@@ -50,6 +50,7 @@ public class TwinServer {
         LabellerPlantTwin.getInstance();
         FillerPlantTwin.getInstance();
         LidPlacingPlantTwin.getInstance();
+        SorterPlantTwin.getInstance();
  
         startVisualiserSocket(visualiserPort);
         startControlSocket(controlPort);

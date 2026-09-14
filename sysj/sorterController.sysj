@@ -1,0 +1,79 @@
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
+
+SorterController(
+    input signal bottleAtSorter;
+    input signal bottleDefective;
+    input signal pusherExtended;
+    input signal pusherRetracted; // not yet used for stall detection -- see note below
+
+    output signal extendPusher;
+    output signal sortedE;
+    output signal rejectedE;
+    output signal sortComplete;
+)
+->
+{
+    TwinClient twin = new TwinClient("sorter", "127.0.0.1", 9090);
+
+    System.out.println("SorterController: Initialized and running.");
+    twin.update(PlantTwin.State.IDLE);
+
+    loop {
+        System.out.println("SorterController: Waiting for bottle at sorter...");
+        await (bottleAtSorter);
+        System.out.println("SorterController: Bottle detected. Inspecting...");
+        twin.update(PlantTwin.State.IN_PROGRESS);
+
+        present (bottleDefective) {
+            System.out.println("SorterController: Defect detected - diverting bottle.");
+
+            // Guard against the abort() entry-precondition pitfall (CLAUDE.md):
+            // confirm the pusher is actually retracted before arming a fresh
+            // abort(pusherExtended){...} for this bottle, rather than assuming it.
+            await (!pusherExtended);
+            abort (pusherExtended) {
+                sustain extendPusher;
+            }
+            System.out.println("SorterController: Pusher confirmed extended. Holding to divert...");
+
+            // Time-bounded hold, not a bare single-tick emit, since extendPusher
+            // and rejectedE both cross the socket to SorterPlant / UI (CLAUDE.md's
+            // cross-clock-domain reliability section).
+            long t0 = System.currentTimeMillis();
+            while (System.currentTimeMillis() - t0 < 300) {
+                emit extendPusher;
+                emit rejectedE;
+                pause;
+            }
+
+            // productId is null here for now -- the same not-yet-wired
+            // per-bottle correlation gap as capperController/labellerController.
+            // Once real productId threading exists, this is also where the
+            // Sorter should call twin.archiveProduct(productId, true) --
+            // archiving the ProductTwin is specifically the Sorter's role
+            // per TwinServer's PRODUCT_ARCHIVE command.
+            twin.recordEvent("Rejected", null);
+
+            System.out.println("SorterController: Releasing pusher.");
+            await (!bottleAtSorter);
+        } else {
+            System.out.println("SorterController: Bottle OK - passing through.");
+
+            long t0 = System.currentTimeMillis();
+            while (System.currentTimeMillis() - t0 < 300) {
+                emit sortedE;
+                pause;
+            }
+
+            // See the note above -- once wired, this is twin.archiveProduct(productId, false).
+            twin.recordEvent("Sorted OK", null);
+
+            await (!bottleAtSorter);
+        }
+        
+
+        System.out.println("SorterController: Cycle complete. Returning to idle.");
+        twin.update(PlantTwin.State.IDLE);
+    }
+}

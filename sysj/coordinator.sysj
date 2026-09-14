@@ -6,6 +6,7 @@ Coordinator(
     input signal fillDoneE;                                     // filler -> coordinator (repointed)
     input signal fillReady;                                     // filler confirms reset, ready for next bottle
     input signal fillFaultOut;                                  // filler -> coordinator (station faulted, stop presenting this bottle)
+    input signal sortComplete;
 
     output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
     output signal bottleAtPos2;                                 // coordinator -> fillerController
