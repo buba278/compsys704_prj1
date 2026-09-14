@@ -19,6 +19,7 @@
 			<oSignal Name="bottleReceivedE" To="UI.bottleReceivedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20003" />
 			<oSignal Name="leftMovingE"     To="UI.leftMovingE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20003" />
 			<oSignal Name="rightMovingE"    To="UI.rightMovingE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20003" />
+			<oSignal Name="bottlesOnTableE" To="UI.bottlesOnTableE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20003" />
 		</ClockDomain>
 	</SubSystem>
 </System>
