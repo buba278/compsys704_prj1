@@ -6,8 +6,9 @@ CapperPlant(
     input signal sendGripperUntwist;
     input signal sendGripCap;
     input signal sendClamp;
+    input signal enable;
+    input signal bottleAtPos4;
     
-    output signal bottleAtPos4; 
     output signal gripperMaxLower;
     output signal gripperMaxLift;
     output signal capGripped;
@@ -15,7 +16,7 @@ CapperPlant(
     output signal gripperFullTwist;
     
     output signal bottleAtPos4E;
-    output signal bottleGoneE;      // NEW: explicit "off" companion for bottleAtPos4E
+    output signal bottleGoneE;      // these don't actually work
     output signal gripperMaxLowerE;
     output signal gripperMaxLiftE;
     output signal gripperInitPosE;
@@ -26,37 +27,25 @@ CapperPlant(
 	new Thread(new CapperGUI()).start();
     System.out.println("CapperPlant: Subsystem initialized.");
 
-    {
-        // 1. Bottle arrival simulation
-        while(true){
-            System.out.println("CapperPlant [Turntable]: Delivering new bottle to Position 4...");
-            abort(sendClamp){
-                sustain bottleAtPos4;
-            }
-           
-            System.out.println("CapperPlant [Turntable]: Clamp released. Indexing turntable...");
-            pause;
-  
-        }
-    }
-    ||
+   
     {
         // 2. Gripper Z-axis movement simulation
         while(true){
-            abort(sendGripperDown){
+            abort(sendGripperDown && enable){
                 sustain gripperMaxLift;
             }
+            await(!enable);
             System.out.println("CapperPlant [Z-Axis]: Moving down...");
             pause; 
             pause;
             
             System.out.println("CapperPlant [Z-Axis]: Reached bottom sensor.");
-            abort(!sendGripperDown){
+            abort(!sendGripperDown && enable){
                 sustain gripperMaxLower;
             }
+            await(!enable);
             System.out.println("CapperPlant [Z-Axis]: Moving back up...");
-            pause; 
-            pause;
+            
         }
     }
     || 
@@ -64,54 +53,40 @@ CapperPlant(
         // 3. Cap Gripper simulation
         while(true){
             // Standby until controller asks to grip the cap
-            await(sendGripCap);
+            await(sendGripCap && enable);
             System.out.println("CapperPlant [Gripper Jaw]: Closing jaws around cap...");
             
-            abort(!sendGripCap){
+            abort(!sendGripCap && enable){
                 sustain capGripped;
             }
             System.out.println("CapperPlant [Gripper Jaw]: Jaws opened, cap released.");
-            pause;
+            await(!enable);
         }
     }
     || 
     {
         // 4. Gripper rotation simulation
         while(true){
-            abort(sendGripperTwist){
+            abort(sendGripperTwist && enable){
                 sustain gripperInitPos;
             }
             System.out.println("CapperPlant [Rotation]: Twisting cap closed...");
-            pause; 
-            pause;
+            await(!enable);
             
             System.out.println("CapperPlant [Rotation]: Full twist achieved.");
-            abort(sendGripperUntwist){
+            abort(sendGripperUntwist && enable){
                 sustain gripperFullTwist;
             }
+            await(!enable);
             System.out.println("CapperPlant [Rotation]: Untwisting back to start position...");
-            pause; 
-            pause;
+            
         }
         
     }
     ||
      //To viz
-		{
-			while(true){
-				// FIX: previously only ever emitted bottleAtPos4E when the bottle was
-				// present, so CapperState.BOTTLE_PRESENT/CLAMPED could only ever latch
-				// true and never reflected the bottle leaving. Now explicitly forward the
-				// absent case too, same technique as fillerPlant's `!bottleAtPos2` branch.
-				present(bottleAtPos4){
-					emit bottleAtPos4E;
-				} else {
-					emit bottleGoneE;
-				}
-				pause;
-			}
-		}
-		||
+		
+		
 		{while(true){present(gripperMaxLower){emit gripperMaxLowerE;} pause;}}
 		||
 		{while(true){present(gripperMaxLift){emit gripperMaxLiftE;} pause;}}

@@ -22,6 +22,7 @@ CapperController(
     twin.update(PlantTwin.State.IDLE);
     
     loop {
+    	
         System.out.println("CapperController: Waiting for bottle at Position 4...");
         await (bottleAtPos4);
         System.out.println("CapperController: Bottle detected. Starting capping sequence.");
