@@ -1,4 +1,5 @@
 import run.RotaryTableGUI;
+import run.RotaryConveyorBridge;
 
 rotaryTablePlant(
 		input signal rotaryTableTrigger;
@@ -11,7 +12,7 @@ rotaryTablePlant(
 {
 	new Thread(new RotaryTableGUI()).start();
 
-	{ // table rotation / position sensor 
+	{ // table rotation / position sensor
 	  
 		await(start);
 		loop {
@@ -40,6 +41,37 @@ rotaryTablePlant(
 		while(true){
 			present(bottleAtPos5Toggle){
 				emit bottleAtPos5;
+			}
+			pause;
+		}
+	}
+	||
+	{ // Automatic Pos 5 -> Conveyor handoff: once the table is aligned and a
+	  // bottle is present at Pos 5, tell the Conveyor Plant to start its
+	  // right-segment pickup, without requiring the manual "Bottle From
+	  // Table" GUI button. Sent via RotaryConveyorBridge (a single-segment
+	  // "run" package class) rather than a SignalLevelClient declared
+	  // inline here - see the comment on that class for why. The hold is
+	  // time-bounded (not a bare single-tick send) since it crosses the
+	  // socket to the Conveyor Plant process - see CLAUDE.md's
+	  // cross-clock-domain signal reliability section.
+		loop {
+			await(tableAlignedWithSensor);
+			present(bottleAtPos5) {
+				long t0 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t0 < 200) {
+					RotaryConveyorBridge.setBottleFromTable(true);
+					pause;
+				}
+				RotaryConveyorBridge.setBottleFromTable(false);
+
+				// Don't re-trigger for the same bottle: wait for it to
+				// actually clear Pos 5 before re-arming. Without this,
+				// tableAlignedWithSensor is already true and this present()
+				// would refire every tick for as long as both conditions
+				// hold (the await-re-arming pitfall documented in
+				// CLAUDE.md).
+				await(!bottleAtPos5);
 			}
 			pause;
 		}

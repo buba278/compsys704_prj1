@@ -2,45 +2,120 @@ import run.ConveyorGUI;
 
 conveyorPlant(
 		input signal motConveyorOnOff;
-		input signal enable, loadBottle, bottleFromTable;
+		input signal enable, loadBottle, bottleFromTable, sortDone, pos1TakenAck;
 		output signal bottleAtPos1, bottleLeftPos5;
 		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
+		output signal bottleEnteredE, bottleReceivedE;
+		output signal leftMovingE, rightMovingE;
 		)
 ->
 {
 	new Thread(new ConveyorGUI()).start();
 
-	{ // Motor status echo to GUI (drives the belt animation)
+	// internal only (not echoed to the GUI directly) - true while a bottle is
+	// physically translating on that segment of the belt, used purely to
+	// drive the "motor running" indicator
+	signal leftMoving, rightMoving;
+
+	{ // Motor status echo to GUI: the belt visibly runs whenever it is
+	  // actually transporting a bottle (auto) or being jogged manually
 		while(true){
 			present(motConveyorOnOff){ emit motorOnE; }
+			present(leftMoving){ emit motorOnE; }
+			present(rightMoving){ emit motorOnE; }
 			pause;
 		}
 	}
 	||
-	{ // Loading-end sensor: an operator-queued empty bottle reaches the
-	  // turntable once the motor is running. 
-	  // Press loadBottle to queue a bottle, then step
-	  // enable to simulate it travelling to Pos 1 and being taken by the
-	  // Rotary Table.
+	{ // Left segment: Bottle Loader -> Pos 1
+	  // loadBottle stands in for the Bottle Loader
+	  // The belt starts moving by itself the moment a bottle is queued (no
+	  // separate start button needed) provided the system is ready (enable),
+	  // and the bottle is handed to the Rotary Table once it reaches Pos 1.
 		while(true){
 			await(loadBottle);
-			abort(motConveyorOnOff && enable){
+			await(enable);
+			// tells the GUI a bottle now starts travelling in from the loading
+			// end - held for a bounded time rather than a single tick, since
+			// this crosses the socket to the UI process and a bare one-tick
+			// emit can race past the receiver's single-slot buffer (see
+			// CLAUDE.md's cross-clock-domain signal reliability section)
+			{
+				long tEnter = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tEnter < 50) { emit bottleEnteredE; pause; }
+			}
+
+			// simulated travel time across the first quarter of the belt.
+			// Each step is echoed to the GUI as leftMovingE so the on-screen
+			// animation advances one discrete step per actual model tick,
+			// instead of the canvas guessing a fixed real-time duration that
+			// can drift out of sync with the model (see ConveyorCanvas).
+			// Each step's emit is briefly held (instead of a single bare
+			// tick) to survive the same socket race, but with a genuine
+			// absent gap before the next step so ConveyorState.advanceLeftStep()
+			// still only fires once per step (SimpleClient only sends on a
+			// presence change, so a continuously-held signal across steps
+			// would collapse into a single edge and make the bottle jump).
+			// Each step's timer variable is uniquely named (tL1..tL8) since
+			// this sjc build flattens block scopes within one thread, so
+			// repeated declarations of the same name across steps collide.
+			emit leftMoving; { long tL1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL1 < 60) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL2 < 60) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL3 < 60) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL4 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL4 < 60) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL5 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL5 < 60) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL6 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL6 < 60) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL7 < 60) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL8 < 60) { emit leftMovingE; pause; } } pause;
+
+			// arrived at Pos 1 - hold the bottle here until the Rotary Table
+			// has actually committed to taking it (pos1TakenAck), rather
+			// than releasing after a fixed guess at how many ticks the
+			// handoff "should" take. This is what keeps this plant and the
+			// (independently-clocked) Rotary Table Controller correctly
+			// synchronised at the handoff, regardless of either side's own
+			// tick rate.
+			abort(pos1TakenAck) {
 				sustain bottleAtPos1;
 			}
-			await(!enable);
 		}
 	}
 	||
-	{ // Exit-end sensor: a finished bottle deposited by the turntable moves
-	  // past Position 5 and off the conveyor while the motor is running.
-	  // bottleFromTable stands in for the Rotary Table's unload handoff
-	  // until that signal is wired in for full-system tests.
+	{ // Right segment: Rotary Table Pos 5 -> Collection point
+	  // bottleFromTable stands in for the Rotary Table's Pos 5 unload
+	  // handoff, and sortDone stands in for the Sorter taking the finished
+	  // bottle away, since neither station is modelled yet. Once handed
+	  // over, the bottle travels to the end of the belt and waits there
+	  // until the (artificial) sort-finished signal removes it.
 		while(true){
 			await(bottleFromTable);
-			abort(motConveyorOnOff && enable){
+			await(enable);
+			// tells the GUI a bottle now starts travelling out from Pos 5 -
+			// see the matching bottleEnteredE comment above for why this is
+			// a bounded hold rather than a bare single-tick emit
+			{
+				long tReceived = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tReceived < 50) { emit bottleReceivedE; pause; }
+			}
+
+			// simulated travel time across the last quarter of the belt -
+			// see the matching leftMovingE loop above for why each step is
+			// a short bounded hold with a genuine absent gap after it, and
+			// why each timer variable (tR1..tR8) needs a unique name
+			emit rightMoving; { long tR1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR1 < 60) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR2 < 60) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR3 < 60) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR4 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR4 < 60) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR5 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR5 < 60) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR6 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR6 < 60) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR7 < 60) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR8 < 60) { emit rightMovingE; pause; } } pause;
+
+			// arrived at the collection point - wait here until the Sorter
+			// (artificially, via sortDone) removes the finished bottle
+			abort(sortDone){
 				sustain bottleLeftPos5;
 			}
-			await(!enable);
 		}
 	}
 	||

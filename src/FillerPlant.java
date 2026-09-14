@@ -32,19 +32,19 @@ public class FillerPlant extends ClockDomain{
   private int stopAt_thread_2;//sysj\fillerPlant.sysj line: 40, column: 5
   private int lvl_thread_2;//sysj\fillerPlant.sysj line: 41, column: 5
   private long t0_thread_5;//sysj\fillerPlant.sysj line: 87, column: 4
-  private int S7614 = 1;
-  private int S6227 = 1;
-  private int S6173 = 1;
-  private int S6244 = 1;
-  private int S6261 = 1;
-  private int S6327 = 1;
-  private int S6263 = 1;
+  private int S9660 = 1;
+  private int S8273 = 1;
+  private int S8219 = 1;
+  private int S8290 = 1;
+  private int S8307 = 1;
+  private int S8373 = 1;
+  private int S8309 = 1;
   
   private int[] ends = new int[6];
   private int[] tdone = new int[6];
   
-  public void thread7624(int [] tdone, int [] ends){
-        switch(S6327){
+  public void thread9670(int [] tdone, int [] ends){
+        switch(S8373){
       case 0 : 
         active[5]=0;
         ends[5]=0;
@@ -52,11 +52,11 @@ public class FillerPlant extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S6263){
+        switch(S8309){
           case 0 : 
             if(levelAtTargetPulse_1.getprestatus()){//sysj\fillerPlant.sysj line: 86, column: 11
               t0_thread_5 = System.currentTimeMillis();//sysj\fillerPlant.sysj line: 87, column: 4
-              S6263=1;
+              S8309=1;
               if(System.currentTimeMillis() - t0_thread_5 < 200){//sysj\fillerPlant.sysj line: 88, column: 11
                 levelAtTarget.setPresent();//sysj\fillerPlant.sysj line: 89, column: 5
                 currsigs.addElement(levelAtTarget);
@@ -67,7 +67,7 @@ public class FillerPlant extends ClockDomain{
               else {
                 ends[5]=2;
                 ;//sysj\fillerPlant.sysj line: 88, column: 4
-                S6263=0;
+                S8309=0;
                 active[5]=1;
                 ends[5]=1;
                 tdone[5]=1;
@@ -91,7 +91,7 @@ public class FillerPlant extends ClockDomain{
             else {
               ends[5]=2;
               ;//sysj\fillerPlant.sysj line: 88, column: 4
-              S6263=0;
+              S8309=0;
               active[5]=1;
               ends[5]=1;
               tdone[5]=1;
@@ -104,8 +104,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread7623(int [] tdone, int [] ends){
-        switch(S6261){
+  public void thread9669(int [] tdone, int [] ends){
+        switch(S8307){
       case 0 : 
         active[4]=0;
         ends[4]=0;
@@ -148,8 +148,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread7622(int [] tdone, int [] ends){
-        switch(S6244){
+  public void thread9668(int [] tdone, int [] ends){
+        switch(S8290){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -189,8 +189,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread7621(int [] tdone, int [] ends){
-        switch(S6227){
+  public void thread9667(int [] tdone, int [] ends){
+        switch(S8273){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -198,9 +198,9 @@ public class FillerPlant extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S6173){
+        switch(S8219){
           case 0 : 
-            S6173=0;
+            S8219=0;
             if(doseTargetMl.getprestatus()){//sysj\fillerPlant.sysj line: 27, column: 13
               doseTarget_1.setPresent();//sysj\fillerPlant.sysj line: 28, column: 5
               currsigs.addElement(doseTarget_1);
@@ -217,7 +217,7 @@ public class FillerPlant extends ClockDomain{
                 fillLevelMl.setValue(0);//sysj\fillerPlant.sysj line: 33, column: 5
                 FillerFaultState.clearOverfill();//sysj\fillerPlant.sysj line: 34, column: 5
                 FillerFaultState.clearStall();//sysj\fillerPlant.sysj line: 35, column: 5
-                S6173=1;
+                S8219=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -242,20 +242,20 @@ public class FillerPlant extends ClockDomain{
                     System.out.printf("target reached at lvl=%d (nominal target=%d)%n", lvl_thread_2, target_thread_2);//sysj\fillerPlant.sysj line: 47, column: 6
                     levelAtTargetPulse_1.setPresent();//sysj\fillerPlant.sysj line: 48, column: 6
                     currsigs.addElement(levelAtTargetPulse_1);
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                   else {
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                 }
                 else {
-                  S6173=1;
+                  S8219=1;
                   active[2]=1;
                   ends[2]=1;
                   tdone[2]=1;
@@ -275,7 +275,7 @@ public class FillerPlant extends ClockDomain{
                 fillLevelMl.setValue(0);//sysj\fillerPlant.sysj line: 33, column: 5
                 FillerFaultState.clearOverfill();//sysj\fillerPlant.sysj line: 34, column: 5
                 FillerFaultState.clearStall();//sysj\fillerPlant.sysj line: 35, column: 5
-                S6173=1;
+                S8219=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -300,20 +300,20 @@ public class FillerPlant extends ClockDomain{
                     System.out.printf("target reached at lvl=%d (nominal target=%d)%n", lvl_thread_2, target_thread_2);//sysj\fillerPlant.sysj line: 47, column: 6
                     levelAtTargetPulse_1.setPresent();//sysj\fillerPlant.sysj line: 48, column: 6
                     currsigs.addElement(levelAtTargetPulse_1);
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                   else {
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                 }
                 else {
-                  S6173=1;
+                  S8219=1;
                   active[2]=1;
                   ends[2]=1;
                   tdone[2]=1;
@@ -323,8 +323,8 @@ public class FillerPlant extends ClockDomain{
             break;
           
           case 1 : 
-            S6173=1;
-            S6173=0;
+            S8219=1;
+            S8219=0;
             if(doseTargetMl.getprestatus()){//sysj\fillerPlant.sysj line: 27, column: 13
               doseTarget_1.setPresent();//sysj\fillerPlant.sysj line: 28, column: 5
               currsigs.addElement(doseTarget_1);
@@ -341,7 +341,7 @@ public class FillerPlant extends ClockDomain{
                 fillLevelMl.setValue(0);//sysj\fillerPlant.sysj line: 33, column: 5
                 FillerFaultState.clearOverfill();//sysj\fillerPlant.sysj line: 34, column: 5
                 FillerFaultState.clearStall();//sysj\fillerPlant.sysj line: 35, column: 5
-                S6173=1;
+                S8219=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -366,20 +366,20 @@ public class FillerPlant extends ClockDomain{
                     System.out.printf("target reached at lvl=%d (nominal target=%d)%n", lvl_thread_2, target_thread_2);//sysj\fillerPlant.sysj line: 47, column: 6
                     levelAtTargetPulse_1.setPresent();//sysj\fillerPlant.sysj line: 48, column: 6
                     currsigs.addElement(levelAtTargetPulse_1);
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                   else {
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                 }
                 else {
-                  S6173=1;
+                  S8219=1;
                   active[2]=1;
                   ends[2]=1;
                   tdone[2]=1;
@@ -399,7 +399,7 @@ public class FillerPlant extends ClockDomain{
                 fillLevelMl.setValue(0);//sysj\fillerPlant.sysj line: 33, column: 5
                 FillerFaultState.clearOverfill();//sysj\fillerPlant.sysj line: 34, column: 5
                 FillerFaultState.clearStall();//sysj\fillerPlant.sysj line: 35, column: 5
-                S6173=1;
+                S8219=1;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -424,20 +424,20 @@ public class FillerPlant extends ClockDomain{
                     System.out.printf("target reached at lvl=%d (nominal target=%d)%n", lvl_thread_2, target_thread_2);//sysj\fillerPlant.sysj line: 47, column: 6
                     levelAtTargetPulse_1.setPresent();//sysj\fillerPlant.sysj line: 48, column: 6
                     currsigs.addElement(levelAtTargetPulse_1);
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                   else {
-                    S6173=1;
+                    S8219=1;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                 }
                 else {
-                  S6173=1;
+                  S8219=1;
                   active[2]=1;
                   ends[2]=1;
                   tdone[2]=1;
@@ -452,16 +452,16 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread7619(int [] tdone, int [] ends){
-        S6327=1;
-    S6263=0;
+  public void thread9665(int [] tdone, int [] ends){
+        S8373=1;
+    S8309=0;
     active[5]=1;
     ends[5]=1;
     tdone[5]=1;
   }
 
-  public void thread7618(int [] tdone, int [] ends){
-        S6261=1;
+  public void thread9664(int [] tdone, int [] ends){
+        S8307=1;
     if(valve1Open.getprestatus()){//sysj\fillerPlant.sysj line: 72, column: 22
       valve1OpenE.setPresent();//sysj\fillerPlant.sysj line: 73, column: 14
       currsigs.addElement(valve1OpenE);
@@ -494,8 +494,8 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread7617(int [] tdone, int [] ends){
-        S6244=1;
+  public void thread9663(int [] tdone, int [] ends){
+        S8290=1;
     if(overfillM.getprestatus()){//sysj\fillerPlant.sysj line: 60, column: 13
       FillerFaultState.armOverfill();//sysj\fillerPlant.sysj line: 61, column: 5
       if(stallM.getprestatus()){//sysj\fillerPlant.sysj line: 63, column: 13
@@ -525,9 +525,9 @@ public class FillerPlant extends ClockDomain{
     }
   }
 
-  public void thread7616(int [] tdone, int [] ends){
-        S6227=1;
-    S6173=0;
+  public void thread9662(int [] tdone, int [] ends){
+        S8273=1;
+    S8219=0;
     if(doseTargetMl.getprestatus()){//sysj\fillerPlant.sysj line: 27, column: 13
       doseTarget_1.setPresent();//sysj\fillerPlant.sysj line: 28, column: 5
       currsigs.addElement(doseTarget_1);
@@ -544,7 +544,7 @@ public class FillerPlant extends ClockDomain{
         fillLevelMl.setValue(0);//sysj\fillerPlant.sysj line: 33, column: 5
         FillerFaultState.clearOverfill();//sysj\fillerPlant.sysj line: 34, column: 5
         FillerFaultState.clearStall();//sysj\fillerPlant.sysj line: 35, column: 5
-        S6173=1;
+        S8219=1;
         active[2]=1;
         ends[2]=1;
         tdone[2]=1;
@@ -569,20 +569,20 @@ public class FillerPlant extends ClockDomain{
             System.out.printf("target reached at lvl=%d (nominal target=%d)%n", lvl_thread_2, target_thread_2);//sysj\fillerPlant.sysj line: 47, column: 6
             levelAtTargetPulse_1.setPresent();//sysj\fillerPlant.sysj line: 48, column: 6
             currsigs.addElement(levelAtTargetPulse_1);
-            S6173=1;
+            S8219=1;
             active[2]=1;
             ends[2]=1;
             tdone[2]=1;
           }
           else {
-            S6173=1;
+            S8219=1;
             active[2]=1;
             ends[2]=1;
             tdone[2]=1;
           }
         }
         else {
-          S6173=1;
+          S8219=1;
           active[2]=1;
           ends[2]=1;
           tdone[2]=1;
@@ -602,7 +602,7 @@ public class FillerPlant extends ClockDomain{
         fillLevelMl.setValue(0);//sysj\fillerPlant.sysj line: 33, column: 5
         FillerFaultState.clearOverfill();//sysj\fillerPlant.sysj line: 34, column: 5
         FillerFaultState.clearStall();//sysj\fillerPlant.sysj line: 35, column: 5
-        S6173=1;
+        S8219=1;
         active[2]=1;
         ends[2]=1;
         tdone[2]=1;
@@ -627,20 +627,20 @@ public class FillerPlant extends ClockDomain{
             System.out.printf("target reached at lvl=%d (nominal target=%d)%n", lvl_thread_2, target_thread_2);//sysj\fillerPlant.sysj line: 47, column: 6
             levelAtTargetPulse_1.setPresent();//sysj\fillerPlant.sysj line: 48, column: 6
             currsigs.addElement(levelAtTargetPulse_1);
-            S6173=1;
+            S8219=1;
             active[2]=1;
             ends[2]=1;
             tdone[2]=1;
           }
           else {
-            S6173=1;
+            S8219=1;
             active[2]=1;
             ends[2]=1;
             tdone[2]=1;
           }
         }
         else {
-          S6173=1;
+          S8219=1;
           active[2]=1;
           ends[2]=1;
           tdone[2]=1;
@@ -656,14 +656,14 @@ public class FillerPlant extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S7614){
+      switch(S9660){
         case 0 : 
-          S7614=0;
+          S9660=0;
           break RUN;
         
         case 1 : 
-          S7614=2;
-          S7614=2;
+          S9660=2;
+          S9660=2;
           new Thread(new FillerGUI()).start();//sysj\fillerPlant.sysj line: 17, column: 2
           fillLevel_1.setClear();//sysj\fillerPlant.sysj line: 19, column: 2
           fillLevel_1.setPresent();//sysj\fillerPlant.sysj line: 20, column: 2
@@ -674,24 +674,24 @@ public class FillerPlant extends ClockDomain{
           currsigs.addElement(doseTarget_1);
           doseTarget_1.setValue(0);//sysj\fillerPlant.sysj line: 22, column: 2
           levelAtTargetPulse_1.setClear();//sysj\fillerPlant.sysj line: 23, column: 2
-          thread7616(tdone,ends);
-          thread7617(tdone,ends);
-          thread7618(tdone,ends);
-          thread7619(tdone,ends);
-          int biggest7620 = 0;
-          if(ends[2]>=biggest7620){
-            biggest7620=ends[2];
+          thread9662(tdone,ends);
+          thread9663(tdone,ends);
+          thread9664(tdone,ends);
+          thread9665(tdone,ends);
+          int biggest9666 = 0;
+          if(ends[2]>=biggest9666){
+            biggest9666=ends[2];
           }
-          if(ends[3]>=biggest7620){
-            biggest7620=ends[3];
+          if(ends[3]>=biggest9666){
+            biggest9666=ends[3];
           }
-          if(ends[4]>=biggest7620){
-            biggest7620=ends[4];
+          if(ends[4]>=biggest9666){
+            biggest9666=ends[4];
           }
-          if(ends[5]>=biggest7620){
-            biggest7620=ends[5];
+          if(ends[5]>=biggest9666){
+            biggest9666=ends[5];
           }
-          if(biggest7620 == 1){
+          if(biggest9666 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
@@ -701,34 +701,34 @@ public class FillerPlant extends ClockDomain{
           fillLevel_1.setClear();//sysj\fillerPlant.sysj line: 19, column: 2
           doseTarget_1.setClear();//sysj\fillerPlant.sysj line: 21, column: 2
           levelAtTargetPulse_1.setClear();//sysj\fillerPlant.sysj line: 23, column: 2
-          thread7621(tdone,ends);
-          thread7622(tdone,ends);
-          thread7623(tdone,ends);
-          thread7624(tdone,ends);
-          int biggest7625 = 0;
-          if(ends[2]>=biggest7625){
-            biggest7625=ends[2];
+          thread9667(tdone,ends);
+          thread9668(tdone,ends);
+          thread9669(tdone,ends);
+          thread9670(tdone,ends);
+          int biggest9671 = 0;
+          if(ends[2]>=biggest9671){
+            biggest9671=ends[2];
           }
-          if(ends[3]>=biggest7625){
-            biggest7625=ends[3];
+          if(ends[3]>=biggest9671){
+            biggest9671=ends[3];
           }
-          if(ends[4]>=biggest7625){
-            biggest7625=ends[4];
+          if(ends[4]>=biggest9671){
+            biggest9671=ends[4];
           }
-          if(ends[5]>=biggest7625){
-            biggest7625=ends[5];
+          if(ends[5]>=biggest9671){
+            biggest9671=ends[5];
           }
-          if(biggest7625 == 1){
+          if(biggest9671 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
           //FINXME code
-          if(biggest7625 == 0){
-            S7614=0;
+          if(biggest9671 == 0){
+            S9660=0;
             active[1]=0;
             ends[1]=0;
-            S7614=0;
+            S9660=0;
             break RUN;
           }
         

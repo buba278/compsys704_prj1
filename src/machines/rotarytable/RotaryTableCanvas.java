@@ -62,8 +62,22 @@ public class RotaryTableCanvas extends JPanel {
 		g.setColor(Color.DARK_GRAY);
 		g.drawOval(TABLE_CENTER_X - TABLE_RADIUS, TABLE_CENTER_Y - TABLE_RADIUS, TABLE_RADIUS * 2, TABLE_RADIUS * 2);
 
+		final int TOP_POSITION_INDEX = 2; // Pos3 (i == 2) is drawn at the top
+
+		// the physical disc underneath the fixed stations - these spokes are
+		// the only thing that actually rotates with CURRENT_ANGLE_DEG, so the
+		// table visibly spins while the station positions themselves stay put
+		g.setColor(new Color(225, 225, 225));
 		for (int i = 0; i < 6; i++) {
-			double angleDeg = -90 + i * 60 + RotaryTableState.CURRENT_ANGLE_DEG;
+			double spokeAngleDeg = -90 + (i - TOP_POSITION_INDEX) * 60 + RotaryTableState.CURRENT_ANGLE_DEG;
+			double spokeAngleRad = Math.toRadians(spokeAngleDeg);
+			int spokeX = (int) (TABLE_CENTER_X + TABLE_RADIUS * Math.cos(spokeAngleRad));
+			int spokeY = (int) (TABLE_CENTER_Y + TABLE_RADIUS * Math.sin(spokeAngleRad));
+			g.drawLine(TABLE_CENTER_X, TABLE_CENTER_Y, spokeX, spokeY);
+		}
+
+		for (int i = 0; i < 6; i++) {
+			double angleDeg = -90 + (i - TOP_POSITION_INDEX) * 60;
 			double angleRad = Math.toRadians(angleDeg);
 			int slotX = (int) (TABLE_CENTER_X + TABLE_RADIUS * Math.cos(angleRad));
 			int slotY = (int) (TABLE_CENTER_Y + TABLE_RADIUS * Math.sin(angleRad));

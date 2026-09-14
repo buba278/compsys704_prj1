@@ -44,6 +44,10 @@ public class Ports {
 	// kicks the plant's sensor loop off (it sits at await(start) until this fires)
 	public static final String ROTARYTABLE_START = "RotaryTablePlantCD.start";
 
+	// Pos 1 handoff handshake with the Conveyor
+	public static final String CONVEYOR_CONTROLLER_POS1_TAKEN_ACK = "ConveyorControllerCD.pos1TakenAck";
+	public static final String CONVEYOR_PLANT_POS1_TAKEN_ACK      = "ConveyorPlantCD.pos1TakenAck";
+
 	// === CONVEYOR ===
 	public static final int PORT_CONVEYOR_CONTROLLER = 10006;
 	public static final int PORT_CONVEYOR_PLANT      = 10007;
@@ -57,6 +61,8 @@ public class Ports {
 	public static final String CONVEYOR_ENABLE            = "ConveyorPlantCD.enable";
 	public static final String CONVEYOR_LOAD_BOTTLE       = "ConveyorPlantCD.loadBottle";
 	public static final String CONVEYOR_BOTTLE_FROM_TABLE = "ConveyorPlantCD.bottleFromTable";
+	// for debug: stand in for the Sorter's "finished bottle removed" signal, until that station exists
+	public static final String CONVEYOR_SORT_DONE         = "ConveyorPlantCD.sortDone";
 	
 	// fault tolerance: manual fault injection from the Filler GUI
 	public static final String FILLER_OVERFILL_M                = "FillerPlantCD.overfillM";

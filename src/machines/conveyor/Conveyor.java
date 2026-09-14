@@ -37,10 +37,10 @@ public class Conveyor extends JFrame {
 
 	public Conveyor() {
 		ConveyorCanvas canvas = new ConveyorCanvas();
-		canvas.setPreferredSize(new Dimension(300, 200));
+		canvas.setPreferredSize(new Dimension(650, 220));
 		canvas.setBackground(Color.WHITE);
 
-		// --- DEV stand-ins for the Loader and Rotary Table handoffs ---
+		// --- DEV stand-ins for the Loader, Rotary Table and Sorter handoffs ---
 
 		final SignalLevelClient enableClient = new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_ENABLE);
 		JRadioButton disabled = new JRadioButton("disabled");
@@ -55,7 +55,10 @@ public class Conveyor extends JFrame {
 				enableClient.send(true);
 			}
 		});
-		disabled.setSelected(true);
+		// system-ready by default, so the belt works out of the box; the toggle
+		// is still there to demonstrate what happens when it's held not-ready
+		enabled.setSelected(true);
+		enableClient.send(true);
 		ButtonGroup enableGroup = new ButtonGroup();
 		enableGroup.add(disabled);
 		enableGroup.add(enabled);
@@ -79,11 +82,20 @@ public class Conveyor extends JFrame {
 			}
 		});
 
+		final SignalLevelClient sortDoneClient = new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_SORT_DONE);
+		JButton sortDoneButton = new JButton("Sort Done (Collection end)");
+		sortDoneButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				pulse(sortDoneClient);
+			}
+		});
+
 		JPanel devControls = new JPanel();
-		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-ins for Loader / Rotary Table)"));
+		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-ins for Loader / Rotary Table / Sorter)"));
 		devControls.add(enablePanel);
 		devControls.add(loadBottleButton);
 		devControls.add(bottleFromTableButton);
+		devControls.add(sortDoneButton);
 
 		// --- real controller inputs: mode + manual jog ---
 

@@ -1,5 +1,7 @@
+import run.RotaryConveyorBridge;
+
 conveyorController(
-		input signal bottleAtPos1, bottleLeftPos5;
+		input signal bottleAtPos1, bottleLeftPos5, pos1TakenAck;
 		output signal motConveyorOnOff;
 		input Integer signal mode;
 		input signal conveyorM;
@@ -8,7 +10,22 @@ conveyorController(
 {
 	signal autoMode, manualMode;
 
-	{ // mode selection - same pattern as controller.sysj / rotaryTableController.sysj
+	// Direct controller-to-controller handoff with the Rotary Table
+	// Controller. This replaces the old approach of piggy-backing the
+	// handoff on the bottleAtPos1E *visualisation* event inside
+	// ConveyorVizWorker, which tied a physical handoff to whatever fixed
+	// number of ticks the plant happened to hold that GUI event for.
+	// readyToRotate (the request) is held true for as long as there is a
+	// bottle waiting at Pos 1, and is only dropped once the Rotary Table
+	// has acknowledged it via pos1TakenAck - see rotaryTableController.sysj
+	// and conveyorPlant.sysj for the other two legs of this handshake.
+	// Sent via RotaryConveyorBridge (a single-segment "run" package class)
+	// rather than declaring the SignalLevelClient inline here - this build
+	// of sjc crashes resolving types from multi-segment packages such as
+	// org.compsys704 when used for a local instance declaration inside a
+	// .sysj reactive body (confirmed by isolated repro).
+
+	{ // mode selection
 		int currentMode = 0; // default is auto mode
 		loop {
 			present(mode) {
@@ -24,39 +41,47 @@ conveyorController(
 		}
 	}
 	||
-	{ // automatic operation - conveyor clock-domain, per the four-step cycle:
-	  // 1. wait until no bottle is waiting at the far end (Pos 5)
-	  // 2. enable the conveyor motor
-	  // 3. observe a new bottle reaching Pos 1 (handed to the Rotary Table)
-	  // 4/5. keep running until a finished bottle clears Pos 5, then stop
+	{ // auto mode
 		loop {
 			await(autoMode);
 			abort(manualMode) {
+				boolean handoffPending = false;
 				loop {
-					// 1. no bottle currently sitting at the exit end
-					await(!bottleLeftPos5);
-
-					// 2, 4 & 5: run the motor until a finished bottle clears Pos 5
-					abort(bottleLeftPos5) {
-						{
-							sustain motConveyorOnOff;
-						}
-						||
-						{ // 3. log when a bottle reaches Pos 1 while running
-							loop {
-								present(bottleAtPos1) {
-									System.out.printf("Conveyor: bottle at Pos 1 - handing to Rotary Table%n");
-								}
-								pause;
-							}
+					present(bottleAtPos1) {
+						// Don't tell the Rotary Table it's safe to rotate the
+						// instant the model signals arrival - the on-screen
+						// bottle (eased toward this same model progress in
+						// ConveyorCanvas) needs a little longer to visually
+						// settle at the Pos 1 marker. handoffPending guards
+						// this so the wait only starts once per bottle rather
+						// than re-arming every tick bottleAtPos1 stays present.
+						if (!handoffPending) {
+							handoffPending = true;
+							long tArrive = System.currentTimeMillis();
+							while (System.currentTimeMillis() - tArrive < 200) { pause; }
+							RotaryConveyorBridge.setReadyToRotate(true);
+							System.out.printf("Conveyor: bottle at Pos 1 - handing to Rotary Table%n");
 						}
 					}
+					present(pos1TakenAck) {
+						// Rotary Table has committed to taking the bottle -
+						// safe to drop our request now. The plant is
+						// watching the same ack independently to release
+						// bottleAtPos1 on its side.
+						handoffPending = false;
+						RotaryConveyorBridge.setReadyToRotate(false);
+						System.out.printf("Conveyor: Rotary Table has taken the bottle from Pos 1%n");
+					}
+					present(bottleLeftPos5) {
+						System.out.printf("Conveyor: bottle travelling to collection point%n");
+					}
+					pause;
 				}
 			}
 		}
 	}
 	||
-	{ // manual operation
+	{ // manual mode
 		loop {
 			await(manualMode);
 			abort(autoMode) {
