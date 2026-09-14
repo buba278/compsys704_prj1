@@ -1,5 +1,6 @@
 import run.ConveyorGUI;
 import run.ConveyorLabellerBridge;
+import run.RotaryConveyorBridge;
 
 conveyorPlant(
 		input signal motConveyorOnOff;
@@ -136,6 +137,20 @@ conveyorPlant(
 			}
 			ConveyorLabellerBridge.setBottleFromConveyor(false);
 			await(!labellerTakenAck);
+
+			// Only now - genuinely ready for the next bottleFromTable, not
+			// just having received this one - tell the Rotary Table it can
+			// send its next bottle. Acking any earlier would let the Rotary
+			// Table's next handoff race this segment's own still-running
+			// travel/labeller sequence above (see CLAUDE.md).
+			{
+				long tAck = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tAck < 200) {
+					RotaryConveyorBridge.setConveyorTakenAck(true);
+					pause;
+				}
+			}
+			RotaryConveyorBridge.setConveyorTakenAck(false);
 		}
 	}
 	||
