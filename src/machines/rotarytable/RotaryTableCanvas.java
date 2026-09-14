@@ -58,6 +58,12 @@ public class RotaryTableCanvas extends JPanel {
 		g.setColor(Color.BLACK);
 		g.drawString("Cap on bottle at Pos 1", LABEL_X, POS1_Y + 12);
 
+		// Current bottle stage readout - what the user actually asked to see:
+		// where the bottle on the table is right now.
+		g.setColor(RotaryTableState.BOTTLE_STAGE == 0 ? Color.GRAY : Color.RED.darker());
+		g.drawString("Bottle stage: " + RotaryTableState.STAGE_NAMES[RotaryTableState.BOTTLE_STAGE],
+				LABEL_X, POS1_Y + 30);
+
 		// the turntable itself, with 6 slots spaced 60 degrees apart (5 active + 1 spare)
 		g.setColor(Color.DARK_GRAY);
 		g.drawOval(TABLE_CENTER_X - TABLE_RADIUS, TABLE_CENTER_Y - TABLE_RADIUS, TABLE_RADIUS * 2, TABLE_RADIUS * 2);
@@ -83,16 +89,29 @@ public class RotaryTableCanvas extends JPanel {
 			int slotY = (int) (TABLE_CENTER_Y + TABLE_RADIUS * Math.sin(angleRad));
 
 			boolean isPos1 = (i == 0);
+			boolean isPos2 = (i == 1);
+			boolean isPos3 = (i == 2);
+			boolean isPos4 = (i == 3);
 			boolean isPos5 = (i == 4);
 			Color fill = Color.WHITE;
 			if (isPos1 && RotaryTableState.CAP_ON_BOTTLE_AT_POS1) fill = LIQUID_B_COLOR;
 			if (isPos5 && RotaryTableState.BOTTLE_AT_POS5) fill = LIQUID_A_COLOR;
 
+			// Highlight whichever station the current bottle's stage says
+			// it's at (see RotaryTableState.BOTTLE_STAGE / STAGE_NAMES).
+			boolean isCurrentStage = (isPos2 && RotaryTableState.BOTTLE_STAGE == 2)
+					|| (isPos3 && RotaryTableState.BOTTLE_STAGE == 4)
+					|| (isPos4 && RotaryTableState.BOTTLE_STAGE == 1);
+			if (isCurrentStage) fill = Color.RED;
+
 			Ellipse2D slot = new Ellipse2D.Double(slotX - SLOT_RADIUS, slotY - SLOT_RADIUS, SLOT_RADIUS * 2, SLOT_RADIUS * 2);
 			g.setColor(fill);
 			g.fill(slot);
-			g.setColor(Color.BLACK);
+			g.setColor(isCurrentStage ? Color.RED.darker() : Color.BLACK);
+			g.setStroke(new java.awt.BasicStroke(isCurrentStage ? 3f : 1f));
 			g.draw(slot);
+			g.setStroke(new java.awt.BasicStroke(1f));
+			g.setColor(isCurrentStage ? Color.WHITE : Color.BLACK);
 			g.drawString(String.valueOf(i + 1), slotX - 4, slotY + 4);
 		}
 

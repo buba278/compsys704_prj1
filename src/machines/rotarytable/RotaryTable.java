@@ -24,58 +24,13 @@ public class RotaryTable extends JFrame {
 		canvas.setPreferredSize(new Dimension(300, 400));
 		canvas.setBackground(Color.WHITE);
 
-		// --- DEV stand-ins for stations not yet wired in (Sorting / Cap Screwing) ---
 		// readyToRotate is driven by the Conveyor (see ConveyorVizWorker,
 		// which forwards its bottleAtPos1E straight into this signal) - watch the
 		// Conveyor GUI's "Bottle at Pos 1" light for its current state.
-		// bottleAtPos5 and capOnBottleAtPos1 still need DEV toggles 
-
-		final SignalLevelClient pos5Client = new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_BOTTLE_AT_POS5_TOGGLE);
-		JRadioButton noBottlePos5 = new JRadioButton("no bottle");
-		noBottlePos5.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				pos5Client.send(false);
-			}
-		});
-		JRadioButton bottlePos5 = new JRadioButton("bottle at Pos5");
-		bottlePos5.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				pos5Client.send(true);
-			}
-		});
-		noBottlePos5.setSelected(true);
-		ButtonGroup pos5Group = new ButtonGroup();
-		pos5Group.add(noBottlePos5);
-		pos5Group.add(bottlePos5);
-		JPanel pos5Panel = new JPanel();
-		pos5Panel.add(noBottlePos5);
-		pos5Panel.add(bottlePos5);
-
-		final SignalLevelClient capPos1Client = new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_CAP_ON_BOTTLE_AT_POS1_TOGGLE);
-		JRadioButton noCapPos1 = new JRadioButton("no cap");
-		noCapPos1.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				capPos1Client.send(false);
-			}
-		});
-		JRadioButton capPos1 = new JRadioButton("cap on bottle at Pos1");
-		capPos1.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				capPos1Client.send(true);
-			}
-		});
-		noCapPos1.setSelected(true);
-		ButtonGroup capGroup = new ButtonGroup();
-		capGroup.add(noCapPos1);
-		capGroup.add(capPos1);
-		JPanel capPanel = new JPanel();
-		capPanel.add(noCapPos1);
-		capPanel.add(capPos1);
-
-		JPanel devControls = new JPanel();
-		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-ins for Sorting / Cap Screwing)"));
-		devControls.add(pos5Panel);
-		devControls.add(capPanel);
+		// bottleAtPos5 and capOnBottleAtPos1 are now driven automatically too
+		// (RotaryCapperBridge/RotaryFillerBridge/RotaryConveyorBridge - see
+		// rotaryTablePlant.sysj), so the old manual DEV toggles for them are
+		// gone - nothing sends those signals anymore.
 
 		// --- controller inputs: mode + manual jog ---
 		
@@ -126,8 +81,6 @@ public class RotaryTable extends JFrame {
 		c.gridx = 0; c.gridy = 0;
 		this.add(canvas, c);
 		c.gridy = 1;
-		this.add(devControls, c);
-		c.gridy = 2;
 		this.add(modePanel, c);
 
 		this.setTitle("Rotary Table");

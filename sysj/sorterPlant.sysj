@@ -1,6 +1,8 @@
 import run.SorterGUI;
+import run.LabellerSorterBridge;
 SorterPlant(
     input signal extendPusher;
+    input signal bottleFromLabeller;
 
     output signal bottleAtSorter;
     output signal bottleDefective;
@@ -19,8 +21,13 @@ SorterPlant(
     new Thread(new SorterGUI()).start();
 
     {
-        // 1. Bottle arrival / conveyor feed simulation.
+        // 1. Bottle arrival: real handoff from the Labeller, via
+        // LabellerSorterBridge (see labellerPlant.sysj for the other side
+        // of this handshake), rather than free-running.
         while (true) {
+            await(bottleFromLabeller);
+            // commit: ack back to the Labeller so it can drop its offer.
+            LabellerSorterBridge.setSorterTakenAck(true);
             System.out.println("SorterPlant [Feed]: Presenting bottle at sorter...");
 
             // Sustain the bottle's presence, but bound it with a timeout so a
@@ -33,6 +40,11 @@ SorterPlant(
                     pause;
                 }
             }
+
+            // complete the handshake: wait for the Labeller to see our ack
+            // and drop its own offer before we drop ours.
+            await(!bottleFromLabeller);
+            LabellerSorterBridge.setSorterTakenAck(false);
 
             present (extendPusher) {
                 System.out.println("SorterPlant [Feed]: Bottle being diverted by pusher, waiting for release...");

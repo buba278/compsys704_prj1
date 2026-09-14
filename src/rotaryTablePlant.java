@@ -5,6 +5,9 @@ import com.systemj.input_Channel;
 import com.systemj.output_Channel;
 import run.RotaryTableGUI;//sysj\rotaryTablePlant.sysj line: 1, column: 1
 import run.RotaryConveyorBridge;//sysj\rotaryTablePlant.sysj line: 2, column: 1
+import run.RotaryCapperBridge;//sysj\rotaryTablePlant.sysj line: 3, column: 1
+import run.RotaryFillerBridge;//sysj\rotaryTablePlant.sysj line: 4, column: 1
+import run.RotaryLidBridge;//sysj\rotaryTablePlant.sysj line: 5, column: 1
 
 public class rotaryTablePlant extends ClockDomain{
   public rotaryTablePlant(String name){super(name);}
@@ -15,89 +18,50 @@ public class rotaryTablePlant extends ClockDomain{
   private char [] suspended;
   public Signal rotaryTableTrigger = new Signal("rotaryTableTrigger", Signal.INPUT);
   public Signal start = new Signal("start", Signal.INPUT);
-  public Signal capOnBottleAtPos1Toggle = new Signal("capOnBottleAtPos1Toggle", Signal.INPUT);
-  public Signal bottleAtPos5Toggle = new Signal("bottleAtPos5Toggle", Signal.INPUT);
+  public Signal capperTakenAck = new Signal("capperTakenAck", Signal.INPUT);
+  public Signal fillerTakenAck = new Signal("fillerTakenAck", Signal.INPUT);
+  public Signal lidPlacedAck = new Signal("lidPlacedAck", Signal.INPUT);
   public Signal tableAlignedWithSensor = new Signal("tableAlignedWithSensor", Signal.OUTPUT);
   public Signal bottleAtPos5 = new Signal("bottleAtPos5", Signal.OUTPUT);
   public Signal capOnBottleAtPos1 = new Signal("capOnBottleAtPos1", Signal.OUTPUT);
+  public Signal tableBusy = new Signal("tableBusy", Signal.OUTPUT);
+  public Signal bottleStageE = new Signal("bottleStageE", Signal.OUTPUT);
   public Signal tableAlignedWithSensorE = new Signal("tableAlignedWithSensorE", Signal.OUTPUT);
   public Signal bottleAtPos5E = new Signal("bottleAtPos5E", Signal.OUTPUT);
   public Signal capOnBottleAtPos1E = new Signal("capOnBottleAtPos1E", Signal.OUTPUT);
   public Signal rotaryTableTriggerE = new Signal("rotaryTableTriggerE", Signal.OUTPUT);
-  private long t0_thread_5;//sysj\rotaryTablePlant.sysj line: 61, column: 5
-  private int S12594 = 1;
-  private int S12215 = 1;
-  private int S12214 = 1;
-  private int S12188 = 1;
-  private int S12223 = 1;
-  private int S12217 = 1;
-  private int S12231 = 1;
-  private int S12353 = 1;
-  private int S12271 = 1;
-  private int S12247 = 1;
-  private int S12387 = 1;
-  private int S12361 = 1;
-  private int S12369 = 1;
-  private int S12377 = 1;
-  private int S12385 = 1;
+  private long STAGE_VIEW_DELAY_MS_thread_3;//sysj\rotaryTablePlant.sysj line: 76, column: 3
+  private long tFillStart_thread_3;//sysj\rotaryTablePlant.sysj line: 86, column: 4
+  private long t2_thread_3;//sysj\rotaryTablePlant.sysj line: 88, column: 5
+  private long tGap1_thread_3;//sysj\rotaryTablePlant.sysj line: 109, column: 5
+  private long tLidStart_thread_3;//sysj\rotaryTablePlant.sysj line: 132, column: 4
+  private long t5_thread_3;//sysj\rotaryTablePlant.sysj line: 134, column: 5
+  private long sinceStart_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+  private boolean enableFlag_thread_3;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+  private long tGap2_thread_3;//sysj\rotaryTablePlant.sysj line: 160, column: 5
+  private long tCapStart_thread_3;//sysj\rotaryTablePlant.sysj line: 170, column: 4
+  private long t0_thread_3;//sysj\rotaryTablePlant.sysj line: 172, column: 5
+  private long t1_thread_3;//sysj\rotaryTablePlant.sysj line: 187, column: 5
+  private long tGap3_thread_3;//sysj\rotaryTablePlant.sysj line: 200, column: 5
+  private long t3_thread_3;//sysj\rotaryTablePlant.sysj line: 212, column: 4
+  private long t4_thread_3;//sysj\rotaryTablePlant.sysj line: 225, column: 5
+  private int S43815 = 1;
+  private int S19444 = 1;
+  private int S19443 = 1;
+  private int S19417 = 1;
+  private int S31578 = 1;
+  private int S19446 = 1;
+  private int S31612 = 1;
+  private int S31586 = 1;
+  private int S31594 = 1;
+  private int S31602 = 1;
+  private int S31610 = 1;
   
-  private int[] ends = new int[11];
-  private int[] tdone = new int[11];
+  private int[] ends = new int[9];
+  private int[] tdone = new int[9];
   
-  public void thread12615(int [] tdone, int [] ends){
-        switch(S12385){
-      case 0 : 
-        active[10]=0;
-        ends[10]=0;
-        tdone[10]=1;
-        break;
-      
-      case 1 : 
-        if(rotaryTableTrigger.getprestatus()){//sysj\rotaryTablePlant.sysj line: 87, column: 24
-          rotaryTableTriggerE.setPresent();//sysj\rotaryTablePlant.sysj line: 87, column: 44
-          currsigs.addElement(rotaryTableTriggerE);
-          active[10]=1;
-          ends[10]=1;
-          tdone[10]=1;
-        }
-        else {
-          active[10]=1;
-          ends[10]=1;
-          tdone[10]=1;
-        }
-        break;
-      
-    }
-  }
-
-  public void thread12614(int [] tdone, int [] ends){
-        switch(S12377){
-      case 0 : 
-        active[9]=0;
-        ends[9]=0;
-        tdone[9]=1;
-        break;
-      
-      case 1 : 
-        if(capOnBottleAtPos1.getprestatus()){//sysj\rotaryTablePlant.sysj line: 85, column: 24
-          capOnBottleAtPos1E.setPresent();//sysj\rotaryTablePlant.sysj line: 85, column: 43
-          currsigs.addElement(capOnBottleAtPos1E);
-          active[9]=1;
-          ends[9]=1;
-          tdone[9]=1;
-        }
-        else {
-          active[9]=1;
-          ends[9]=1;
-          tdone[9]=1;
-        }
-        break;
-      
-    }
-  }
-
-  public void thread12613(int [] tdone, int [] ends){
-        switch(S12369){
+  public void thread43832(int [] tdone, int [] ends){
+        switch(S31610){
       case 0 : 
         active[8]=0;
         ends[8]=0;
@@ -105,9 +69,9 @@ public class rotaryTablePlant extends ClockDomain{
         break;
       
       case 1 : 
-        if(bottleAtPos5.getprestatus()){//sysj\rotaryTablePlant.sysj line: 83, column: 24
-          bottleAtPos5E.setPresent();//sysj\rotaryTablePlant.sysj line: 83, column: 38
-          currsigs.addElement(bottleAtPos5E);
+        if(rotaryTableTrigger.getprestatus()){//sysj\rotaryTablePlant.sysj line: 246, column: 24
+          rotaryTableTriggerE.setPresent();//sysj\rotaryTablePlant.sysj line: 246, column: 44
+          currsigs.addElement(rotaryTableTriggerE);
           active[8]=1;
           ends[8]=1;
           tdone[8]=1;
@@ -122,8 +86,8 @@ public class rotaryTablePlant extends ClockDomain{
     }
   }
 
-  public void thread12612(int [] tdone, int [] ends){
-        switch(S12361){
+  public void thread43831(int [] tdone, int [] ends){
+        switch(S31602){
       case 0 : 
         active[7]=0;
         ends[7]=0;
@@ -131,9 +95,9 @@ public class rotaryTablePlant extends ClockDomain{
         break;
       
       case 1 : 
-        if(tableAlignedWithSensor.getprestatus()){//sysj\rotaryTablePlant.sysj line: 81, column: 24
-          tableAlignedWithSensorE.setPresent();//sysj\rotaryTablePlant.sysj line: 81, column: 48
-          currsigs.addElement(tableAlignedWithSensorE);
+        if(capOnBottleAtPos1.getprestatus()){//sysj\rotaryTablePlant.sysj line: 244, column: 24
+          capOnBottleAtPos1E.setPresent();//sysj\rotaryTablePlant.sysj line: 244, column: 43
+          currsigs.addElement(capOnBottleAtPos1E);
           active[7]=1;
           ends[7]=1;
           tdone[7]=1;
@@ -148,8 +112,8 @@ public class rotaryTablePlant extends ClockDomain{
     }
   }
 
-  public void thread12611(int [] tdone, int [] ends){
-        switch(S12387){
+  public void thread43830(int [] tdone, int [] ends){
+        switch(S31594){
       case 0 : 
         active[6]=0;
         ends[6]=0;
@@ -157,33 +121,16 @@ public class rotaryTablePlant extends ClockDomain{
         break;
       
       case 1 : 
-        thread12612(tdone,ends);
-        thread12613(tdone,ends);
-        thread12614(tdone,ends);
-        thread12615(tdone,ends);
-        int biggest12616 = 0;
-        if(ends[7]>=biggest12616){
-          biggest12616=ends[7];
-        }
-        if(ends[8]>=biggest12616){
-          biggest12616=ends[8];
-        }
-        if(ends[9]>=biggest12616){
-          biggest12616=ends[9];
-        }
-        if(ends[10]>=biggest12616){
-          biggest12616=ends[10];
-        }
-        if(biggest12616 == 1){
+        if(bottleAtPos5.getprestatus()){//sysj\rotaryTablePlant.sysj line: 242, column: 24
+          bottleAtPos5E.setPresent();//sysj\rotaryTablePlant.sysj line: 242, column: 38
+          currsigs.addElement(bottleAtPos5E);
           active[6]=1;
           ends[6]=1;
           tdone[6]=1;
         }
-        //FINXME code
-        if(biggest12616 == 0){
-          S12387=0;
-          active[6]=0;
-          ends[6]=0;
+        else {
+          active[6]=1;
+          ends[6]=1;
           tdone[6]=1;
         }
         break;
@@ -191,8 +138,8 @@ public class rotaryTablePlant extends ClockDomain{
     }
   }
 
-  public void thread12610(int [] tdone, int [] ends){
-        switch(S12353){
+  public void thread43829(int [] tdone, int [] ends){
+        switch(S31586){
       case 0 : 
         active[5]=0;
         ends[5]=0;
@@ -200,96 +147,25 @@ public class rotaryTablePlant extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S12271){
-          case 0 : 
-            if(tableAlignedWithSensor.getprestatus()){//sysj\rotaryTablePlant.sysj line: 59, column: 10
-              S12271=1;
-              if(bottleAtPos5.getprestatus()){//sysj\rotaryTablePlant.sysj line: 60, column: 12
-                t0_thread_5 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 61, column: 5
-                S12247=0;
-                if(System.currentTimeMillis() - t0_thread_5 < 200){//sysj\rotaryTablePlant.sysj line: 62, column: 12
-                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 63, column: 6
-                  active[5]=1;
-                  ends[5]=1;
-                  tdone[5]=1;
-                }
-                else {
-                  ends[5]=2;
-                  ;//sysj\rotaryTablePlant.sysj line: 62, column: 5
-                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 66, column: 5
-                  S12247=1;
-                  active[5]=1;
-                  ends[5]=1;
-                  tdone[5]=1;
-                }
-              }
-              else {
-                S12271=2;
-                active[5]=1;
-                ends[5]=1;
-                tdone[5]=1;
-              }
-            }
-            else {
-              active[5]=1;
-              ends[5]=1;
-              tdone[5]=1;
-            }
-            break;
-          
-          case 1 : 
-            switch(S12247){
-              case 0 : 
-                if(System.currentTimeMillis() - t0_thread_5 < 200){//sysj\rotaryTablePlant.sysj line: 62, column: 12
-                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 63, column: 6
-                  active[5]=1;
-                  ends[5]=1;
-                  tdone[5]=1;
-                }
-                else {
-                  ends[5]=2;
-                  ;//sysj\rotaryTablePlant.sysj line: 62, column: 5
-                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 66, column: 5
-                  S12247=1;
-                  active[5]=1;
-                  ends[5]=1;
-                  tdone[5]=1;
-                }
-                break;
-              
-              case 1 : 
-                if(!bottleAtPos5.getprestatus()){//sysj\rotaryTablePlant.sysj line: 74, column: 11
-                  S12271=2;
-                  active[5]=1;
-                  ends[5]=1;
-                  tdone[5]=1;
-                }
-                else {
-                  active[5]=1;
-                  ends[5]=1;
-                  tdone[5]=1;
-                }
-                break;
-              
-            }
-            break;
-          
-          case 2 : 
-            S12271=2;
-            S12271=0;
-            active[5]=1;
-            ends[5]=1;
-            tdone[5]=1;
-            break;
-          
+        if(tableAlignedWithSensor.getprestatus()){//sysj\rotaryTablePlant.sysj line: 240, column: 24
+          tableAlignedWithSensorE.setPresent();//sysj\rotaryTablePlant.sysj line: 240, column: 48
+          currsigs.addElement(tableAlignedWithSensorE);
+          active[5]=1;
+          ends[5]=1;
+          tdone[5]=1;
+        }
+        else {
+          active[5]=1;
+          ends[5]=1;
+          tdone[5]=1;
         }
         break;
       
     }
   }
 
-  public void thread12609(int [] tdone, int [] ends){
-        switch(S12231){
+  public void thread43828(int [] tdone, int [] ends){
+        switch(S31612){
       case 0 : 
         active[4]=0;
         ends[4]=0;
@@ -297,16 +173,33 @@ public class rotaryTablePlant extends ClockDomain{
         break;
       
       case 1 : 
-        if(bottleAtPos5Toggle.getprestatus()){//sysj\rotaryTablePlant.sysj line: 42, column: 12
-          bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 43, column: 5
-          currsigs.addElement(bottleAtPos5);
+        thread43829(tdone,ends);
+        thread43830(tdone,ends);
+        thread43831(tdone,ends);
+        thread43832(tdone,ends);
+        int biggest43833 = 0;
+        if(ends[5]>=biggest43833){
+          biggest43833=ends[5];
+        }
+        if(ends[6]>=biggest43833){
+          biggest43833=ends[6];
+        }
+        if(ends[7]>=biggest43833){
+          biggest43833=ends[7];
+        }
+        if(ends[8]>=biggest43833){
+          biggest43833=ends[8];
+        }
+        if(biggest43833 == 1){
           active[4]=1;
           ends[4]=1;
           tdone[4]=1;
         }
-        else {
-          active[4]=1;
-          ends[4]=1;
+        //FINXME code
+        if(biggest43833 == 0){
+          S31612=0;
+          active[4]=0;
+          ends[4]=0;
           tdone[4]=1;
         }
         break;
@@ -314,8 +207,8 @@ public class rotaryTablePlant extends ClockDomain{
     }
   }
 
-  public void thread12608(int [] tdone, int [] ends){
-        switch(S12223){
+  public void thread43827(int [] tdone, int [] ends){
+        switch(S31578){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -323,19 +216,818 @@ public class rotaryTablePlant extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S12217){
+        switch(S19446){
           case 0 : 
-            S12217=0;
-            if(capOnBottleAtPos1Toggle.getprestatus()){//sysj\rotaryTablePlant.sysj line: 31, column: 12
-              capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 32, column: 5
-              currsigs.addElement(capOnBottleAtPos1);
-              S12217=1;
-              active[3]=1;
-              ends[3]=1;
-              tdone[3]=1;
+            if(tableAlignedWithSensor.getprestatus()){//sysj\rotaryTablePlant.sysj line: 78, column: 10
+              System.out.printf("[RT] bottle aligned, offering to Filler%n");//sysj\rotaryTablePlant.sysj line: 79, column: 4
+              tFillStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 86, column: 4
+              S19446=1;
+              t2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 88, column: 5
+              if(System.currentTimeMillis() - t2_thread_3 < 30000){//sysj\rotaryTablePlant.sysj line: 89, column: 12
+                RotaryFillerBridge.setBottleReadyForFiller(true);//sysj\rotaryTablePlant.sysj line: 90, column: 6
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 91, column: 6
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 92, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 92, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 89, column: 5
+                RotaryFillerBridge.setBottleReadyForFiller(false);//sysj\rotaryTablePlant.sysj line: 96, column: 4
+                S19446=2;
+                if(fillerTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 97, column: 12
+                  System.out.printf("[RT] fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 98, column: 5
+                  tGap1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 109, column: 5
+                  S19446=3;
+                  if(System.currentTimeMillis() - tGap1_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 110, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 111, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 110, column: 5
+                    System.out.printf("[RT] offering to Lid Placer%n");//sysj\rotaryTablePlant.sysj line: 131, column: 4
+                    tLidStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 132, column: 4
+                    S19446=4;
+                    t5_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 134, column: 5
+                    if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                      RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                      sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                      enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                      RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                      RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                      RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                      if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                        System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else {
+                  System.out.printf("[RT] TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 100, column: 5
+                  tGap1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 109, column: 5
+                  S19446=3;
+                  if(System.currentTimeMillis() - tGap1_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 110, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 111, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 110, column: 5
+                    System.out.printf("[RT] offering to Lid Placer%n");//sysj\rotaryTablePlant.sysj line: 131, column: 4
+                    tLidStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 132, column: 4
+                    S19446=4;
+                    t5_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 134, column: 5
+                    if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                      RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                      sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                      enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                      RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                      RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                      RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                      if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                        System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
             else {
-              S12217=1;
               active[3]=1;
               ends[3]=1;
               tdone[3]=1;
@@ -343,18 +1035,3399 @@ public class rotaryTablePlant extends ClockDomain{
             break;
           
           case 1 : 
-            S12217=1;
-            S12217=0;
-            if(capOnBottleAtPos1Toggle.getprestatus()){//sysj\rotaryTablePlant.sysj line: 31, column: 12
-              capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 32, column: 5
-              currsigs.addElement(capOnBottleAtPos1);
-              S12217=1;
+            if(fillerTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 87, column: 10
+              RotaryFillerBridge.setBottleReadyForFiller(false);//sysj\rotaryTablePlant.sysj line: 96, column: 4
+              S19446=2;
+              if(fillerTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 97, column: 12
+                System.out.printf("[RT] fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 98, column: 5
+                tGap1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 109, column: 5
+                S19446=3;
+                if(System.currentTimeMillis() - tGap1_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 110, column: 12
+                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 111, column: 6
+                  currsigs.addElement(tableBusy);
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 110, column: 5
+                  System.out.printf("[RT] offering to Lid Placer%n");//sysj\rotaryTablePlant.sysj line: 131, column: 4
+                  tLidStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 132, column: 4
+                  S19446=4;
+                  t5_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 134, column: 5
+                  if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                    RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                    sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                    enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                    RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                    RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                    RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                    if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                      System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                      tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                      S19446=5;
+                      if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                        System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                        tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                        S19446=6;
+                        t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                        if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                          RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                          RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                          S19446=7;
+                          if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                            System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                            t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                            if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                              capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                              currsigs.addElement(capOnBottleAtPos1);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          else {
+                            System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                            tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                            S19446=8;
+                            if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                              System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                              t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                              S19446=9;
+                              if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                currsigs.addElement(bottleAtPos5);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                S19446=10;
+                                if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                  System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                  S19446=11;
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    else {
+                      System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                      tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                      S19446=5;
+                      if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                        System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                        tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                        S19446=6;
+                        t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                        if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                          RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                          RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                          S19446=7;
+                          if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                            System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                            t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                            if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                              capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                              currsigs.addElement(capOnBottleAtPos1);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          else {
+                            System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                            tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                            S19446=8;
+                            if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                              System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                              t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                              S19446=9;
+                              if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                currsigs.addElement(bottleAtPos5);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                S19446=10;
+                                if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                  System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                  S19446=11;
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else {
+                System.out.printf("[RT] TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 100, column: 5
+                tGap1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 109, column: 5
+                S19446=3;
+                if(System.currentTimeMillis() - tGap1_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 110, column: 12
+                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 111, column: 6
+                  currsigs.addElement(tableBusy);
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 110, column: 5
+                  System.out.printf("[RT] offering to Lid Placer%n");//sysj\rotaryTablePlant.sysj line: 131, column: 4
+                  tLidStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 132, column: 4
+                  S19446=4;
+                  t5_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 134, column: 5
+                  if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                    RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                    sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                    enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                    RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                    RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                    RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                    if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                      System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                      tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                      S19446=5;
+                      if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                        System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                        tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                        S19446=6;
+                        t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                        if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                          RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                          RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                          S19446=7;
+                          if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                            System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                            t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                            if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                              capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                              currsigs.addElement(capOnBottleAtPos1);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          else {
+                            System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                            tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                            S19446=8;
+                            if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                              System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                              t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                              S19446=9;
+                              if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                currsigs.addElement(bottleAtPos5);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                S19446=10;
+                                if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                  System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                  S19446=11;
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    else {
+                      System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                      tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                      S19446=5;
+                      if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                        System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                        tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                        S19446=6;
+                        t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                        if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                          RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                          RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                          S19446=7;
+                          if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                            System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                            t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                            if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                              capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                              currsigs.addElement(capOnBottleAtPos1);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          else {
+                            System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                            tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                            S19446=8;
+                            if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                              System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                              t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                              S19446=9;
+                              if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                currsigs.addElement(bottleAtPos5);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                S19446=10;
+                                if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                  System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                  S19446=11;
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            else {
+              if(System.currentTimeMillis() - t2_thread_3 < 30000){//sysj\rotaryTablePlant.sysj line: 89, column: 12
+                RotaryFillerBridge.setBottleReadyForFiller(true);//sysj\rotaryTablePlant.sysj line: 90, column: 6
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 91, column: 6
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 92, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 92, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 89, column: 5
+                RotaryFillerBridge.setBottleReadyForFiller(false);//sysj\rotaryTablePlant.sysj line: 96, column: 4
+                S19446=2;
+                if(fillerTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 97, column: 12
+                  System.out.printf("[RT] fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 98, column: 5
+                  tGap1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 109, column: 5
+                  S19446=3;
+                  if(System.currentTimeMillis() - tGap1_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 110, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 111, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 110, column: 5
+                    System.out.printf("[RT] offering to Lid Placer%n");//sysj\rotaryTablePlant.sysj line: 131, column: 4
+                    tLidStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 132, column: 4
+                    S19446=4;
+                    t5_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 134, column: 5
+                    if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                      RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                      sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                      enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                      RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                      RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                      RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                      if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                        System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else {
+                  System.out.printf("[RT] TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 100, column: 5
+                  tGap1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 109, column: 5
+                  S19446=3;
+                  if(System.currentTimeMillis() - tGap1_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 110, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 111, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 112, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 110, column: 5
+                    System.out.printf("[RT] offering to Lid Placer%n");//sysj\rotaryTablePlant.sysj line: 131, column: 4
+                    tLidStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 132, column: 4
+                    S19446=4;
+                    t5_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 134, column: 5
+                    if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                      RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                      sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                      enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                      RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                      RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                      RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                      if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                        System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                        tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                        S19446=5;
+                        if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                          System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                          tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                          S19446=6;
+                          t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                          if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                            RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                            RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                            S19446=7;
+                            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                              System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                              t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                              if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                                capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                                currsigs.addElement(capOnBottleAtPos1);
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                                S19446=8;
+                                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                  S19446=9;
+                                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                    currsigs.addElement(bottleAtPos5);
+                                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                    currsigs.addElement(tableBusy);
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                    S19446=10;
+                                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      currsigs.addElement(bottleStageE);
+                                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                    else {
+                                      ends[3]=2;
+                                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                      S19446=11;
+                                      active[3]=1;
+                                      ends[3]=1;
+                                      tdone[3]=1;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            else {
+                              System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                              S19446=8;
+                              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                                currsigs.addElement(tableBusy);
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                                S19446=9;
+                                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                                  currsigs.addElement(bottleAtPos5);
+                                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                                  currsigs.addElement(tableBusy);
+                                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  currsigs.addElement(bottleStageE);
+                                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                                  active[3]=1;
+                                  ends[3]=1;
+                                  tdone[3]=1;
+                                }
+                                else {
+                                  ends[3]=2;
+                                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                                  S19446=10;
+                                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    currsigs.addElement(bottleStageE);
+                                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                  else {
+                                    ends[3]=2;
+                                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                    S19446=11;
+                                    active[3]=1;
+                                    ends[3]=1;
+                                    tdone[3]=1;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            break;
+          
+          case 2 : 
+            S19446=0;
+            active[3]=1;
+            ends[3]=1;
+            tdone[3]=1;
+            break;
+          
+          case 3 : 
+            if(System.currentTimeMillis() - tGap1_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 110, column: 12
+              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 111, column: 6
+              currsigs.addElement(tableBusy);
+              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 112, column: 6
+              currsigs.addElement(bottleStageE);
+              bottleStageE.setValue(2);//sysj\rotaryTablePlant.sysj line: 112, column: 6
               active[3]=1;
               ends[3]=1;
               tdone[3]=1;
             }
             else {
-              S12217=1;
+              ends[3]=2;
+              ;//sysj\rotaryTablePlant.sysj line: 110, column: 5
+              System.out.printf("[RT] offering to Lid Placer%n");//sysj\rotaryTablePlant.sysj line: 131, column: 4
+              tLidStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 132, column: 4
+              S19446=4;
+              t5_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 134, column: 5
+              if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                  System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                  tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                  S19446=5;
+                  if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                    System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                    tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                    S19446=6;
+                    t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                    if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                      RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                      RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                      S19446=7;
+                      if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                        System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                        t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                        if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                          capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                          currsigs.addElement(capOnBottleAtPos1);
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                          tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                          S19446=8;
+                          if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                            System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                            t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                            S19446=9;
+                            if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                              bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                              currsigs.addElement(bottleAtPos5);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                              RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                              t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                              S19446=10;
+                              if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                S19446=11;
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                        tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                        S19446=8;
+                        if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                          System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                          t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                          S19446=9;
+                          if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                            bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                            currsigs.addElement(bottleAtPos5);
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                            RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                            t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                            S19446=10;
+                            if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                              System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                              S19446=11;
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else {
+                  System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                  tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                  S19446=5;
+                  if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                    System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                    tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                    S19446=6;
+                    t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                    if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                      RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                      RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                      S19446=7;
+                      if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                        System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                        t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                        if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                          capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                          currsigs.addElement(capOnBottleAtPos1);
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                          tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                          S19446=8;
+                          if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                            System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                            t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                            S19446=9;
+                            if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                              bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                              currsigs.addElement(bottleAtPos5);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                              RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                              t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                              S19446=10;
+                              if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                S19446=11;
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                        tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                        S19446=8;
+                        if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                          System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                          t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                          S19446=9;
+                          if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                            bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                            currsigs.addElement(bottleAtPos5);
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                            RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                            t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                            S19446=10;
+                            if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                              System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                              S19446=11;
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            break;
+          
+          case 4 : 
+            if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 133, column: 10
+              RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+              RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+              if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                S19446=5;
+                if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                  currsigs.addElement(tableBusy);
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                  System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                  tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                  S19446=6;
+                  t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                  if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                    RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                    RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                    S19446=7;
+                    if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                      System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                      t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                      if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                        capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                        currsigs.addElement(capOnBottleAtPos1);
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                        tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                        S19446=8;
+                        if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                          System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                          t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                          S19446=9;
+                          if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                            bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                            currsigs.addElement(bottleAtPos5);
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                            RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                            t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                            S19446=10;
+                            if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                              System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                              S19446=11;
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                    else {
+                      System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                      tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                      S19446=8;
+                      if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                        System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                        t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                        S19446=9;
+                        if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                          bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                          currsigs.addElement(bottleAtPos5);
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                          RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                          RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                          t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                          S19446=10;
+                          if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                            System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                            S19446=11;
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else {
+                System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                S19446=5;
+                if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                  currsigs.addElement(tableBusy);
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                  System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                  tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                  S19446=6;
+                  t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                  if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                    RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                    RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                    S19446=7;
+                    if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                      System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                      t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                      if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                        capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                        currsigs.addElement(capOnBottleAtPos1);
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                        tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                        S19446=8;
+                        if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                          System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                          t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                          S19446=9;
+                          if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                            bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                            currsigs.addElement(bottleAtPos5);
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                            RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                            t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                            S19446=10;
+                            if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                              System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                              S19446=11;
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                    else {
+                      System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                      tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                      S19446=8;
+                      if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                        System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                        t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                        S19446=9;
+                        if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                          bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                          currsigs.addElement(bottleAtPos5);
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                          RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                          RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                          t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                          S19446=10;
+                          if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                            System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                            S19446=11;
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            else {
+              if(System.currentTimeMillis() - t5_thread_3 < 15000){//sysj\rotaryTablePlant.sysj line: 135, column: 12
+                RotaryLidBridge.setRequest(true);//sysj\rotaryTablePlant.sysj line: 136, column: 6
+                sinceStart_thread_3 = System.currentTimeMillis() - t5_thread_3;//sysj\rotaryTablePlant.sysj line: 142, column: 6
+                enableFlag_thread_3 = (sinceStart_thread_3 % 200) < 100;//sysj\rotaryTablePlant.sysj line: 143, column: 6
+                RotaryLidBridge.setEnable(enableFlag_thread_3);//sysj\rotaryTablePlant.sysj line: 144, column: 6
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 145, column: 6
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 146, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 135, column: 5
+                RotaryLidBridge.setRequest(false);//sysj\rotaryTablePlant.sysj line: 150, column: 4
+                RotaryLidBridge.setEnable(false);//sysj\rotaryTablePlant.sysj line: 151, column: 4
+                if(lidPlacedAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 152, column: 12
+                  System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 153, column: 5
+                  tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                  S19446=5;
+                  if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                    System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                    tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                    S19446=6;
+                    t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                    if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                      RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                      RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                      S19446=7;
+                      if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                        System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                        t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                        if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                          capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                          currsigs.addElement(capOnBottleAtPos1);
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                          tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                          S19446=8;
+                          if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                            System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                            t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                            S19446=9;
+                            if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                              bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                              currsigs.addElement(bottleAtPos5);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                              RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                              t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                              S19446=10;
+                              if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                S19446=11;
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                        tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                        S19446=8;
+                        if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                          System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                          t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                          S19446=9;
+                          if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                            bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                            currsigs.addElement(bottleAtPos5);
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                            RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                            t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                            S19446=10;
+                            if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                              System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                              S19446=11;
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else {
+                  System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart_thread_3);//sysj\rotaryTablePlant.sysj line: 155, column: 5
+                  tGap2_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 160, column: 5
+                  S19446=5;
+                  if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+                    System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+                    tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+                    S19446=6;
+                    t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+                    if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                      RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                      RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                      S19446=7;
+                      if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                        System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                        t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                        if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                          capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                          currsigs.addElement(capOnBottleAtPos1);
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                          tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                          S19446=8;
+                          if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                            System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                            t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                            S19446=9;
+                            if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                              bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                              currsigs.addElement(bottleAtPos5);
+                              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                              currsigs.addElement(tableBusy);
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                              RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                              RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                              t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                              S19446=10;
+                              if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                currsigs.addElement(bottleStageE);
+                                bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                              else {
+                                ends[3]=2;
+                                ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                                System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                                S19446=11;
+                                active[3]=1;
+                                ends[3]=1;
+                                tdone[3]=1;
+                              }
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                        tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                        S19446=8;
+                        if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                          tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                          currsigs.addElement(tableBusy);
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                          System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                          t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                          S19446=9;
+                          if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                            bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                            currsigs.addElement(bottleAtPos5);
+                            tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                            currsigs.addElement(tableBusy);
+                            bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            currsigs.addElement(bottleStageE);
+                            bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                            RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                            active[3]=1;
+                            ends[3]=1;
+                            tdone[3]=1;
+                          }
+                          else {
+                            ends[3]=2;
+                            ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                            RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                            t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                            S19446=10;
+                            if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              currsigs.addElement(bottleStageE);
+                              bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                            else {
+                              ends[3]=2;
+                              ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                              System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                              S19446=11;
+                              active[3]=1;
+                              ends[3]=1;
+                              tdone[3]=1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            break;
+          
+          case 5 : 
+            if(System.currentTimeMillis() - tGap2_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 161, column: 12
+              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 162, column: 6
+              currsigs.addElement(tableBusy);
+              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 163, column: 6
+              currsigs.addElement(bottleStageE);
+              bottleStageE.setValue(4);//sysj\rotaryTablePlant.sysj line: 163, column: 6
+              active[3]=1;
+              ends[3]=1;
+              tdone[3]=1;
+            }
+            else {
+              ends[3]=2;
+              ;//sysj\rotaryTablePlant.sysj line: 161, column: 5
+              System.out.printf("[RT] offering to Capper%n");//sysj\rotaryTablePlant.sysj line: 169, column: 4
+              tCapStart_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 170, column: 4
+              S19446=6;
+              t0_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 172, column: 5
+              if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                S19446=7;
+                if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                  System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                  t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                  if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                    capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                    currsigs.addElement(capOnBottleAtPos1);
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                    tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                    S19446=8;
+                    if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                      System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                      t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                      S19446=9;
+                      if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                        bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                        currsigs.addElement(bottleAtPos5);
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                        RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                        RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                        t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                        S19446=10;
+                        if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                          System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                          S19446=11;
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                      }
+                    }
+                  }
+                }
+                else {
+                  System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                  tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                  S19446=8;
+                  if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                    System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                    t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                    S19446=9;
+                    if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                      bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                      currsigs.addElement(bottleAtPos5);
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                      RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                      RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                      t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                      S19446=10;
+                      if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                        System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                        S19446=11;
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            break;
+          
+          case 6 : 
+            if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 171, column: 10
+              RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+              S19446=7;
+              if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                  capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                  currsigs.addElement(capOnBottleAtPos1);
+                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                  currsigs.addElement(tableBusy);
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                  tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                  S19446=8;
+                  if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                    System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                    t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                    S19446=9;
+                    if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                      bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                      currsigs.addElement(bottleAtPos5);
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                      RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                      RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                      t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                      S19446=10;
+                      if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                        System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                        S19446=11;
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                    }
+                  }
+                }
+              }
+              else {
+                System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                S19446=8;
+                if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                  currsigs.addElement(tableBusy);
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                  System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                  t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                  S19446=9;
+                  if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                    bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                    currsigs.addElement(bottleAtPos5);
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                    RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                    RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                    t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                    S19446=10;
+                    if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                      System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                      S19446=11;
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                  }
+                }
+              }
+            }
+            else {
+              if(System.currentTimeMillis() - t0_thread_3 < 10000){//sysj\rotaryTablePlant.sysj line: 173, column: 12
+                RotaryCapperBridge.setBottleAtPos4(true);//sysj\rotaryTablePlant.sysj line: 174, column: 6
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 175, column: 6
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 176, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 173, column: 5
+                RotaryCapperBridge.setBottleAtPos4(false);//sysj\rotaryTablePlant.sysj line: 180, column: 4
+                S19446=7;
+                if(capperTakenAck.getprestatus()){//sysj\rotaryTablePlant.sysj line: 181, column: 12
+                  System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 182, column: 5
+                  t1_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 187, column: 5
+                  if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+                    capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+                    currsigs.addElement(capOnBottleAtPos1);
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+                    tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                    S19446=8;
+                    if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                      System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                      t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                      S19446=9;
+                      if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                        bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                        currsigs.addElement(bottleAtPos5);
+                        tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                        currsigs.addElement(tableBusy);
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                        RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                        RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                        t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                        S19446=10;
+                        if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                          bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                          currsigs.addElement(bottleStageE);
+                          bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                        else {
+                          ends[3]=2;
+                          ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                          System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                          S19446=11;
+                          active[3]=1;
+                          ends[3]=1;
+                          tdone[3]=1;
+                        }
+                      }
+                    }
+                  }
+                }
+                else {
+                  System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart_thread_3);//sysj\rotaryTablePlant.sysj line: 195, column: 5
+                  tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+                  S19446=8;
+                  if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                    tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                    currsigs.addElement(tableBusy);
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                    System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                    t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                    S19446=9;
+                    if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                      bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                      currsigs.addElement(bottleAtPos5);
+                      tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                      currsigs.addElement(tableBusy);
+                      bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                      currsigs.addElement(bottleStageE);
+                      bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                      RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                      active[3]=1;
+                      ends[3]=1;
+                      tdone[3]=1;
+                    }
+                    else {
+                      ends[3]=2;
+                      ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                      RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                      t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                      S19446=10;
+                      if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                        bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                        currsigs.addElement(bottleStageE);
+                        bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                      else {
+                        ends[3]=2;
+                        ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                        System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                        S19446=11;
+                        active[3]=1;
+                        ends[3]=1;
+                        tdone[3]=1;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            break;
+          
+          case 7 : 
+            if(System.currentTimeMillis() - t1_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 188, column: 12
+              capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 189, column: 6
+              currsigs.addElement(capOnBottleAtPos1);
+              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 190, column: 6
+              currsigs.addElement(tableBusy);
+              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 191, column: 6
+              currsigs.addElement(bottleStageE);
+              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 191, column: 6
+              active[3]=1;
+              ends[3]=1;
+              tdone[3]=1;
+            }
+            else {
+              ends[3]=2;
+              ;//sysj\rotaryTablePlant.sysj line: 188, column: 5
+              tGap3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 200, column: 5
+              S19446=8;
+              if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+                System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+                t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+                S19446=9;
+                if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                  bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                  currsigs.addElement(bottleAtPos5);
+                  tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                  currsigs.addElement(tableBusy);
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                  RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                  RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                  t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                  S19446=10;
+                  if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                    bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                    currsigs.addElement(bottleStageE);
+                    bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                  else {
+                    ends[3]=2;
+                    ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                    System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                    S19446=11;
+                    active[3]=1;
+                    ends[3]=1;
+                    tdone[3]=1;
+                  }
+                }
+              }
+            }
+            break;
+          
+          case 8 : 
+            if(System.currentTimeMillis() - tGap3_thread_3 < STAGE_VIEW_DELAY_MS_thread_3){//sysj\rotaryTablePlant.sysj line: 201, column: 12
+              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 202, column: 6
+              currsigs.addElement(tableBusy);
+              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 203, column: 6
+              currsigs.addElement(bottleStageE);
+              bottleStageE.setValue(1);//sysj\rotaryTablePlant.sysj line: 203, column: 6
+              active[3]=1;
+              ends[3]=1;
+              tdone[3]=1;
+            }
+            else {
+              ends[3]=2;
+              ;//sysj\rotaryTablePlant.sysj line: 201, column: 5
+              System.out.printf("[RT] handing off to Conveyor at Pos 5%n");//sysj\rotaryTablePlant.sysj line: 211, column: 4
+              t3_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 212, column: 4
+              S19446=9;
+              if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+                bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+                currsigs.addElement(bottleAtPos5);
+                tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+                currsigs.addElement(tableBusy);
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+                RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+                RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+                t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+                S19446=10;
+                if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                  bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                  currsigs.addElement(bottleStageE);
+                  bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+                else {
+                  ends[3]=2;
+                  ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                  System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                  S19446=11;
+                  active[3]=1;
+                  ends[3]=1;
+                  tdone[3]=1;
+                }
+              }
+            }
+            break;
+          
+          case 9 : 
+            if(System.currentTimeMillis() - t3_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 213, column: 11
+              bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 214, column: 5
+              currsigs.addElement(bottleAtPos5);
+              tableBusy.setPresent();//sysj\rotaryTablePlant.sysj line: 215, column: 5
+              currsigs.addElement(tableBusy);
+              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 216, column: 5
+              currsigs.addElement(bottleStageE);
+              bottleStageE.setValue(3);//sysj\rotaryTablePlant.sysj line: 216, column: 5
+              RotaryConveyorBridge.setBottleFromTable(true);//sysj\rotaryTablePlant.sysj line: 217, column: 5
+              active[3]=1;
+              ends[3]=1;
+              tdone[3]=1;
+            }
+            else {
+              ends[3]=2;
+              ;//sysj\rotaryTablePlant.sysj line: 213, column: 4
+              RotaryConveyorBridge.setBottleFromTable(false);//sysj\rotaryTablePlant.sysj line: 220, column: 4
+              t4_thread_3 = System.currentTimeMillis();//sysj\rotaryTablePlant.sysj line: 225, column: 5
+              S19446=10;
+              if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+                bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                currsigs.addElement(bottleStageE);
+                bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+              else {
+                ends[3]=2;
+                ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+                System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+                S19446=11;
+                active[3]=1;
+                ends[3]=1;
+                tdone[3]=1;
+              }
+            }
+            break;
+          
+          case 10 : 
+            if(System.currentTimeMillis() - t4_thread_3 < 200){//sysj\rotaryTablePlant.sysj line: 226, column: 12
+              bottleStageE.setPresent();//sysj\rotaryTablePlant.sysj line: 227, column: 6
+              currsigs.addElement(bottleStageE);
+              bottleStageE.setValue(0);//sysj\rotaryTablePlant.sysj line: 227, column: 6
+              active[3]=1;
+              ends[3]=1;
+              tdone[3]=1;
+            }
+            else {
+              ends[3]=2;
+              ;//sysj\rotaryTablePlant.sysj line: 226, column: 5
+              System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart_thread_3);//sysj\rotaryTablePlant.sysj line: 231, column: 4
+              S19446=11;
+              active[3]=1;
+              ends[3]=1;
+              tdone[3]=1;
+            }
+            break;
+          
+          case 11 : 
+            if(!tableAlignedWithSensor.getprestatus()){//sysj\rotaryTablePlant.sysj line: 235, column: 10
+              S19446=0;
+              active[3]=1;
+              ends[3]=1;
+              tdone[3]=1;
+            }
+            else {
               active[3]=1;
               ends[3]=1;
               tdone[3]=1;
@@ -367,8 +4440,8 @@ public class rotaryTablePlant extends ClockDomain{
     }
   }
 
-  public void thread12607(int [] tdone, int [] ends){
-        switch(S12215){
+  public void thread43826(int [] tdone, int [] ends){
+        switch(S19444){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -376,12 +4449,12 @@ public class rotaryTablePlant extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S12214){
+        switch(S19443){
           case 0 : 
-            if(start.getprestatus()){//sysj\rotaryTablePlant.sysj line: 17, column: 9
-              S12214=1;
-              S12188=0;
-              tableAlignedWithSensor.setPresent();//sysj\rotaryTablePlant.sysj line: 20, column: 5
+            if(start.getprestatus()){//sysj\rotaryTablePlant.sysj line: 24, column: 9
+              S19443=1;
+              S19417=0;
+              tableAlignedWithSensor.setPresent();//sysj\rotaryTablePlant.sysj line: 27, column: 5
               currsigs.addElement(tableAlignedWithSensor);
               active[2]=1;
               ends[2]=1;
@@ -395,16 +4468,16 @@ public class rotaryTablePlant extends ClockDomain{
             break;
           
           case 1 : 
-            switch(S12188){
+            switch(S19417){
               case 0 : 
-                if(rotaryTableTrigger.getprestatus()){//sysj\rotaryTablePlant.sysj line: 19, column: 10
-                  S12188=1;
+                if(rotaryTableTrigger.getprestatus()){//sysj\rotaryTablePlant.sysj line: 26, column: 10
+                  S19417=1;
                   active[2]=1;
                   ends[2]=1;
                   tdone[2]=1;
                 }
                 else {
-                  tableAlignedWithSensor.setPresent();//sysj\rotaryTablePlant.sysj line: 20, column: 5
+                  tableAlignedWithSensor.setPresent();//sysj\rotaryTablePlant.sysj line: 27, column: 5
                   currsigs.addElement(tableAlignedWithSensor);
                   active[2]=1;
                   ends[2]=1;
@@ -413,25 +4486,25 @@ public class rotaryTablePlant extends ClockDomain{
                 break;
               
               case 1 : 
-                S12188=1;
-                S12188=2;
+                S19417=1;
+                S19417=2;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
                 break;
               
               case 2 : 
-                S12188=2;
-                S12188=3;
+                S19417=2;
+                S19417=3;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
                 break;
               
               case 3 : 
-                S12188=3;
-                S12188=0;
-                tableAlignedWithSensor.setPresent();//sysj\rotaryTablePlant.sysj line: 20, column: 5
+                S19417=3;
+                S19417=0;
+                tableAlignedWithSensor.setPresent();//sysj\rotaryTablePlant.sysj line: 27, column: 5
                 currsigs.addElement(tableAlignedWithSensor);
                 active[2]=1;
                 ends[2]=1;
@@ -447,142 +4520,108 @@ public class rotaryTablePlant extends ClockDomain{
     }
   }
 
-  public void thread12604(int [] tdone, int [] ends){
-        S12385=1;
-    if(rotaryTableTrigger.getprestatus()){//sysj\rotaryTablePlant.sysj line: 87, column: 24
-      rotaryTableTriggerE.setPresent();//sysj\rotaryTablePlant.sysj line: 87, column: 44
+  public void thread43823(int [] tdone, int [] ends){
+        S31610=1;
+    if(rotaryTableTrigger.getprestatus()){//sysj\rotaryTablePlant.sysj line: 246, column: 24
+      rotaryTableTriggerE.setPresent();//sysj\rotaryTablePlant.sysj line: 246, column: 44
       currsigs.addElement(rotaryTableTriggerE);
-      active[10]=1;
-      ends[10]=1;
-      tdone[10]=1;
+      active[8]=1;
+      ends[8]=1;
+      tdone[8]=1;
     }
     else {
-      active[10]=1;
-      ends[10]=1;
-      tdone[10]=1;
+      active[8]=1;
+      ends[8]=1;
+      tdone[8]=1;
     }
   }
 
-  public void thread12603(int [] tdone, int [] ends){
-        S12377=1;
-    if(capOnBottleAtPos1.getprestatus()){//sysj\rotaryTablePlant.sysj line: 85, column: 24
-      capOnBottleAtPos1E.setPresent();//sysj\rotaryTablePlant.sysj line: 85, column: 43
+  public void thread43822(int [] tdone, int [] ends){
+        S31602=1;
+    if(capOnBottleAtPos1.getprestatus()){//sysj\rotaryTablePlant.sysj line: 244, column: 24
+      capOnBottleAtPos1E.setPresent();//sysj\rotaryTablePlant.sysj line: 244, column: 43
       currsigs.addElement(capOnBottleAtPos1E);
-      active[9]=1;
-      ends[9]=1;
-      tdone[9]=1;
+      active[7]=1;
+      ends[7]=1;
+      tdone[7]=1;
     }
     else {
-      active[9]=1;
-      ends[9]=1;
-      tdone[9]=1;
+      active[7]=1;
+      ends[7]=1;
+      tdone[7]=1;
     }
   }
 
-  public void thread12602(int [] tdone, int [] ends){
-        S12369=1;
-    if(bottleAtPos5.getprestatus()){//sysj\rotaryTablePlant.sysj line: 83, column: 24
-      bottleAtPos5E.setPresent();//sysj\rotaryTablePlant.sysj line: 83, column: 38
+  public void thread43821(int [] tdone, int [] ends){
+        S31594=1;
+    if(bottleAtPos5.getprestatus()){//sysj\rotaryTablePlant.sysj line: 242, column: 24
+      bottleAtPos5E.setPresent();//sysj\rotaryTablePlant.sysj line: 242, column: 38
       currsigs.addElement(bottleAtPos5E);
-      active[8]=1;
-      ends[8]=1;
-      tdone[8]=1;
+      active[6]=1;
+      ends[6]=1;
+      tdone[6]=1;
     }
     else {
-      active[8]=1;
-      ends[8]=1;
-      tdone[8]=1;
-    }
-  }
-
-  public void thread12601(int [] tdone, int [] ends){
-        S12361=1;
-    if(tableAlignedWithSensor.getprestatus()){//sysj\rotaryTablePlant.sysj line: 81, column: 24
-      tableAlignedWithSensorE.setPresent();//sysj\rotaryTablePlant.sysj line: 81, column: 48
-      currsigs.addElement(tableAlignedWithSensorE);
-      active[7]=1;
-      ends[7]=1;
-      tdone[7]=1;
-    }
-    else {
-      active[7]=1;
-      ends[7]=1;
-      tdone[7]=1;
-    }
-  }
-
-  public void thread12600(int [] tdone, int [] ends){
-        S12387=1;
-    thread12601(tdone,ends);
-    thread12602(tdone,ends);
-    thread12603(tdone,ends);
-    thread12604(tdone,ends);
-    int biggest12605 = 0;
-    if(ends[7]>=biggest12605){
-      biggest12605=ends[7];
-    }
-    if(ends[8]>=biggest12605){
-      biggest12605=ends[8];
-    }
-    if(ends[9]>=biggest12605){
-      biggest12605=ends[9];
-    }
-    if(ends[10]>=biggest12605){
-      biggest12605=ends[10];
-    }
-    if(biggest12605 == 1){
       active[6]=1;
       ends[6]=1;
       tdone[6]=1;
     }
   }
 
-  public void thread12599(int [] tdone, int [] ends){
-        S12353=1;
-    S12271=0;
-    active[5]=1;
-    ends[5]=1;
-    tdone[5]=1;
+  public void thread43820(int [] tdone, int [] ends){
+        S31586=1;
+    if(tableAlignedWithSensor.getprestatus()){//sysj\rotaryTablePlant.sysj line: 240, column: 24
+      tableAlignedWithSensorE.setPresent();//sysj\rotaryTablePlant.sysj line: 240, column: 48
+      currsigs.addElement(tableAlignedWithSensorE);
+      active[5]=1;
+      ends[5]=1;
+      tdone[5]=1;
+    }
+    else {
+      active[5]=1;
+      ends[5]=1;
+      tdone[5]=1;
+    }
   }
 
-  public void thread12598(int [] tdone, int [] ends){
-        S12231=1;
-    if(bottleAtPos5Toggle.getprestatus()){//sysj\rotaryTablePlant.sysj line: 42, column: 12
-      bottleAtPos5.setPresent();//sysj\rotaryTablePlant.sysj line: 43, column: 5
-      currsigs.addElement(bottleAtPos5);
+  public void thread43819(int [] tdone, int [] ends){
+        S31612=1;
+    thread43820(tdone,ends);
+    thread43821(tdone,ends);
+    thread43822(tdone,ends);
+    thread43823(tdone,ends);
+    int biggest43824 = 0;
+    if(ends[5]>=biggest43824){
+      biggest43824=ends[5];
+    }
+    if(ends[6]>=biggest43824){
+      biggest43824=ends[6];
+    }
+    if(ends[7]>=biggest43824){
+      biggest43824=ends[7];
+    }
+    if(ends[8]>=biggest43824){
+      biggest43824=ends[8];
+    }
+    if(biggest43824 == 1){
       active[4]=1;
       ends[4]=1;
       tdone[4]=1;
     }
-    else {
-      active[4]=1;
-      ends[4]=1;
-      tdone[4]=1;
-    }
   }
 
-  public void thread12597(int [] tdone, int [] ends){
-        S12223=1;
-    S12217=0;
-    if(capOnBottleAtPos1Toggle.getprestatus()){//sysj\rotaryTablePlant.sysj line: 31, column: 12
-      capOnBottleAtPos1.setPresent();//sysj\rotaryTablePlant.sysj line: 32, column: 5
-      currsigs.addElement(capOnBottleAtPos1);
-      S12217=1;
-      active[3]=1;
-      ends[3]=1;
-      tdone[3]=1;
-    }
-    else {
-      S12217=1;
-      active[3]=1;
-      ends[3]=1;
-      tdone[3]=1;
-    }
+  public void thread43818(int [] tdone, int [] ends){
+        S31578=1;
+    STAGE_VIEW_DELAY_MS_thread_3 = 1500;//sysj\rotaryTablePlant.sysj line: 76, column: 3
+    S19446=0;
+    active[3]=1;
+    ends[3]=1;
+    tdone[3]=1;
   }
 
-  public void thread12596(int [] tdone, int [] ends){
-        S12215=1;
-    S12214=0;
+  public void thread43817(int [] tdone, int [] ends){
+        S19444=1;
+    S19443=0;
     active[2]=1;
     ends[2]=1;
     tdone[2]=1;
@@ -595,75 +4634,59 @@ public class rotaryTablePlant extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S12594){
+      switch(S43815){
         case 0 : 
-          S12594=0;
+          S43815=0;
           break RUN;
         
         case 1 : 
-          S12594=2;
-          S12594=2;
-          new Thread(new RotaryTableGUI()).start();//sysj\rotaryTablePlant.sysj line: 13, column: 2
-          thread12596(tdone,ends);
-          thread12597(tdone,ends);
-          thread12598(tdone,ends);
-          thread12599(tdone,ends);
-          thread12600(tdone,ends);
-          int biggest12606 = 0;
-          if(ends[2]>=biggest12606){
-            biggest12606=ends[2];
+          S43815=2;
+          S43815=2;
+          new Thread(new RotaryTableGUI()).start();//sysj\rotaryTablePlant.sysj line: 20, column: 2
+          thread43817(tdone,ends);
+          thread43818(tdone,ends);
+          thread43819(tdone,ends);
+          int biggest43825 = 0;
+          if(ends[2]>=biggest43825){
+            biggest43825=ends[2];
           }
-          if(ends[3]>=biggest12606){
-            biggest12606=ends[3];
+          if(ends[3]>=biggest43825){
+            biggest43825=ends[3];
           }
-          if(ends[4]>=biggest12606){
-            biggest12606=ends[4];
+          if(ends[4]>=biggest43825){
+            biggest43825=ends[4];
           }
-          if(ends[5]>=biggest12606){
-            biggest12606=ends[5];
-          }
-          if(ends[6]>=biggest12606){
-            biggest12606=ends[6];
-          }
-          if(biggest12606 == 1){
+          if(biggest43825 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
         
         case 2 : 
-          thread12607(tdone,ends);
-          thread12608(tdone,ends);
-          thread12609(tdone,ends);
-          thread12610(tdone,ends);
-          thread12611(tdone,ends);
-          int biggest12617 = 0;
-          if(ends[2]>=biggest12617){
-            biggest12617=ends[2];
+          thread43826(tdone,ends);
+          thread43827(tdone,ends);
+          thread43828(tdone,ends);
+          int biggest43834 = 0;
+          if(ends[2]>=biggest43834){
+            biggest43834=ends[2];
           }
-          if(ends[3]>=biggest12617){
-            biggest12617=ends[3];
+          if(ends[3]>=biggest43834){
+            biggest43834=ends[3];
           }
-          if(ends[4]>=biggest12617){
-            biggest12617=ends[4];
+          if(ends[4]>=biggest43834){
+            biggest43834=ends[4];
           }
-          if(ends[5]>=biggest12617){
-            biggest12617=ends[5];
-          }
-          if(ends[6]>=biggest12617){
-            biggest12617=ends[6];
-          }
-          if(biggest12617 == 1){
+          if(biggest43834 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
           //FINXME code
-          if(biggest12617 == 0){
-            S12594=0;
+          if(biggest43834 == 0){
+            S43815=0;
             active[1]=0;
             ends[1]=0;
-            S12594=0;
+            S43815=0;
             break RUN;
           }
         
@@ -672,9 +4695,9 @@ public class rotaryTablePlant extends ClockDomain{
   }
 
   public void init(){
-    char [] active1 = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    char [] paused1 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    char [] suspended1 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    char [] active1 = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    char [] paused1 = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    char [] suspended1 = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     paused = paused1;
     active = active1;
     suspended = suspended1;
@@ -695,19 +4718,23 @@ public class rotaryTablePlant extends ClockDomain{
         if(!df){
           rotaryTableTrigger.gethook();
           start.gethook();
-          capOnBottleAtPos1Toggle.gethook();
-          bottleAtPos5Toggle.gethook();
+          capperTakenAck.gethook();
+          fillerTakenAck.gethook();
+          lidPlacedAck.gethook();
           df = true;
         }
         runClockDomain();
       }
       rotaryTableTrigger.setpreclear();
       start.setpreclear();
-      capOnBottleAtPos1Toggle.setpreclear();
-      bottleAtPos5Toggle.setpreclear();
+      capperTakenAck.setpreclear();
+      fillerTakenAck.setpreclear();
+      lidPlacedAck.setpreclear();
       tableAlignedWithSensor.setpreclear();
       bottleAtPos5.setpreclear();
       capOnBottleAtPos1.setpreclear();
+      tableBusy.setpreclear();
+      bottleStageE.setpreclear();
       tableAlignedWithSensorE.setpreclear();
       bottleAtPos5E.setpreclear();
       capOnBottleAtPos1E.setpreclear();
@@ -724,18 +4751,25 @@ public class rotaryTablePlant extends ClockDomain{
       dummyint = start.getStatus() ? start.setprepresent() : start.setpreclear();
       start.setpreval(start.getValue());
       start.setClear();
-      dummyint = capOnBottleAtPos1Toggle.getStatus() ? capOnBottleAtPos1Toggle.setprepresent() : capOnBottleAtPos1Toggle.setpreclear();
-      capOnBottleAtPos1Toggle.setpreval(capOnBottleAtPos1Toggle.getValue());
-      capOnBottleAtPos1Toggle.setClear();
-      dummyint = bottleAtPos5Toggle.getStatus() ? bottleAtPos5Toggle.setprepresent() : bottleAtPos5Toggle.setpreclear();
-      bottleAtPos5Toggle.setpreval(bottleAtPos5Toggle.getValue());
-      bottleAtPos5Toggle.setClear();
+      dummyint = capperTakenAck.getStatus() ? capperTakenAck.setprepresent() : capperTakenAck.setpreclear();
+      capperTakenAck.setpreval(capperTakenAck.getValue());
+      capperTakenAck.setClear();
+      dummyint = fillerTakenAck.getStatus() ? fillerTakenAck.setprepresent() : fillerTakenAck.setpreclear();
+      fillerTakenAck.setpreval(fillerTakenAck.getValue());
+      fillerTakenAck.setClear();
+      dummyint = lidPlacedAck.getStatus() ? lidPlacedAck.setprepresent() : lidPlacedAck.setpreclear();
+      lidPlacedAck.setpreval(lidPlacedAck.getValue());
+      lidPlacedAck.setClear();
       tableAlignedWithSensor.sethook();
       tableAlignedWithSensor.setClear();
       bottleAtPos5.sethook();
       bottleAtPos5.setClear();
       capOnBottleAtPos1.sethook();
       capOnBottleAtPos1.setClear();
+      tableBusy.sethook();
+      tableBusy.setClear();
+      bottleStageE.sethook();
+      bottleStageE.setClear();
       tableAlignedWithSensorE.sethook();
       tableAlignedWithSensorE.setClear();
       bottleAtPos5E.sethook();
@@ -748,8 +4782,9 @@ public class rotaryTablePlant extends ClockDomain{
       else{
         rotaryTableTrigger.gethook();
         start.gethook();
-        capOnBottleAtPos1Toggle.gethook();
-        bottleAtPos5Toggle.gethook();
+        capperTakenAck.gethook();
+        fillerTakenAck.gethook();
+        lidPlacedAck.gethook();
       }
       runFinisher();
       if(active[1] == 0){

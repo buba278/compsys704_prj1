@@ -1,8 +1,10 @@
 import run.ConveyorGUI;
+import run.ConveyorLabellerBridge;
 
 conveyorPlant(
 		input signal motConveyorOnOff;
-		input signal enable, loadBottle, bottleFromTable, sortDone, pos1TakenAck;
+		input signal enable, loadBottle, bottleFromTable, pos1TakenAck;
+		input signal labellerTakenAck;
 		output signal bottleAtPos1, bottleLeftPos5;
 		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
 		output signal bottleEnteredE, bottleReceivedE;
@@ -81,12 +83,12 @@ conveyorPlant(
 		}
 	}
 	||
-	{ // Right segment: Rotary Table Pos 5 -> Collection point
-	  // bottleFromTable stands in for the Rotary Table's Pos 5 unload
-	  // handoff, and sortDone stands in for the Sorter taking the finished
-	  // bottle away, since neither station is modelled yet. Once handed
-	  // over, the bottle travels to the end of the belt and waits there
-	  // until the (artificial) sort-finished signal removes it.
+	{ // Right segment: Rotary Table Pos 5 -> Collection point -> Labeller
+	  // bottleFromTable is the real Rotary Table Pos 5 unload handoff,
+	  // driven automatically by RotaryConveyorBridge (see
+	  // rotaryTablePlant.sysj). Once handed over, the bottle travels to the
+	  // end of the belt and is then handed on to the Labeller (see the
+	  // collection-point handoff further down).
 		while(true){
 			await(bottleFromTable);
 			await(enable);
@@ -111,11 +113,29 @@ conveyorPlant(
 			emit rightMoving; { long tR7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR7 < 60) { emit rightMovingE; pause; } } pause;
 			emit rightMoving; { long tR8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR8 < 60) { emit rightMovingE; pause; } } pause;
 
-			// arrived at the collection point - wait here until the Sorter
-			// (artificially, via sortDone) removes the finished bottle
-			abort(sortDone){
-				sustain bottleLeftPos5;
+			// arrived at the collection point - hand the bottle off to the
+			// Labeller (enable/loadBottle stay as-is: legitimate stand-ins
+			// for a Loader that doesn't exist yet).
+			// Ack-or-timeout hold via ConveyorLabellerBridge (a single-segment
+			// "run" package class, not a SignalLevelClient declared inline -
+			// this build of sjc crashes resolving types from multi-segment
+			// packages such as org.compsys704 when used for a local instance
+			// declaration inside a .sysj reactive body). Bounded by a 30s
+			// timeout (like the Rotary Table's Filler/Capper offers) rather
+			// than an unbounded sustain/loop pair - without a timeout, a
+			// Labeller that isn't running (or that stops acking) leaves this
+			// plant permanently stuck here, unable to accept the next
+			// bottle from Pos 1 either.
+			abort(labellerTakenAck) {
+				long tLabel = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tLabel < 30000) {
+					emit bottleLeftPos5;
+					ConveyorLabellerBridge.setBottleFromConveyor(true);
+					pause;
+				}
 			}
+			ConveyorLabellerBridge.setBottleFromConveyor(false);
+			await(!labellerTakenAck);
 		}
 	}
 	||

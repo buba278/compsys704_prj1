@@ -40,7 +40,9 @@ public class Conveyor extends JFrame {
 		canvas.setPreferredSize(new Dimension(650, 220));
 		canvas.setBackground(Color.WHITE);
 
-		// --- DEV stand-ins for the Loader, Rotary Table and Sorter handoffs ---
+		// --- DEV stand-in for the Loader (Rotary Table and Sorter handoffs
+		// are now real - driven automatically by RotaryConveyorBridge and
+		// ConveyorLabellerBridge, no GUI buttons needed for them anymore) ---
 
 		final SignalLevelClient enableClient = new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_ENABLE);
 		JRadioButton disabled = new JRadioButton("disabled");
@@ -74,28 +76,10 @@ public class Conveyor extends JFrame {
 			}
 		});
 
-		final SignalLevelClient bottleFromTableClient = new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_BOTTLE_FROM_TABLE);
-		JButton bottleFromTableButton = new JButton("Bottle From Table (Pos 5)");
-		bottleFromTableButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				pulse(bottleFromTableClient);
-			}
-		});
-
-		final SignalLevelClient sortDoneClient = new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_SORT_DONE);
-		JButton sortDoneButton = new JButton("Sort Done (Collection end)");
-		sortDoneButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				pulse(sortDoneClient);
-			}
-		});
-
 		JPanel devControls = new JPanel();
-		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-ins for Loader / Rotary Table / Sorter)"));
+		devControls.setBorder(BorderFactory.createTitledBorder("DEV signals (stand-in for Loader)"));
 		devControls.add(enablePanel);
 		devControls.add(loadBottleButton);
-		devControls.add(bottleFromTableButton);
-		devControls.add(sortDoneButton);
 
 		// --- real controller inputs: mode + manual jog ---
 

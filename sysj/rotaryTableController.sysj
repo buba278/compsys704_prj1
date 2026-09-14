@@ -2,6 +2,7 @@ import run.RotaryConveyorBridge;
 
 rotaryTableController(
 		input signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1, readyToRotate;
+		input signal tableBusy;
 		output signal rotaryTableTrigger, tableRotationComplete;
 		input Integer signal mode;
 		input signal rotateM; // manually rotate table
@@ -50,6 +51,18 @@ rotaryTableController(
 			await(autoMode);
 
 			abort(manualMode) {
+				// don't start rotating a new bottle in until the previous
+				// one has fully cleared the table (capped, filled, and
+				// handed off to Pos 5) - tableBusy is held by
+				// rotaryTablePlant.sysj for that whole duration, unlike
+				// bottleAtPos5/capOnBottleAtPos1 below, which are now both
+				// brief automatic pulses and so give almost no real
+				// protection against starting a second bottle's rotation
+				// while the first is still mid-cycle.
+				present(tableBusy) {
+					await(!tableBusy);
+				}
+
 				await(readyToRotate);
 
 				// don't start rotating a new bottle in until the previous

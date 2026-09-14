@@ -3,6 +3,7 @@
               <ClockDomain Name="SorterPlantCD" Class="SorterPlant">
                       <!-- Input Signals received from SorterControllerCD -->
                       <iSignal Name="extendPusher" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10023" />
+                      <iSignal Name="bottleFromLabeller" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10023" />
  
                       <!-- Output Signals transmitted back to SorterControllerCD -->
                       <oSignal Name="bottleAtSorter"   To="SorterControllerCD.bottleAtSorter"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10025" />

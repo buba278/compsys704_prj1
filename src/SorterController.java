@@ -22,12 +22,13 @@ public class SorterController extends ClockDomain{
   public Signal rejectedE = new Signal("rejectedE", Signal.OUTPUT);
   public Signal sortComplete = new Signal("sortComplete", Signal.OUTPUT);
   private TwinClient twin_thread_1;//sysj\sorterController.sysj line: 17, column: 5
-  private long t0_thread_1;//sysj\sorterController.sysj line: 63, column: 13
-  private int S11897 = 1;
-  private int S11123 = 1;
-  private int S11170 = 1;
-  private int S11126 = 1;
-  private int S11152 = 1;
+  private String productId_thread_1;//sysj\sorterController.sysj line: 26, column: 9
+  private long t0_thread_1;//sysj\sorterController.sysj line: 61, column: 13
+  private int S44612 = 1;
+  private int S43838 = 1;
+  private int S43885 = 1;
+  private int S43841 = 1;
+  private int S43867 = 1;
   
   private int[] ends = new int[2];
   private int[] tdone = new int[2];
@@ -39,45 +40,49 @@ public class SorterController extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S11897){
+      switch(S44612){
         case 0 : 
-          S11897=0;
+          S44612=0;
           break RUN;
         
         case 1 : 
-          S11897=2;
-          S11897=2;
+          S44612=2;
+          S44612=2;
           twin_thread_1 = new TwinClient("sorter", "127.0.0.1", 9090);//sysj\sorterController.sysj line: 17, column: 5
-          System.out.println("SorterController: Initialized and running.");//sysj\sorterController.sysj line: 19, column: 5
-          twin_thread_1.update(PlantTwin.State.IDLE);//sysj\sorterController.sysj line: 20, column: 5
-          System.out.println("SorterController: Waiting for bottle at sorter...");//sysj\sorterController.sysj line: 23, column: 9
-          S11123=0;
+          System.out.println("SorterController: Initialized and running.");//sysj\sorterController.sysj line: 18, column: 5
+          twin_thread_1.update(PlantTwin.State.IDLE);//sysj\sorterController.sysj line: 19, column: 5
+          System.out.println("SorterController: Waiting for bottle at sorter...");//sysj\sorterController.sysj line: 22, column: 9
+          S43838=0;
           active[1]=1;
           ends[1]=1;
           break RUN;
         
         case 2 : 
-          switch(S11123){
+          switch(S43838){
             case 0 : 
-              if(bottleAtSorter.getprestatus()){//sysj\sorterController.sysj line: 24, column: 16
-                System.out.println("SorterController: Bottle detected. Inspecting...");//sysj\sorterController.sysj line: 25, column: 9
-                twin_thread_1.update(PlantTwin.State.IN_PROGRESS);//sysj\sorterController.sysj line: 26, column: 9
-                S11123=1;
-                if(bottleDefective.getprestatus()){//sysj\sorterController.sysj line: 28, column: 18
-                  S11170=0;
-                  System.out.println("SorterController: Defect detected - diverting bottle.");//sysj\sorterController.sysj line: 29, column: 13
-                  S11126=0;
+              if(bottleAtSorter.getprestatus()){//sysj\sorterController.sysj line: 23, column: 16
+                productId_thread_1 = twin_thread_1.getProductIdAtPosition(6);//sysj\sorterController.sysj line: 26, column: 9
+                if(productId_thread_1 == null || productId_thread_1.isEmpty()) {//sysj\sorterController.sysj line: 27, column: 55
+                  productId_thread_1 = "UNKNOWN";//sysj\sorterController.sysj line: 28, column: 13
+                }
+                System.out.println("SorterController: Bottle (" + productId_thread_1 + ") detected. Inspecting...");//sysj\sorterController.sysj line: 31, column: 9
+                twin_thread_1.update(PlantTwin.State.IN_PROGRESS);//sysj\sorterController.sysj line: 32, column: 9
+                S43838=1;
+                if(bottleDefective.getprestatus()){//sysj\sorterController.sysj line: 34, column: 18
+                  S43885=0;
+                  System.out.println("SorterController: Defect detected - diverting bottle.");//sysj\sorterController.sysj line: 35, column: 13
+                  S43841=0;
                   active[1]=1;
                   ends[1]=1;
                   break RUN;
                 }
                 else {
-                  S11170=1;
-                  System.out.println("SorterController: Bottle OK - passing through.");//sysj\sorterController.sysj line: 61, column: 13
-                  t0_thread_1 = System.currentTimeMillis();//sysj\sorterController.sysj line: 63, column: 13
-                  S11152=0;
-                  if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 64, column: 20
-                    sortedE.setPresent();//sysj\sorterController.sysj line: 65, column: 17
+                  S43885=1;
+                  System.out.println("SorterController: Bottle OK - passing through.");//sysj\sorterController.sysj line: 59, column: 13
+                  t0_thread_1 = System.currentTimeMillis();//sysj\sorterController.sysj line: 61, column: 13
+                  S43867=0;
+                  if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 62, column: 20
+                    sortedE.setPresent();//sysj\sorterController.sysj line: 63, column: 17
                     currsigs.addElement(sortedE);
                     active[1]=1;
                     ends[1]=1;
@@ -85,9 +90,10 @@ public class SorterController extends ClockDomain{
                   }
                   else {
                     ends[1]=2;
-                    ;//sysj\sorterController.sysj line: 64, column: 13
-                    twin_thread_1.recordEvent("Sorted OK", null);//sysj\sorterController.sysj line: 70, column: 13
-                    S11152=1;
+                    ;//sysj\sorterController.sysj line: 62, column: 13
+                    twin_thread_1.recordEvent("Sorted OK", productId_thread_1);//sysj\sorterController.sysj line: 68, column: 13
+                    twin_thread_1.archiveProduct(productId_thread_1, false);//sysj\sorterController.sysj line: 69, column: 13
+                    S43867=1;
                     active[1]=1;
                     ends[1]=1;
                     break RUN;
@@ -101,13 +107,13 @@ public class SorterController extends ClockDomain{
               }
             
             case 1 : 
-              switch(S11170){
+              switch(S43885){
                 case 0 : 
-                  switch(S11126){
+                  switch(S43841){
                     case 0 : 
-                      if(!pusherExtended.getprestatus()){//sysj\sorterController.sysj line: 34, column: 20
-                        S11126=1;
-                        extendPusher.setPresent();//sysj\sorterController.sysj line: 36, column: 17
+                      if(!pusherExtended.getprestatus()){//sysj\sorterController.sysj line: 38, column: 20
+                        S43841=1;
+                        extendPusher.setPresent();//sysj\sorterController.sysj line: 40, column: 17
                         currsigs.addElement(extendPusher);
                         active[1]=1;
                         ends[1]=1;
@@ -120,14 +126,14 @@ public class SorterController extends ClockDomain{
                       }
                     
                     case 1 : 
-                      if(pusherExtended.getprestatus()){//sysj\sorterController.sysj line: 35, column: 20
-                        System.out.println("SorterController: Pusher confirmed extended. Holding to divert...");//sysj\sorterController.sysj line: 38, column: 13
-                        t0_thread_1 = System.currentTimeMillis();//sysj\sorterController.sysj line: 43, column: 13
-                        S11126=2;
-                        if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 44, column: 20
-                          extendPusher.setPresent();//sysj\sorterController.sysj line: 45, column: 17
+                      if(pusherExtended.getprestatus()){//sysj\sorterController.sysj line: 39, column: 20
+                        System.out.println("SorterController: Pusher confirmed extended. Holding to divert...");//sysj\sorterController.sysj line: 42, column: 13
+                        t0_thread_1 = System.currentTimeMillis();//sysj\sorterController.sysj line: 45, column: 13
+                        S43841=2;
+                        if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 46, column: 20
+                          extendPusher.setPresent();//sysj\sorterController.sysj line: 47, column: 17
                           currsigs.addElement(extendPusher);
-                          rejectedE.setPresent();//sysj\sorterController.sysj line: 46, column: 17
+                          rejectedE.setPresent();//sysj\sorterController.sysj line: 48, column: 17
                           currsigs.addElement(rejectedE);
                           active[1]=1;
                           ends[1]=1;
@@ -135,17 +141,18 @@ public class SorterController extends ClockDomain{
                         }
                         else {
                           ends[1]=2;
-                          ;//sysj\sorterController.sysj line: 44, column: 13
-                          twin_thread_1.recordEvent("Rejected", null);//sysj\sorterController.sysj line: 56, column: 13
-                          System.out.println("SorterController: Releasing pusher.");//sysj\sorterController.sysj line: 58, column: 13
-                          S11126=3;
+                          ;//sysj\sorterController.sysj line: 46, column: 13
+                          twin_thread_1.recordEvent("Rejected", productId_thread_1);//sysj\sorterController.sysj line: 53, column: 13
+                          twin_thread_1.archiveProduct(productId_thread_1, true);//sysj\sorterController.sysj line: 54, column: 13
+                          System.out.println("SorterController: Releasing pusher.");//sysj\sorterController.sysj line: 56, column: 13
+                          S43841=3;
                           active[1]=1;
                           ends[1]=1;
                           break RUN;
                         }
                       }
                       else {
-                        extendPusher.setPresent();//sysj\sorterController.sysj line: 36, column: 17
+                        extendPusher.setPresent();//sysj\sorterController.sysj line: 40, column: 17
                         currsigs.addElement(extendPusher);
                         active[1]=1;
                         ends[1]=1;
@@ -153,10 +160,10 @@ public class SorterController extends ClockDomain{
                       }
                     
                     case 2 : 
-                      if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 44, column: 20
-                        extendPusher.setPresent();//sysj\sorterController.sysj line: 45, column: 17
+                      if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 46, column: 20
+                        extendPusher.setPresent();//sysj\sorterController.sysj line: 47, column: 17
                         currsigs.addElement(extendPusher);
-                        rejectedE.setPresent();//sysj\sorterController.sysj line: 46, column: 17
+                        rejectedE.setPresent();//sysj\sorterController.sysj line: 48, column: 17
                         currsigs.addElement(rejectedE);
                         active[1]=1;
                         ends[1]=1;
@@ -164,21 +171,24 @@ public class SorterController extends ClockDomain{
                       }
                       else {
                         ends[1]=2;
-                        ;//sysj\sorterController.sysj line: 44, column: 13
-                        twin_thread_1.recordEvent("Rejected", null);//sysj\sorterController.sysj line: 56, column: 13
-                        System.out.println("SorterController: Releasing pusher.");//sysj\sorterController.sysj line: 58, column: 13
-                        S11126=3;
+                        ;//sysj\sorterController.sysj line: 46, column: 13
+                        twin_thread_1.recordEvent("Rejected", productId_thread_1);//sysj\sorterController.sysj line: 53, column: 13
+                        twin_thread_1.archiveProduct(productId_thread_1, true);//sysj\sorterController.sysj line: 54, column: 13
+                        System.out.println("SorterController: Releasing pusher.");//sysj\sorterController.sysj line: 56, column: 13
+                        S43841=3;
                         active[1]=1;
                         ends[1]=1;
                         break RUN;
                       }
                     
                     case 3 : 
-                      if(!bottleAtSorter.getprestatus()){//sysj\sorterController.sysj line: 59, column: 20
-                        System.out.println("SorterController: Cycle complete. Returning to idle.");//sysj\sorterController.sysj line: 76, column: 9
-                        twin_thread_1.update(PlantTwin.State.IDLE);//sysj\sorterController.sysj line: 77, column: 9
-                        System.out.println("SorterController: Waiting for bottle at sorter...");//sysj\sorterController.sysj line: 23, column: 9
-                        S11123=0;
+                      if(!bottleAtSorter.getprestatus()){//sysj\sorterController.sysj line: 57, column: 20
+                        sortComplete.setPresent();//sysj\sorterController.sysj line: 75, column: 9
+                        currsigs.addElement(sortComplete);
+                        System.out.println("SorterController: Cycle complete. Returning to idle.");//sysj\sorterController.sysj line: 77, column: 9
+                        twin_thread_1.update(PlantTwin.State.IDLE);//sysj\sorterController.sysj line: 78, column: 9
+                        System.out.println("SorterController: Waiting for bottle at sorter...");//sysj\sorterController.sysj line: 22, column: 9
+                        S43838=0;
                         active[1]=1;
                         ends[1]=1;
                         break RUN;
@@ -193,10 +203,10 @@ public class SorterController extends ClockDomain{
                   break;
                 
                 case 1 : 
-                  switch(S11152){
+                  switch(S43867){
                     case 0 : 
-                      if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 64, column: 20
-                        sortedE.setPresent();//sysj\sorterController.sysj line: 65, column: 17
+                      if(System.currentTimeMillis() - t0_thread_1 < 300){//sysj\sorterController.sysj line: 62, column: 20
+                        sortedE.setPresent();//sysj\sorterController.sysj line: 63, column: 17
                         currsigs.addElement(sortedE);
                         active[1]=1;
                         ends[1]=1;
@@ -204,20 +214,23 @@ public class SorterController extends ClockDomain{
                       }
                       else {
                         ends[1]=2;
-                        ;//sysj\sorterController.sysj line: 64, column: 13
-                        twin_thread_1.recordEvent("Sorted OK", null);//sysj\sorterController.sysj line: 70, column: 13
-                        S11152=1;
+                        ;//sysj\sorterController.sysj line: 62, column: 13
+                        twin_thread_1.recordEvent("Sorted OK", productId_thread_1);//sysj\sorterController.sysj line: 68, column: 13
+                        twin_thread_1.archiveProduct(productId_thread_1, false);//sysj\sorterController.sysj line: 69, column: 13
+                        S43867=1;
                         active[1]=1;
                         ends[1]=1;
                         break RUN;
                       }
                     
                     case 1 : 
-                      if(!bottleAtSorter.getprestatus()){//sysj\sorterController.sysj line: 72, column: 20
-                        System.out.println("SorterController: Cycle complete. Returning to idle.");//sysj\sorterController.sysj line: 76, column: 9
-                        twin_thread_1.update(PlantTwin.State.IDLE);//sysj\sorterController.sysj line: 77, column: 9
-                        System.out.println("SorterController: Waiting for bottle at sorter...");//sysj\sorterController.sysj line: 23, column: 9
-                        S11123=0;
+                      if(!bottleAtSorter.getprestatus()){//sysj\sorterController.sysj line: 71, column: 20
+                        sortComplete.setPresent();//sysj\sorterController.sysj line: 75, column: 9
+                        currsigs.addElement(sortComplete);
+                        System.out.println("SorterController: Cycle complete. Returning to idle.");//sysj\sorterController.sysj line: 77, column: 9
+                        twin_thread_1.update(PlantTwin.State.IDLE);//sysj\sorterController.sysj line: 78, column: 9
+                        System.out.println("SorterController: Waiting for bottle at sorter...");//sysj\sorterController.sysj line: 22, column: 9
+                        S43838=0;
                         active[1]=1;
                         ends[1]=1;
                         break RUN;

@@ -1,5 +1,6 @@
 import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
+import run.RotaryLidBridge;
 
 Controller(
 		input signal pusherRetracted,pusherExtended,WPgripped,armAtSource,armAtDest,empty,request;
@@ -33,41 +34,72 @@ Controller(
 		System.out.printf("main loop entered%n");
 		loop {
 			abort (manual) {
-				System.out.printf("Auto: %d%n", 1);
-				twin.update(PlantTwin.State.IDLE);
-				// 1. The arm swivels to the position extended if a new workpiece is requested (request).
-				await (request);
-				System.out.printf("request received%n");
-				twin.update(PlantTwin.State.IN_PROGRESS);
-				abort (armAtDest) {
-					sustain armDest;
-				}
-				// 2. The pusher extends and pushes a workpiece out of the magazine.
+				// Handles every bottle offered while in auto mode, not just the
+				// first - originally this abort's body ran exactly one cycle
+				// and then fell straight through to await(manual) below,
+				// which never becomes true in a pure-auto run, silently
+				// stalling the station after its first bottle. Nesting the
+				// cycle in its own loop here lets it keep re-arming for a
+				// fresh request without ever needing a manual-mode round trip.
+				loop {
+					System.out.printf("Auto: %d%n", 1);
+					twin.update(PlantTwin.State.IDLE);
+					// 1. The arm swivels to the position extended if a new workpiece is requested (request).
+					await (request);
+					System.out.printf("request received%n");
+					twin.update(PlantTwin.State.IN_PROGRESS);
+					abort (armAtDest) {
+						sustain armDest;
+					}
+					// 2. The pusher extends and pushes a workpiece out of the magazine.
 
-				abort (pusherExtended) {
-					sustain pusherExtend;
-				}
-				// 3. The pusher retracts back once it is fully extended.
-				await (pusherRetracted);
-				// 4. The arm swivels back to the position retracted
-				abort (armAtSource) {
-					sustain armSource;
-				}
+					abort (pusherExtended) {
+						sustain pusherExtend;
+					}
+					// 3. The pusher retracts back once it is fully extended.
+					await (pusherRetracted);
+					// 4. The arm swivels back to the position retracted
+					abort (armAtSource) {
+						sustain armSource;
+					}
 
-				// 5 & 6. Vacuum on, hold until gripped, then hold the grip while the arm swivels to destination.
-				abort (WPgripped && armAtDest) {
-					{sustain vacOn;}
-					||
-					{sustain armDest;}
+					// 5 & 6. Vacuum on, hold until gripped, then hold the grip while the arm swivels to destination.
+					abort (WPgripped && armAtDest) {
+						{sustain vacOn;}
+						||
+						{sustain armDest;}
+					}
+					// 7. The vacuum is switched off (wait until the workpiece is released, e.g. via !WPgripped).
+					await(!WPgripped);
+					// 8. The arm swivels to the position retracted so that the cup can be picked up by other machine.
+					abort (armAtSource) {
+						sustain armSource;
+					}
+					twin.recordEvent("lid placed");
+					twin.update(PlantTwin.State.IDLE);
+
+					// Tell the Rotary Table the lid is placed, so it can move
+					// the bottle on to the Capper. Ack-or-timeout hold, not a
+					// bare single-tick emit, since this crosses the socket to
+					// RotaryTablePlantCD and repeats once per bottle - see
+					// CLAUDE.md.
+					{
+						long tAck = System.currentTimeMillis();
+						while (System.currentTimeMillis() - tAck < 200) {
+							RotaryLidBridge.setLidPlacedAck(true);
+							pause;
+						}
+						RotaryLidBridge.setLidPlacedAck(false);
+					}
+
+					// Don't re-arm on the same still-true request: the Rotary
+					// Table holds "request" present until it has seen this
+					// ack, so await(request) isn't edge-triggered and would
+					// otherwise immediately refire on the very request that
+					// just completed (the await-re-arming pitfall in
+					// CLAUDE.md).
+					await (!request);
 				}
-				// 7. The vacuum is switched off (wait until the workpiece is released, e.g. via !WPgripped).
-				await(!WPgripped);
-				// 8. The arm swivels to the position retracted so that the cup can be picked up by other machine.
-				abort (armAtSource) {
-					sustain armSource;
-				}
-				twin.recordEvent("lid placed");
-				twin.update(PlantTwin.State.IDLE);
 			}
 			await (manual);
 			System.out.printf("Manual: %d%n", 1);

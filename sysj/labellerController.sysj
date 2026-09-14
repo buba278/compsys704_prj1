@@ -58,9 +58,17 @@ LabellerController(
 
 		twin.recordEvent("Label applied", productId);
 		System.out.println("LabelController: Label applied, Release complete.");
-		
+
 		twin.update(PlantTwin.State.IDLE);
 
-		// FIX: Deleted await(!bottleAtLabeller) here so the cycle can instantly restart
+		// await isn't edge-triggered (CLAUDE.md): without this, if
+		// bottleAtLabeller is still present the instant this loop comes back
+		// around (very likely, since the Plant holds it present for the
+		// whole print/clamp phase and this cycle only takes as long as the
+		// commands above), the loop re-fires immediately for the same
+		// bottle instead of waiting for a fresh one - which is what made
+		// triggering look random once the Plant started gating
+		// bottleAtLabeller on a real upstream handoff instead of free-running.
+		await(!bottleAtLabeller);
 	}
 }

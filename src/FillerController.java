@@ -4,6 +4,8 @@ import com.systemj.Signal;
 import com.systemj.input_Channel;
 import com.systemj.output_Channel;
 import run.FillerFaultState;//sysj\fillerController.sysj line: 1, column: 1
+import digitaltwin.PlantTwin;//sysj\fillerController.sysj line: 2, column: 1
+import digitaltwin.TwinClient;//sysj\fillerController.sysj line: 3, column: 1
 
 public class FillerController extends ClockDomain{
   public FillerController(String name){super(name);}
@@ -29,38 +31,45 @@ public class FillerController extends ClockDomain{
   public Signal fillReady = new Signal("fillReady", Signal.OUTPUT);
   public Signal fillFaultOut = new Signal("fillFaultOut", Signal.OUTPUT);
   private Signal stationFault_1;
-  private boolean stalling_thread_8;//sysj\fillerController.sysj line: 169, column: 3
-  private boolean faulted_thread_8;//sysj\fillerController.sysj line: 170, column: 3
-  private long stallStart_thread_8;//sysj\fillerController.sysj line: 171, column: 3
-  private int aTarget_thread_2;//sysj\fillerController.sysj line: 29, column: 4
-  private int bTarget_thread_2;//sysj\fillerController.sysj line: 30, column: 4
-  private boolean faulted_thread_2;//sysj\fillerController.sysj line: 31, column: 4
-  private boolean bottleLost_thread_2;//sysj\fillerController.sysj line: 32, column: 4
-  private long tFillReady_thread_2;//sysj\fillerController.sysj line: 86, column: 5
-  private long tFault_thread_4;//sysj\fillerController.sysj line: 115, column: 5
-  private long tFillDoneCoord_thread_5;//sysj\fillerController.sysj line: 130, column: 5
-  private int level_thread_7;//sysj\fillerController.sysj line: 154, column: 5
-  private int target_thread_7;//sysj\fillerController.sysj line: 155, column: 5
-  private int S8171 = 1;
-  private int S7751 = 1;
-  private int S7053 = 1;
-  private int S7086 = 1;
-  private int S7068 = 1;
-  private int S7759 = 1;
-  private int S7875 = 1;
-  private int S7761 = 1;
-  private int S8047 = 1;
-  private int S7877 = 1;
-  private int S8073 = 1;
-  private int S8096 = 1;
-  private int S8152 = 1;
-  private int S8169 = 1;
+  private TwinClient twin_thread_2;//sysj\fillerController.sysj line: 27, column: 2
+  private TwinClient twin_thread_5;//sysj\fillerController.sysj line: 141, column: 3
+  private TwinClient twin_thread_8;//sysj\fillerController.sysj line: 186, column: 3
+  private boolean stalling_thread_8;//sysj\fillerController.sysj line: 187, column: 3
+  private boolean faulted_thread_8;//sysj\fillerController.sysj line: 188, column: 3
+  private long stallStart_thread_8;//sysj\fillerController.sysj line: 189, column: 3
+  private TwinClient twin_thread_9;//sysj\fillerController.sysj line: 218, column: 3
+  private int aTarget_thread_2;//sysj\fillerController.sysj line: 34, column: 4
+  private int bTarget_thread_2;//sysj\fillerController.sysj line: 35, column: 4
+  private int ratio_thread_2;//sysj\fillerController.sysj line: 36, column: 4
+  private String currentProductId_thread_2;//sysj\fillerController.sysj line: 37, column: 4
+  private boolean faulted_thread_2;//sysj\fillerController.sysj line: 38, column: 4
+  private boolean bottleLost_thread_2;//sysj\fillerController.sysj line: 39, column: 4
+  private long tFillReady_thread_2;//sysj\fillerController.sysj line: 100, column: 5
+  private TwinClient twin_thread_3;//sysj\fillerController.sysj line: 112, column: 4
+  private long tFault_thread_4;//sysj\fillerController.sysj line: 130, column: 5
+  private long tFillDoneCoord_thread_5;//sysj\fillerController.sysj line: 147, column: 5
+  private int level_thread_7;//sysj\fillerController.sysj line: 171, column: 5
+  private int target_thread_7;//sysj\fillerController.sysj line: 172, column: 5
+  private int S15042 = 1;
+  private int S14418 = 1;
+  private int S13009 = 1;
+  private int S13044 = 1;
+  private int S13026 = 1;
+  private int S14429 = 1;
+  private int S14545 = 1;
+  private int S14431 = 1;
+  private int S14897 = 1;
+  private int S14548 = 1;
+  private int S14923 = 1;
+  private int S14946 = 1;
+  private int S15002 = 1;
+  private int S15040 = 1;
   
   private int[] ends = new int[10];
   private int[] tdone = new int[10];
   
-  public void thread8189(int [] tdone, int [] ends){
-        switch(S8169){
+  public void thread15060(int [] tdone, int [] ends){
+        switch(S15040){
       case 0 : 
         active[9]=0;
         ends[9]=0;
@@ -68,10 +77,11 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        if(clearFaultM.getprestatus()){//sysj\fillerController.sysj line: 199, column: 13
-          FillerFaultState.clearStationFault();//sysj\fillerController.sysj line: 200, column: 5
-          if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 202, column: 4
-            stationFault_1.setPresent();//sysj\fillerController.sysj line: 203, column: 5
+        if(clearFaultM.getprestatus()){//sysj\fillerController.sysj line: 220, column: 13
+          twin_thread_9.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 221, column: 5
+          FillerFaultState.clearStationFault();//sysj\fillerController.sysj line: 222, column: 5
+          if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 224, column: 4
+            stationFault_1.setPresent();//sysj\fillerController.sysj line: 225, column: 5
             currsigs.addElement(stationFault_1);
             active[9]=1;
             ends[9]=1;
@@ -84,8 +94,8 @@ public class FillerController extends ClockDomain{
           }
         }
         else {
-          if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 202, column: 4
-            stationFault_1.setPresent();//sysj\fillerController.sysj line: 203, column: 5
+          if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 224, column: 4
+            stationFault_1.setPresent();//sysj\fillerController.sysj line: 225, column: 5
             currsigs.addElement(stationFault_1);
             active[9]=1;
             ends[9]=1;
@@ -102,8 +112,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8188(int [] tdone, int [] ends){
-        switch(S8152){
+  public void thread15059(int [] tdone, int [] ends){
+        switch(S15002){
       case 0 : 
         active[8]=0;
         ends[8]=0;
@@ -111,29 +121,30 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        if(levelAtTarget.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 173, column: 13
-          stalling_thread_8 = false;//sysj\fillerController.sysj line: 174, column: 5
-          faulted_thread_8 = false;//sysj\fillerController.sysj line: 175, column: 5
+        if(levelAtTarget.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 191, column: 13
+          stalling_thread_8 = false;//sysj\fillerController.sysj line: 192, column: 5
+          faulted_thread_8 = false;//sysj\fillerController.sysj line: 193, column: 5
           active[8]=1;
           ends[8]=1;
           tdone[8]=1;
         }
         else {
-          if(valve1Open.getprestatus() || valve2Open.getprestatus()){//sysj\fillerController.sysj line: 177, column: 13
-            if(!stalling_thread_8){//sysj\fillerController.sysj line: 178, column: 9
-              stalling_thread_8 = true;//sysj\fillerController.sysj line: 179, column: 6
-              stallStart_thread_8 = System.currentTimeMillis();//sysj\fillerController.sysj line: 180, column: 6
+          if(valve1Open.getprestatus() || valve2Open.getprestatus()){//sysj\fillerController.sysj line: 195, column: 13
+            if(!stalling_thread_8){//sysj\fillerController.sysj line: 196, column: 9
+              stalling_thread_8 = true;//sysj\fillerController.sysj line: 197, column: 6
+              stallStart_thread_8 = System.currentTimeMillis();//sysj\fillerController.sysj line: 198, column: 6
               active[8]=1;
               ends[8]=1;
               tdone[8]=1;
             }
             else {
-              if(!faulted_thread_8 && System.currentTimeMillis() - stallStart_thread_8 > 8000){//sysj\fillerController.sysj line: 181, column: 16
-                System.out.printf("[FC] FAULT: stall detected, valve held open >8000ms without reaching target%n");//sysj\fillerController.sysj line: 182, column: 6
-                fillFaultE.setPresent();//sysj\fillerController.sysj line: 183, column: 6
+              if(!faulted_thread_8 && System.currentTimeMillis() - stallStart_thread_8 > 8000){//sysj\fillerController.sysj line: 199, column: 16
+                System.out.printf("[FC] FAULT: stall detected, valve held open >8000ms without reaching target%n");//sysj\fillerController.sysj line: 200, column: 6
+                twin_thread_8.update(PlantTwin.State.ERROR, "Valve stall detected");//sysj\fillerController.sysj line: 201, column: 6
+                fillFaultE.setPresent();//sysj\fillerController.sysj line: 202, column: 6
                 currsigs.addElement(fillFaultE);
-                FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 184, column: 6
-                faulted_thread_8 = true;//sysj\fillerController.sysj line: 185, column: 6
+                FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 203, column: 6
+                faulted_thread_8 = true;//sysj\fillerController.sysj line: 204, column: 6
                 active[8]=1;
                 ends[8]=1;
                 tdone[8]=1;
@@ -146,8 +157,8 @@ public class FillerController extends ClockDomain{
             }
           }
           else {
-            stalling_thread_8 = false;//sysj\fillerController.sysj line: 188, column: 5
-            faulted_thread_8 = false;//sysj\fillerController.sysj line: 189, column: 5
+            stalling_thread_8 = false;//sysj\fillerController.sysj line: 207, column: 5
+            faulted_thread_8 = false;//sysj\fillerController.sysj line: 208, column: 5
             active[8]=1;
             ends[8]=1;
             tdone[8]=1;
@@ -158,8 +169,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8187(int [] tdone, int [] ends){
-        switch(S8096){
+  public void thread15058(int [] tdone, int [] ends){
+        switch(S14946){
       case 0 : 
         active[7]=0;
         ends[7]=0;
@@ -167,14 +178,14 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        if(doseTargetMl.getprestatus() && fillLevelMl.getprestatus()){//sysj\fillerController.sysj line: 153, column: 13
-          level_thread_7 = (Integer)(fillLevelMl.getpreval() == null ? null : ((Integer)fillLevelMl.getpreval()));//sysj\fillerController.sysj line: 154, column: 5
-          target_thread_7 = (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()));//sysj\fillerController.sysj line: 155, column: 5
-          if(level_thread_7 > target_thread_7 && !FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 156, column: 9
-            System.out.printf("[FC] FAULT: overfill detected, level=%d target=%d%n", level_thread_7, target_thread_7);//sysj\fillerController.sysj line: 157, column: 6
-            fillFaultE.setPresent();//sysj\fillerController.sysj line: 158, column: 6
+        if(doseTargetMl.getprestatus() && fillLevelMl.getprestatus()){//sysj\fillerController.sysj line: 170, column: 13
+          level_thread_7 = (Integer)(fillLevelMl.getpreval() == null ? null : ((Integer)fillLevelMl.getpreval()));//sysj\fillerController.sysj line: 171, column: 5
+          target_thread_7 = (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()));//sysj\fillerController.sysj line: 172, column: 5
+          if(level_thread_7 > target_thread_7 && !FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 173, column: 9
+            System.out.printf("[FC] FAULT: overfill detected, level=%d target=%d%n", level_thread_7, target_thread_7);//sysj\fillerController.sysj line: 174, column: 6
+            fillFaultE.setPresent();//sysj\fillerController.sysj line: 175, column: 6
             currsigs.addElement(fillFaultE);
-            FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 159, column: 6
+            FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 176, column: 6
             active[7]=1;
             ends[7]=1;
             tdone[7]=1;
@@ -195,8 +206,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8186(int [] tdone, int [] ends){
-        switch(S8073){
+  public void thread15057(int [] tdone, int [] ends){
+        switch(S14923){
       case 0 : 
         active[6]=0;
         ends[6]=0;
@@ -204,13 +215,13 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        if(liquidARatio.getprestatus()){//sysj\fillerController.sysj line: 141, column: 13
-          run.FillerRecipe.setRatio((Integer)(liquidARatio.getpreval() == null ? null : ((Integer)liquidARatio.getpreval())));//sysj\fillerController.sysj line: 141, column: 31
-          if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 142, column: 13
-            run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 143, column: 5
-            totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 144, column: 5
+        if(liquidARatio.getprestatus()){//sysj\fillerController.sysj line: 158, column: 13
+          run.FillerRecipe.setRatio((Integer)(liquidARatio.getpreval() == null ? null : ((Integer)liquidARatio.getpreval())));//sysj\fillerController.sysj line: 158, column: 31
+          if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 159, column: 13
+            run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 160, column: 5
+            totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 161, column: 5
             currsigs.addElement(totalVolumeMlE);
-            totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 144, column: 5
+            totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 161, column: 5
             active[6]=1;
             ends[6]=1;
             tdone[6]=1;
@@ -222,11 +233,11 @@ public class FillerController extends ClockDomain{
           }
         }
         else {
-          if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 142, column: 13
-            run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 143, column: 5
-            totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 144, column: 5
+          if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 159, column: 13
+            run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 160, column: 5
+            totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 161, column: 5
             currsigs.addElement(totalVolumeMlE);
-            totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 144, column: 5
+            totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 161, column: 5
             active[6]=1;
             ends[6]=1;
             tdone[6]=1;
@@ -242,8 +253,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8185(int [] tdone, int [] ends){
-        switch(S8047){
+  public void thread15056(int [] tdone, int [] ends){
+        switch(S14897){
       case 0 : 
         active[5]=0;
         ends[5]=0;
@@ -251,14 +262,14 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S7877){
+        switch(S14548){
           case 0 : 
-            if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 127, column: 11
-              System.out.printf("[FC] fillDoneCoordE → coordinator (holding)%n");//sysj\fillerController.sysj line: 128, column: 4
-              S7877=1;
-              tFillDoneCoord_thread_5 = System.currentTimeMillis();//sysj\fillerController.sysj line: 130, column: 5
-              if(System.currentTimeMillis() - tFillDoneCoord_thread_5 < 200){//sysj\fillerController.sysj line: 131, column: 12
-                fillDoneCoordE.setPresent();//sysj\fillerController.sysj line: 132, column: 6
+            if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 144, column: 11
+              System.out.printf("[FC] fillDoneCoordE → coordinator (holding)%n");//sysj\fillerController.sysj line: 145, column: 4
+              S14548=1;
+              tFillDoneCoord_thread_5 = System.currentTimeMillis();//sysj\fillerController.sysj line: 147, column: 5
+              if(System.currentTimeMillis() - tFillDoneCoord_thread_5 < 200){//sysj\fillerController.sysj line: 148, column: 12
+                fillDoneCoordE.setPresent();//sysj\fillerController.sysj line: 149, column: 6
                 currsigs.addElement(fillDoneCoordE);
                 active[5]=1;
                 ends[5]=1;
@@ -266,8 +277,9 @@ public class FillerController extends ClockDomain{
               }
               else {
                 ends[5]=2;
-                ;//sysj\fillerController.sysj line: 131, column: 5
-                S7877=0;
+                ;//sysj\fillerController.sysj line: 148, column: 5
+                twin_thread_5.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 143, column: 4
+                S14548=0;
                 active[5]=1;
                 ends[5]=1;
                 tdone[5]=1;
@@ -281,15 +293,16 @@ public class FillerController extends ClockDomain{
             break;
           
           case 1 : 
-            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 129, column: 11
-              S7877=0;
+            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 146, column: 11
+              twin_thread_5.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 143, column: 4
+              S14548=0;
               active[5]=1;
               ends[5]=1;
               tdone[5]=1;
             }
             else {
-              if(System.currentTimeMillis() - tFillDoneCoord_thread_5 < 200){//sysj\fillerController.sysj line: 131, column: 12
-                fillDoneCoordE.setPresent();//sysj\fillerController.sysj line: 132, column: 6
+              if(System.currentTimeMillis() - tFillDoneCoord_thread_5 < 200){//sysj\fillerController.sysj line: 148, column: 12
+                fillDoneCoordE.setPresent();//sysj\fillerController.sysj line: 149, column: 6
                 currsigs.addElement(fillDoneCoordE);
                 active[5]=1;
                 ends[5]=1;
@@ -297,8 +310,9 @@ public class FillerController extends ClockDomain{
               }
               else {
                 ends[5]=2;
-                ;//sysj\fillerController.sysj line: 131, column: 5
-                S7877=0;
+                ;//sysj\fillerController.sysj line: 148, column: 5
+                twin_thread_5.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 143, column: 4
+                S14548=0;
                 active[5]=1;
                 ends[5]=1;
                 tdone[5]=1;
@@ -312,8 +326,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8184(int [] tdone, int [] ends){
-        switch(S7875){
+  public void thread15055(int [] tdone, int [] ends){
+        switch(S14545){
       case 0 : 
         active[4]=0;
         ends[4]=0;
@@ -321,14 +335,14 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S7761){
+        switch(S14431){
           case 0 : 
-            if(stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 112, column: 11
-              System.out.printf("[FC] fillFaultOut → coordinator (holding)%n");//sysj\fillerController.sysj line: 113, column: 4
-              S7761=1;
-              tFault_thread_4 = System.currentTimeMillis();//sysj\fillerController.sysj line: 115, column: 5
-              if(System.currentTimeMillis() - tFault_thread_4 < 200){//sysj\fillerController.sysj line: 116, column: 12
-                fillFaultOut.setPresent();//sysj\fillerController.sysj line: 117, column: 6
+            if(stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 127, column: 11
+              System.out.printf("[FC] fillFaultOut → coordinator (holding)%n");//sysj\fillerController.sysj line: 128, column: 4
+              S14431=1;
+              tFault_thread_4 = System.currentTimeMillis();//sysj\fillerController.sysj line: 130, column: 5
+              if(System.currentTimeMillis() - tFault_thread_4 < 200){//sysj\fillerController.sysj line: 131, column: 12
+                fillFaultOut.setPresent();//sysj\fillerController.sysj line: 132, column: 6
                 currsigs.addElement(fillFaultOut);
                 active[4]=1;
                 ends[4]=1;
@@ -336,8 +350,8 @@ public class FillerController extends ClockDomain{
               }
               else {
                 ends[4]=2;
-                ;//sysj\fillerController.sysj line: 116, column: 5
-                S7761=2;
+                ;//sysj\fillerController.sysj line: 131, column: 5
+                S14431=2;
                 active[4]=1;
                 ends[4]=1;
                 tdone[4]=1;
@@ -351,15 +365,15 @@ public class FillerController extends ClockDomain{
             break;
           
           case 1 : 
-            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 114, column: 11
-              S7761=2;
+            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 129, column: 11
+              S14431=2;
               active[4]=1;
               ends[4]=1;
               tdone[4]=1;
             }
             else {
-              if(System.currentTimeMillis() - tFault_thread_4 < 200){//sysj\fillerController.sysj line: 116, column: 12
-                fillFaultOut.setPresent();//sysj\fillerController.sysj line: 117, column: 6
+              if(System.currentTimeMillis() - tFault_thread_4 < 200){//sysj\fillerController.sysj line: 131, column: 12
+                fillFaultOut.setPresent();//sysj\fillerController.sysj line: 132, column: 6
                 currsigs.addElement(fillFaultOut);
                 active[4]=1;
                 ends[4]=1;
@@ -367,8 +381,8 @@ public class FillerController extends ClockDomain{
               }
               else {
                 ends[4]=2;
-                ;//sysj\fillerController.sysj line: 116, column: 5
-                S7761=2;
+                ;//sysj\fillerController.sysj line: 131, column: 5
+                S14431=2;
                 active[4]=1;
                 ends[4]=1;
                 tdone[4]=1;
@@ -377,8 +391,8 @@ public class FillerController extends ClockDomain{
             break;
           
           case 2 : 
-            if(!stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 121, column: 11
-              S7761=0;
+            if(!stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 136, column: 11
+              S14431=0;
               active[4]=1;
               ends[4]=1;
               tdone[4]=1;
@@ -396,8 +410,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8183(int [] tdone, int [] ends){
-        switch(S7759){
+  public void thread15054(int [] tdone, int [] ends){
+        switch(S14429){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -405,8 +419,9 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 98, column: 14
-          fillDoneE.setPresent();//sysj\fillerController.sysj line: 99, column: 6
+        twin_thread_3 = new TwinClient("filler", "127.0.0.1", 9090);//sysj\fillerController.sysj line: 112, column: 4
+        if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 113, column: 14
+          fillDoneE.setPresent();//sysj\fillerController.sysj line: 114, column: 6
           currsigs.addElement(fillDoneE);
           active[3]=1;
           ends[3]=1;
@@ -422,8 +437,8 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8182(int [] tdone, int [] ends){
-        switch(S7751){
+  public void thread15053(int [] tdone, int [] ends){
+        switch(S14418){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -431,10 +446,10 @@ public class FillerController extends ClockDomain{
         break;
       
       case 1 : 
-        switch(S7053){
+        switch(S13009){
           case 0 : 
-            if(!stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 26, column: 11
-              S7053=1;
+            if(!stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 31, column: 11
+              S13009=1;
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
@@ -447,12 +462,14 @@ public class FillerController extends ClockDomain{
             break;
           
           case 1 : 
-            if(bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 27, column: 11
-              aTarget_thread_2 = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;//sysj\fillerController.sysj line: 29, column: 4
-              bTarget_thread_2 = run.FillerRecipe.getVolume();//sysj\fillerController.sysj line: 30, column: 4
-              faulted_thread_2 = false;//sysj\fillerController.sysj line: 31, column: 4
-              bottleLost_thread_2 = false;//sysj\fillerController.sysj line: 32, column: 4
-              S7053=2;
+            if(bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 32, column: 11
+              aTarget_thread_2 = run.FillerRecipe.getVolume() * run.FillerRecipe.getRatio() / 100;//sysj\fillerController.sysj line: 34, column: 4
+              bTarget_thread_2 = run.FillerRecipe.getVolume();//sysj\fillerController.sysj line: 35, column: 4
+              ratio_thread_2 = run.FillerRecipe.getRatio();//sysj\fillerController.sysj line: 36, column: 4
+              currentProductId_thread_2 = twin_thread_2.createProduct(bTarget_thread_2, ratio_thread_2);//sysj\fillerController.sysj line: 37, column: 4
+              faulted_thread_2 = false;//sysj\fillerController.sysj line: 38, column: 4
+              bottleLost_thread_2 = false;//sysj\fillerController.sysj line: 39, column: 4
+              S13009=2;
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
@@ -465,13 +482,14 @@ public class FillerController extends ClockDomain{
             break;
           
           case 2 : 
-            if(!levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 34, column: 11
-              System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget_thread_2, bTarget_thread_2);//sysj\fillerController.sysj line: 35, column: 4
-              S7053=3;
-              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 38, column: 6
+            if(!levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 41, column: 11
+              twin_thread_2.update(PlantTwin.State.IN_PROGRESS);//sysj\fillerController.sysj line: 42, column: 4
+              System.out.printf("phase 1 start: aTarget=%d bTarget=%d%n", aTarget_thread_2, bTarget_thread_2);//sysj\fillerController.sysj line: 43, column: 4
+              S13009=3;
+              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 46, column: 6
               currsigs.addElement(doseTargetMl);
-              doseTargetMl.setValue(aTarget_thread_2);//sysj\fillerController.sysj line: 38, column: 6
-              valve1Open.setPresent();//sysj\fillerController.sysj line: 39, column: 6
+              doseTargetMl.setValue(aTarget_thread_2);//sysj\fillerController.sysj line: 46, column: 6
+              valve1Open.setPresent();//sysj\fillerController.sysj line: 47, column: 6
               currsigs.addElement(valve1Open);
               active[2]=1;
               ends[2]=1;
@@ -485,31 +503,34 @@ public class FillerController extends ClockDomain{
             break;
           
           case 3 : 
-            if(levelAtTarget.getprestatus() || stationFault_1.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 36, column: 11
-              S7053=4;
-              if(stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 43, column: 13
-                S7086=0;
-                faulted_thread_2 = true;//sysj\fillerController.sysj line: 44, column: 5
-                System.out.printf("[FC] phase 1 aborted by fault - valves closed, bottle abandoned%n");//sysj\fillerController.sysj line: 45, column: 5
-                S7053=5;
-                if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 72, column: 8
-                  System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 73, column: 5
-                  fillDone.setPresent();//sysj\fillerController.sysj line: 74, column: 5
+            if(levelAtTarget.getprestatus() || stationFault_1.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 44, column: 11
+              S13009=4;
+              if(stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 51, column: 13
+                S13044=0;
+                faulted_thread_2 = true;//sysj\fillerController.sysj line: 52, column: 5
+                System.out.printf("[FC] phase 1 aborted by fault - valves closed, bottle abandoned%n");//sysj\fillerController.sysj line: 53, column: 5
+                twin_thread_2.update(PlantTwin.State.ERROR);//sysj\fillerController.sysj line: 54, column: 5
+                twin_thread_2.recordEvent("Fill aborted (Phase 1 fault)", currentProductId_thread_2);//sysj\fillerController.sysj line: 55, column: 5
+                S13009=5;
+                if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 85, column: 8
+                  System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 86, column: 5
+                  twin_thread_2.recordEvent("Bottle filled", currentProductId_thread_2);//sysj\fillerController.sysj line: 87, column: 5
+                  fillDone.setPresent();//sysj\fillerController.sysj line: 88, column: 5
                   currsigs.addElement(fillDone);
-                  S7053=6;
+                  S13009=6;
                   active[2]=1;
                   ends[2]=1;
                   tdone[2]=1;
                 }
                 else {
-                  if(faulted_thread_2){//sysj\fillerController.sysj line: 75, column: 11
-                    System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 78, column: 5
+                  if(faulted_thread_2){//sysj\fillerController.sysj line: 89, column: 11
+                    System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 92, column: 5
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                   else {
-                    S7053=6;
+                    S13009=6;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
@@ -517,29 +538,30 @@ public class FillerController extends ClockDomain{
                 }
               }
               else {
-                S7086=1;
-                if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 47, column: 13
-                  bottleLost_thread_2 = true;//sysj\fillerController.sysj line: 48, column: 5
-                  System.out.printf("[FC] phase 1 aborted: bottle no longer present - valves closed%n");//sysj\fillerController.sysj line: 49, column: 5
-                  S7053=5;
-                  if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 72, column: 8
-                    System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 73, column: 5
-                    fillDone.setPresent();//sysj\fillerController.sysj line: 74, column: 5
+                S13044=1;
+                if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 57, column: 13
+                  bottleLost_thread_2 = true;//sysj\fillerController.sysj line: 58, column: 5
+                  System.out.printf("[FC] phase 1 aborted: bottle no longer present - valves closed%n");//sysj\fillerController.sysj line: 59, column: 5
+                  S13009=5;
+                  if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 85, column: 8
+                    System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 86, column: 5
+                    twin_thread_2.recordEvent("Bottle filled", currentProductId_thread_2);//sysj\fillerController.sysj line: 87, column: 5
+                    fillDone.setPresent();//sysj\fillerController.sysj line: 88, column: 5
                     currsigs.addElement(fillDone);
-                    S7053=6;
+                    S13009=6;
                     active[2]=1;
                     ends[2]=1;
                     tdone[2]=1;
                   }
                   else {
-                    if(faulted_thread_2){//sysj\fillerController.sysj line: 75, column: 11
-                      System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 78, column: 5
+                    if(faulted_thread_2){//sysj\fillerController.sysj line: 89, column: 11
+                      System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 92, column: 5
                       active[2]=1;
                       ends[2]=1;
                       tdone[2]=1;
                     }
                     else {
-                      S7053=6;
+                      S13009=6;
                       active[2]=1;
                       ends[2]=1;
                       tdone[2]=1;
@@ -547,8 +569,8 @@ public class FillerController extends ClockDomain{
                   }
                 }
                 else {
-                  System.out.printf("phase 1 done, dosing to %d%n", bTarget_thread_2);//sysj\fillerController.sysj line: 51, column: 5
-                  S7068=0;
+                  System.out.printf("phase 1 done, dosing to %d%n", bTarget_thread_2);//sysj\fillerController.sysj line: 61, column: 5
+                  S13026=0;
                   active[2]=1;
                   ends[2]=1;
                   tdone[2]=1;
@@ -556,10 +578,10 @@ public class FillerController extends ClockDomain{
               }
             }
             else {
-              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 38, column: 6
+              doseTargetMl.setPresent();//sysj\fillerController.sysj line: 46, column: 6
               currsigs.addElement(doseTargetMl);
-              doseTargetMl.setValue(aTarget_thread_2);//sysj\fillerController.sysj line: 38, column: 6
-              valve1Open.setPresent();//sysj\fillerController.sysj line: 39, column: 6
+              doseTargetMl.setValue(aTarget_thread_2);//sysj\fillerController.sysj line: 46, column: 6
+              valve1Open.setPresent();//sysj\fillerController.sysj line: 47, column: 6
               currsigs.addElement(valve1Open);
               active[2]=1;
               ends[2]=1;
@@ -568,23 +590,24 @@ public class FillerController extends ClockDomain{
             break;
           
           case 4 : 
-            switch(S7086){
+            switch(S13044){
               case 0 : 
-                S7053=0;
+                twin_thread_2.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 30, column: 4
+                S13009=0;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
                 break;
               
               case 1 : 
-                switch(S7068){
+                switch(S13026){
                   case 0 : 
-                    if(!levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 52, column: 12
-                      S7068=1;
-                      doseTargetMl.setPresent();//sysj\fillerController.sysj line: 55, column: 7
+                    if(!levelAtTarget.getprestatus()){//sysj\fillerController.sysj line: 62, column: 12
+                      S13026=1;
+                      doseTargetMl.setPresent();//sysj\fillerController.sysj line: 65, column: 7
                       currsigs.addElement(doseTargetMl);
-                      doseTargetMl.setValue(bTarget_thread_2);//sysj\fillerController.sysj line: 55, column: 7
-                      valve2Open.setPresent();//sysj\fillerController.sysj line: 56, column: 7
+                      doseTargetMl.setValue(bTarget_thread_2);//sysj\fillerController.sysj line: 65, column: 7
+                      valve2Open.setPresent();//sysj\fillerController.sysj line: 66, column: 7
                       currsigs.addElement(valve2Open);
                       active[2]=1;
                       ends[2]=1;
@@ -598,29 +621,32 @@ public class FillerController extends ClockDomain{
                     break;
                   
                   case 1 : 
-                    if(levelAtTarget.getprestatus() || stationFault_1.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 53, column: 12
-                      if(stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 60, column: 14
-                        faulted_thread_2 = true;//sysj\fillerController.sysj line: 61, column: 6
-                        System.out.printf("[FC] phase 2 aborted by fault - valves closed, bottle abandoned%n");//sysj\fillerController.sysj line: 62, column: 6
-                        S7053=5;
-                        if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 72, column: 8
-                          System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 73, column: 5
-                          fillDone.setPresent();//sysj\fillerController.sysj line: 74, column: 5
+                    if(levelAtTarget.getprestatus() || stationFault_1.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 63, column: 12
+                      if(stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 70, column: 14
+                        faulted_thread_2 = true;//sysj\fillerController.sysj line: 71, column: 6
+                        System.out.printf("[FC] phase 2 aborted by fault - valves closed, bottle abandoned%n");//sysj\fillerController.sysj line: 72, column: 6
+                        twin_thread_2.update(PlantTwin.State.ERROR);//sysj\fillerController.sysj line: 73, column: 6
+                        twin_thread_2.recordEvent("Fill aborted (Phase 2 fault)", currentProductId_thread_2);//sysj\fillerController.sysj line: 74, column: 6
+                        S13009=5;
+                        if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 85, column: 8
+                          System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 86, column: 5
+                          twin_thread_2.recordEvent("Bottle filled", currentProductId_thread_2);//sysj\fillerController.sysj line: 87, column: 5
+                          fillDone.setPresent();//sysj\fillerController.sysj line: 88, column: 5
                           currsigs.addElement(fillDone);
-                          S7053=6;
+                          S13009=6;
                           active[2]=1;
                           ends[2]=1;
                           tdone[2]=1;
                         }
                         else {
-                          if(faulted_thread_2){//sysj\fillerController.sysj line: 75, column: 11
-                            System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 78, column: 5
+                          if(faulted_thread_2){//sysj\fillerController.sysj line: 89, column: 11
+                            System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 92, column: 5
                             active[2]=1;
                             ends[2]=1;
                             tdone[2]=1;
                           }
                           else {
-                            S7053=6;
+                            S13009=6;
                             active[2]=1;
                             ends[2]=1;
                             tdone[2]=1;
@@ -628,28 +654,30 @@ public class FillerController extends ClockDomain{
                         }
                       }
                       else {
-                        if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 64, column: 14
-                          bottleLost_thread_2 = true;//sysj\fillerController.sysj line: 65, column: 6
-                          System.out.printf("[FC] phase 2 aborted: bottle no longer present - valves closed%n");//sysj\fillerController.sysj line: 66, column: 6
-                          S7053=5;
-                          if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 72, column: 8
-                            System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 73, column: 5
-                            fillDone.setPresent();//sysj\fillerController.sysj line: 74, column: 5
+                        if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 76, column: 14
+                          bottleLost_thread_2 = true;//sysj\fillerController.sysj line: 77, column: 6
+                          System.out.printf("[FC] phase 2 aborted: bottle no longer present - valves closed%n");//sysj\fillerController.sysj line: 78, column: 6
+                          twin_thread_2.recordEvent("Bottle removed prematurely", currentProductId_thread_2);//sysj\fillerController.sysj line: 79, column: 6
+                          S13009=5;
+                          if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 85, column: 8
+                            System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 86, column: 5
+                            twin_thread_2.recordEvent("Bottle filled", currentProductId_thread_2);//sysj\fillerController.sysj line: 87, column: 5
+                            fillDone.setPresent();//sysj\fillerController.sysj line: 88, column: 5
                             currsigs.addElement(fillDone);
-                            S7053=6;
+                            S13009=6;
                             active[2]=1;
                             ends[2]=1;
                             tdone[2]=1;
                           }
                           else {
-                            if(faulted_thread_2){//sysj\fillerController.sysj line: 75, column: 11
-                              System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 78, column: 5
+                            if(faulted_thread_2){//sysj\fillerController.sysj line: 89, column: 11
+                              System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 92, column: 5
                               active[2]=1;
                               ends[2]=1;
                               tdone[2]=1;
                             }
                             else {
-                              S7053=6;
+                              S13009=6;
                               active[2]=1;
                               ends[2]=1;
                               tdone[2]=1;
@@ -657,25 +685,26 @@ public class FillerController extends ClockDomain{
                           }
                         }
                         else {
-                          S7053=5;
-                          if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 72, column: 8
-                            System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 73, column: 5
-                            fillDone.setPresent();//sysj\fillerController.sysj line: 74, column: 5
+                          S13009=5;
+                          if(!faulted_thread_2 && !bottleLost_thread_2){//sysj\fillerController.sysj line: 85, column: 8
+                            System.out.printf("phase 2 done, emitting fillDone, awaiting !bottleAtPos2%n");//sysj\fillerController.sysj line: 86, column: 5
+                            twin_thread_2.recordEvent("Bottle filled", currentProductId_thread_2);//sysj\fillerController.sysj line: 87, column: 5
+                            fillDone.setPresent();//sysj\fillerController.sysj line: 88, column: 5
                             currsigs.addElement(fillDone);
-                            S7053=6;
+                            S13009=6;
                             active[2]=1;
                             ends[2]=1;
                             tdone[2]=1;
                           }
                           else {
-                            if(faulted_thread_2){//sysj\fillerController.sysj line: 75, column: 11
-                              System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 78, column: 5
+                            if(faulted_thread_2){//sysj\fillerController.sysj line: 89, column: 11
+                              System.out.printf("[FC] awaiting fault clear before returning to rotation%n");//sysj\fillerController.sysj line: 92, column: 5
                               active[2]=1;
                               ends[2]=1;
                               tdone[2]=1;
                             }
                             else {
-                              S7053=6;
+                              S13009=6;
                               active[2]=1;
                               ends[2]=1;
                               tdone[2]=1;
@@ -685,10 +714,10 @@ public class FillerController extends ClockDomain{
                       }
                     }
                     else {
-                      doseTargetMl.setPresent();//sysj\fillerController.sysj line: 55, column: 7
+                      doseTargetMl.setPresent();//sysj\fillerController.sysj line: 65, column: 7
                       currsigs.addElement(doseTargetMl);
-                      doseTargetMl.setValue(bTarget_thread_2);//sysj\fillerController.sysj line: 55, column: 7
-                      valve2Open.setPresent();//sysj\fillerController.sysj line: 56, column: 7
+                      doseTargetMl.setValue(bTarget_thread_2);//sysj\fillerController.sysj line: 65, column: 7
+                      valve2Open.setPresent();//sysj\fillerController.sysj line: 66, column: 7
                       currsigs.addElement(valve2Open);
                       active[2]=1;
                       ends[2]=1;
@@ -703,9 +732,9 @@ public class FillerController extends ClockDomain{
             break;
           
           case 5 : 
-            if(!stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 79, column: 12
-              System.out.printf("[FC] fault cleared, awaiting bottle removal%n");//sysj\fillerController.sysj line: 80, column: 5
-              S7053=6;
+            if(!stationFault_1.getprestatus()){//sysj\fillerController.sysj line: 93, column: 12
+              System.out.printf("[FC] fault cleared, awaiting bottle removal%n");//sysj\fillerController.sysj line: 94, column: 5
+              S13009=6;
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
@@ -718,12 +747,12 @@ public class FillerController extends ClockDomain{
             break;
           
           case 6 : 
-            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 83, column: 11
-              System.out.printf("[FC] !bottleAtPos2 seen, holding fillReady%n");//sysj\fillerController.sysj line: 84, column: 4
-              S7053=7;
-              tFillReady_thread_2 = System.currentTimeMillis();//sysj\fillerController.sysj line: 86, column: 5
-              if(System.currentTimeMillis() - tFillReady_thread_2 < 200){//sysj\fillerController.sysj line: 87, column: 12
-                fillReady.setPresent();//sysj\fillerController.sysj line: 88, column: 6
+            if(!bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 97, column: 11
+              System.out.printf("[FC] !bottleAtPos2 seen, holding fillReady%n");//sysj\fillerController.sysj line: 98, column: 4
+              S13009=7;
+              tFillReady_thread_2 = System.currentTimeMillis();//sysj\fillerController.sysj line: 100, column: 5
+              if(System.currentTimeMillis() - tFillReady_thread_2 < 200){//sysj\fillerController.sysj line: 101, column: 12
+                fillReady.setPresent();//sysj\fillerController.sysj line: 102, column: 6
                 currsigs.addElement(fillReady);
                 active[2]=1;
                 ends[2]=1;
@@ -731,8 +760,9 @@ public class FillerController extends ClockDomain{
               }
               else {
                 ends[2]=2;
-                ;//sysj\fillerController.sysj line: 87, column: 5
-                S7053=0;
+                ;//sysj\fillerController.sysj line: 101, column: 5
+                twin_thread_2.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 30, column: 4
+                S13009=0;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -746,15 +776,16 @@ public class FillerController extends ClockDomain{
             break;
           
           case 7 : 
-            if(bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 85, column: 11
-              S7053=0;
+            if(bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 99, column: 11
+              twin_thread_2.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 30, column: 4
+              S13009=0;
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
             }
             else {
-              if(System.currentTimeMillis() - tFillReady_thread_2 < 200){//sysj\fillerController.sysj line: 87, column: 12
-                fillReady.setPresent();//sysj\fillerController.sysj line: 88, column: 6
+              if(System.currentTimeMillis() - tFillReady_thread_2 < 200){//sysj\fillerController.sysj line: 101, column: 12
+                fillReady.setPresent();//sysj\fillerController.sysj line: 102, column: 6
                 currsigs.addElement(fillReady);
                 active[2]=1;
                 ends[2]=1;
@@ -762,8 +793,9 @@ public class FillerController extends ClockDomain{
               }
               else {
                 ends[2]=2;
-                ;//sysj\fillerController.sysj line: 87, column: 5
-                S7053=0;
+                ;//sysj\fillerController.sysj line: 101, column: 5
+                twin_thread_2.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 30, column: 4
+                S13009=0;
                 active[2]=1;
                 ends[2]=1;
                 tdone[2]=1;
@@ -777,12 +809,14 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8180(int [] tdone, int [] ends){
-        S8169=1;
-    if(clearFaultM.getprestatus()){//sysj\fillerController.sysj line: 199, column: 13
-      FillerFaultState.clearStationFault();//sysj\fillerController.sysj line: 200, column: 5
-      if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 202, column: 4
-        stationFault_1.setPresent();//sysj\fillerController.sysj line: 203, column: 5
+  public void thread15051(int [] tdone, int [] ends){
+        S15040=1;
+    twin_thread_9 = new TwinClient("filler", "127.0.0.1", 9090);//sysj\fillerController.sysj line: 218, column: 3
+    if(clearFaultM.getprestatus()){//sysj\fillerController.sysj line: 220, column: 13
+      twin_thread_9.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 221, column: 5
+      FillerFaultState.clearStationFault();//sysj\fillerController.sysj line: 222, column: 5
+      if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 224, column: 4
+        stationFault_1.setPresent();//sysj\fillerController.sysj line: 225, column: 5
         currsigs.addElement(stationFault_1);
         active[9]=1;
         ends[9]=1;
@@ -795,8 +829,8 @@ public class FillerController extends ClockDomain{
       }
     }
     else {
-      if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 202, column: 4
-        stationFault_1.setPresent();//sysj\fillerController.sysj line: 203, column: 5
+      if(FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 224, column: 4
+        stationFault_1.setPresent();//sysj\fillerController.sysj line: 225, column: 5
         currsigs.addElement(stationFault_1);
         active[9]=1;
         ends[9]=1;
@@ -810,34 +844,36 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8179(int [] tdone, int [] ends){
-        S8152=1;
-    stalling_thread_8 = false;//sysj\fillerController.sysj line: 169, column: 3
-    faulted_thread_8 = false;//sysj\fillerController.sysj line: 170, column: 3
-    stallStart_thread_8 = 0;//sysj\fillerController.sysj line: 171, column: 3
-    if(levelAtTarget.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 173, column: 13
-      stalling_thread_8 = false;//sysj\fillerController.sysj line: 174, column: 5
-      faulted_thread_8 = false;//sysj\fillerController.sysj line: 175, column: 5
+  public void thread15050(int [] tdone, int [] ends){
+        S15002=1;
+    twin_thread_8 = new TwinClient("filler", "127.0.0.1", 9090);//sysj\fillerController.sysj line: 186, column: 3
+    stalling_thread_8 = false;//sysj\fillerController.sysj line: 187, column: 3
+    faulted_thread_8 = false;//sysj\fillerController.sysj line: 188, column: 3
+    stallStart_thread_8 = 0;//sysj\fillerController.sysj line: 189, column: 3
+    if(levelAtTarget.getprestatus() || !bottleAtPos2.getprestatus()){//sysj\fillerController.sysj line: 191, column: 13
+      stalling_thread_8 = false;//sysj\fillerController.sysj line: 192, column: 5
+      faulted_thread_8 = false;//sysj\fillerController.sysj line: 193, column: 5
       active[8]=1;
       ends[8]=1;
       tdone[8]=1;
     }
     else {
-      if(valve1Open.getprestatus() || valve2Open.getprestatus()){//sysj\fillerController.sysj line: 177, column: 13
-        if(!stalling_thread_8){//sysj\fillerController.sysj line: 178, column: 9
-          stalling_thread_8 = true;//sysj\fillerController.sysj line: 179, column: 6
-          stallStart_thread_8 = System.currentTimeMillis();//sysj\fillerController.sysj line: 180, column: 6
+      if(valve1Open.getprestatus() || valve2Open.getprestatus()){//sysj\fillerController.sysj line: 195, column: 13
+        if(!stalling_thread_8){//sysj\fillerController.sysj line: 196, column: 9
+          stalling_thread_8 = true;//sysj\fillerController.sysj line: 197, column: 6
+          stallStart_thread_8 = System.currentTimeMillis();//sysj\fillerController.sysj line: 198, column: 6
           active[8]=1;
           ends[8]=1;
           tdone[8]=1;
         }
         else {
-          if(!faulted_thread_8 && System.currentTimeMillis() - stallStart_thread_8 > 8000){//sysj\fillerController.sysj line: 181, column: 16
-            System.out.printf("[FC] FAULT: stall detected, valve held open >8000ms without reaching target%n");//sysj\fillerController.sysj line: 182, column: 6
-            fillFaultE.setPresent();//sysj\fillerController.sysj line: 183, column: 6
+          if(!faulted_thread_8 && System.currentTimeMillis() - stallStart_thread_8 > 8000){//sysj\fillerController.sysj line: 199, column: 16
+            System.out.printf("[FC] FAULT: stall detected, valve held open >8000ms without reaching target%n");//sysj\fillerController.sysj line: 200, column: 6
+            twin_thread_8.update(PlantTwin.State.ERROR, "Valve stall detected");//sysj\fillerController.sysj line: 201, column: 6
+            fillFaultE.setPresent();//sysj\fillerController.sysj line: 202, column: 6
             currsigs.addElement(fillFaultE);
-            FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 184, column: 6
-            faulted_thread_8 = true;//sysj\fillerController.sysj line: 185, column: 6
+            FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 203, column: 6
+            faulted_thread_8 = true;//sysj\fillerController.sysj line: 204, column: 6
             active[8]=1;
             ends[8]=1;
             tdone[8]=1;
@@ -850,8 +886,8 @@ public class FillerController extends ClockDomain{
         }
       }
       else {
-        stalling_thread_8 = false;//sysj\fillerController.sysj line: 188, column: 5
-        faulted_thread_8 = false;//sysj\fillerController.sysj line: 189, column: 5
+        stalling_thread_8 = false;//sysj\fillerController.sysj line: 207, column: 5
+        faulted_thread_8 = false;//sysj\fillerController.sysj line: 208, column: 5
         active[8]=1;
         ends[8]=1;
         tdone[8]=1;
@@ -859,16 +895,16 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8178(int [] tdone, int [] ends){
-        S8096=1;
-    if(doseTargetMl.getprestatus() && fillLevelMl.getprestatus()){//sysj\fillerController.sysj line: 153, column: 13
-      level_thread_7 = (Integer)(fillLevelMl.getpreval() == null ? null : ((Integer)fillLevelMl.getpreval()));//sysj\fillerController.sysj line: 154, column: 5
-      target_thread_7 = (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()));//sysj\fillerController.sysj line: 155, column: 5
-      if(level_thread_7 > target_thread_7 && !FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 156, column: 9
-        System.out.printf("[FC] FAULT: overfill detected, level=%d target=%d%n", level_thread_7, target_thread_7);//sysj\fillerController.sysj line: 157, column: 6
-        fillFaultE.setPresent();//sysj\fillerController.sysj line: 158, column: 6
+  public void thread15049(int [] tdone, int [] ends){
+        S14946=1;
+    if(doseTargetMl.getprestatus() && fillLevelMl.getprestatus()){//sysj\fillerController.sysj line: 170, column: 13
+      level_thread_7 = (Integer)(fillLevelMl.getpreval() == null ? null : ((Integer)fillLevelMl.getpreval()));//sysj\fillerController.sysj line: 171, column: 5
+      target_thread_7 = (Integer)(doseTargetMl.getpreval() == null ? null : ((Integer)doseTargetMl.getpreval()));//sysj\fillerController.sysj line: 172, column: 5
+      if(level_thread_7 > target_thread_7 && !FillerFaultState.isStationFaulted()){//sysj\fillerController.sysj line: 173, column: 9
+        System.out.printf("[FC] FAULT: overfill detected, level=%d target=%d%n", level_thread_7, target_thread_7);//sysj\fillerController.sysj line: 174, column: 6
+        fillFaultE.setPresent();//sysj\fillerController.sysj line: 175, column: 6
         currsigs.addElement(fillFaultE);
-        FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 159, column: 6
+        FillerFaultState.raiseStationFault();//sysj\fillerController.sysj line: 176, column: 6
         active[7]=1;
         ends[7]=1;
         tdone[7]=1;
@@ -886,15 +922,15 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8177(int [] tdone, int [] ends){
-        S8073=1;
-    if(liquidARatio.getprestatus()){//sysj\fillerController.sysj line: 141, column: 13
-      run.FillerRecipe.setRatio((Integer)(liquidARatio.getpreval() == null ? null : ((Integer)liquidARatio.getpreval())));//sysj\fillerController.sysj line: 141, column: 31
-      if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 142, column: 13
-        run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 143, column: 5
-        totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 144, column: 5
+  public void thread15048(int [] tdone, int [] ends){
+        S14923=1;
+    if(liquidARatio.getprestatus()){//sysj\fillerController.sysj line: 158, column: 13
+      run.FillerRecipe.setRatio((Integer)(liquidARatio.getpreval() == null ? null : ((Integer)liquidARatio.getpreval())));//sysj\fillerController.sysj line: 158, column: 31
+      if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 159, column: 13
+        run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 160, column: 5
+        totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 161, column: 5
         currsigs.addElement(totalVolumeMlE);
-        totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 144, column: 5
+        totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 161, column: 5
         active[6]=1;
         ends[6]=1;
         tdone[6]=1;
@@ -906,11 +942,11 @@ public class FillerController extends ClockDomain{
       }
     }
     else {
-      if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 142, column: 13
-        run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 143, column: 5
-        totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 144, column: 5
+      if(targetVolumeMl.getprestatus()){//sysj\fillerController.sysj line: 159, column: 13
+        run.FillerRecipe.setVolume((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 160, column: 5
+        totalVolumeMlE.setPresent();//sysj\fillerController.sysj line: 161, column: 5
         currsigs.addElement(totalVolumeMlE);
-        totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 144, column: 5
+        totalVolumeMlE.setValue((Integer)(targetVolumeMl.getpreval() == null ? null : ((Integer)targetVolumeMl.getpreval())));//sysj\fillerController.sysj line: 161, column: 5
         active[6]=1;
         ends[6]=1;
         tdone[6]=1;
@@ -923,26 +959,29 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8176(int [] tdone, int [] ends){
-        S8047=1;
-    S7877=0;
+  public void thread15047(int [] tdone, int [] ends){
+        S14897=1;
+    twin_thread_5 = new TwinClient("filler", "127.0.0.1", 9090);//sysj\fillerController.sysj line: 141, column: 3
+    twin_thread_5.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 143, column: 4
+    S14548=0;
     active[5]=1;
     ends[5]=1;
     tdone[5]=1;
   }
 
-  public void thread8175(int [] tdone, int [] ends){
-        S7875=1;
-    S7761=0;
+  public void thread15046(int [] tdone, int [] ends){
+        S14545=1;
+    S14431=0;
     active[4]=1;
     ends[4]=1;
     tdone[4]=1;
   }
 
-  public void thread8174(int [] tdone, int [] ends){
-        S7759=1;
-    if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 98, column: 14
-      fillDoneE.setPresent();//sysj\fillerController.sysj line: 99, column: 6
+  public void thread15045(int [] tdone, int [] ends){
+        S14429=1;
+    twin_thread_3 = new TwinClient("filler", "127.0.0.1", 9090);//sysj\fillerController.sysj line: 112, column: 4
+    if(fillDone.getprestatus()){//sysj\fillerController.sysj line: 113, column: 14
+      fillDoneE.setPresent();//sysj\fillerController.sysj line: 114, column: 6
       currsigs.addElement(fillDoneE);
       active[3]=1;
       ends[3]=1;
@@ -955,9 +994,11 @@ public class FillerController extends ClockDomain{
     }
   }
 
-  public void thread8173(int [] tdone, int [] ends){
-        S7751=1;
-    S7053=0;
+  public void thread15044(int [] tdone, int [] ends){
+        S14418=1;
+    twin_thread_2 = new TwinClient("filler", "127.0.0.1", 9090);//sysj\fillerController.sysj line: 27, column: 2
+    twin_thread_2.update(PlantTwin.State.IDLE);//sysj\fillerController.sysj line: 30, column: 4
+    S13009=0;
     active[2]=1;
     ends[2]=1;
     tdone[2]=1;
@@ -970,100 +1011,100 @@ public class FillerController extends ClockDomain{
     }
     
     RUN: while(true){
-      switch(S8171){
+      switch(S15042){
         case 0 : 
-          S8171=0;
+          S15042=0;
           break RUN;
         
         case 1 : 
-          S8171=2;
-          S8171=2;
-          stationFault_1.setClear();//sysj\fillerController.sysj line: 22, column: 2
-          thread8173(tdone,ends);
-          thread8174(tdone,ends);
-          thread8175(tdone,ends);
-          thread8176(tdone,ends);
-          thread8177(tdone,ends);
-          thread8178(tdone,ends);
-          thread8179(tdone,ends);
-          thread8180(tdone,ends);
-          int biggest8181 = 0;
-          if(ends[2]>=biggest8181){
-            biggest8181=ends[2];
+          S15042=2;
+          S15042=2;
+          stationFault_1.setClear();//sysj\fillerController.sysj line: 24, column: 2
+          thread15044(tdone,ends);
+          thread15045(tdone,ends);
+          thread15046(tdone,ends);
+          thread15047(tdone,ends);
+          thread15048(tdone,ends);
+          thread15049(tdone,ends);
+          thread15050(tdone,ends);
+          thread15051(tdone,ends);
+          int biggest15052 = 0;
+          if(ends[2]>=biggest15052){
+            biggest15052=ends[2];
           }
-          if(ends[3]>=biggest8181){
-            biggest8181=ends[3];
+          if(ends[3]>=biggest15052){
+            biggest15052=ends[3];
           }
-          if(ends[4]>=biggest8181){
-            biggest8181=ends[4];
+          if(ends[4]>=biggest15052){
+            biggest15052=ends[4];
           }
-          if(ends[5]>=biggest8181){
-            biggest8181=ends[5];
+          if(ends[5]>=biggest15052){
+            biggest15052=ends[5];
           }
-          if(ends[6]>=biggest8181){
-            biggest8181=ends[6];
+          if(ends[6]>=biggest15052){
+            biggest15052=ends[6];
           }
-          if(ends[7]>=biggest8181){
-            biggest8181=ends[7];
+          if(ends[7]>=biggest15052){
+            biggest15052=ends[7];
           }
-          if(ends[8]>=biggest8181){
-            biggest8181=ends[8];
+          if(ends[8]>=biggest15052){
+            biggest15052=ends[8];
           }
-          if(ends[9]>=biggest8181){
-            biggest8181=ends[9];
+          if(ends[9]>=biggest15052){
+            biggest15052=ends[9];
           }
-          if(biggest8181 == 1){
+          if(biggest15052 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
         
         case 2 : 
-          stationFault_1.setClear();//sysj\fillerController.sysj line: 22, column: 2
-          thread8182(tdone,ends);
-          thread8183(tdone,ends);
-          thread8184(tdone,ends);
-          thread8185(tdone,ends);
-          thread8186(tdone,ends);
-          thread8187(tdone,ends);
-          thread8188(tdone,ends);
-          thread8189(tdone,ends);
-          int biggest8190 = 0;
-          if(ends[2]>=biggest8190){
-            biggest8190=ends[2];
+          stationFault_1.setClear();//sysj\fillerController.sysj line: 24, column: 2
+          thread15053(tdone,ends);
+          thread15054(tdone,ends);
+          thread15055(tdone,ends);
+          thread15056(tdone,ends);
+          thread15057(tdone,ends);
+          thread15058(tdone,ends);
+          thread15059(tdone,ends);
+          thread15060(tdone,ends);
+          int biggest15061 = 0;
+          if(ends[2]>=biggest15061){
+            biggest15061=ends[2];
           }
-          if(ends[3]>=biggest8190){
-            biggest8190=ends[3];
+          if(ends[3]>=biggest15061){
+            biggest15061=ends[3];
           }
-          if(ends[4]>=biggest8190){
-            biggest8190=ends[4];
+          if(ends[4]>=biggest15061){
+            biggest15061=ends[4];
           }
-          if(ends[5]>=biggest8190){
-            biggest8190=ends[5];
+          if(ends[5]>=biggest15061){
+            biggest15061=ends[5];
           }
-          if(ends[6]>=biggest8190){
-            biggest8190=ends[6];
+          if(ends[6]>=biggest15061){
+            biggest15061=ends[6];
           }
-          if(ends[7]>=biggest8190){
-            biggest8190=ends[7];
+          if(ends[7]>=biggest15061){
+            biggest15061=ends[7];
           }
-          if(ends[8]>=biggest8190){
-            biggest8190=ends[8];
+          if(ends[8]>=biggest15061){
+            biggest15061=ends[8];
           }
-          if(ends[9]>=biggest8190){
-            biggest8190=ends[9];
+          if(ends[9]>=biggest15061){
+            biggest15061=ends[9];
           }
-          if(biggest8190 == 1){
+          if(biggest15061 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
           //FINXME code
-          if(biggest8190 == 0){
-            S8171=0;
+          if(biggest15061 == 0){
+            S15042=0;
             active[1]=0;
             ends[1]=0;
-            S8171=0;
+            S15042=0;
             break RUN;
           }
         

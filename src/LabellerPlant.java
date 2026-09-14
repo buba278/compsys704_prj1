@@ -4,6 +4,8 @@ import com.systemj.Signal;
 import com.systemj.input_Channel;
 import com.systemj.output_Channel;
 import run.LabellerGUI;//sysj\labellerPlant.sysj line: 1, column: 1
+import run.ConveyorLabellerBridge;//sysj\labellerPlant.sysj line: 2, column: 1
+import run.LabellerSorterBridge;//sysj\labellerPlant.sysj line: 3, column: 1
 
 public class LabellerPlant extends ClockDomain{
   public LabellerPlant(String name){super(name);}
@@ -15,11 +17,10 @@ public class LabellerPlant extends ClockDomain{
   public Signal printLabel = new Signal("printLabel", Signal.INPUT);
   public Signal clampBottle = new Signal("clampBottle", Signal.INPUT);
   public Signal applyLabel = new Signal("applyLabel", Signal.INPUT);
-<<<<<<< HEAD
   public Signal liquidARatio = new Signal("liquidARatio", Signal.INPUT);
   public Signal targetVolumeMl = new Signal("targetVolumeMl", Signal.INPUT);
-=======
->>>>>>> main
+  public Signal bottleFromConveyor = new Signal("bottleFromConveyor", Signal.INPUT);
+  public Signal sorterTakenAck = new Signal("sorterTakenAck", Signal.INPUT);
   public Signal labelPrinted = new Signal("labelPrinted", Signal.OUTPUT);
   public Signal bottleClamped = new Signal("bottleClamped", Signal.OUTPUT);
   public Signal labelApplied = new Signal("labelApplied", Signal.OUTPUT);
@@ -28,48 +29,27 @@ public class LabellerPlant extends ClockDomain{
   public Signal labelPrintedE = new Signal("labelPrintedE", Signal.OUTPUT);
   public Signal bottleClampedE = new Signal("bottleClampedE", Signal.OUTPUT);
   public Signal labelAppliedE = new Signal("labelAppliedE", Signal.OUTPUT);
-<<<<<<< HEAD
-  private int S10336 = 1;
-  private int S10044 = 1;
-  private int S10018 = 1;
-  private int S10076 = 1;
-  private int S10046 = 1;
-  private int S10108 = 1;
-  private int S10078 = 1;
-  private int S10140 = 1;
-  private int S10110 = 1;
-  private int S10148 = 1;
-  private int S10142 = 1;
-  private int S10156 = 1;
-  private int S10164 = 1;
-  private int S10172 = 1;
-=======
-  private int S10084 = 1;
-  private int S9792 = 1;
-  private int S9766 = 1;
-  private int S9824 = 1;
-  private int S9794 = 1;
-  private int S9856 = 1;
-  private int S9826 = 1;
-  private int S9888 = 1;
-  private int S9858 = 1;
-  private int S9896 = 1;
-  private int S9890 = 1;
-  private int S9904 = 1;
-  private int S9912 = 1;
-  private int S9920 = 1;
->>>>>>> main
+  private long tSort_thread_2;//sysj\labellerPlant.sysj line: 58, column: 5
+  private int S17533 = 1;
+  private int S17124 = 1;
+  private int S16974 = 1;
+  private int S17156 = 1;
+  private int S17126 = 1;
+  private int S17188 = 1;
+  private int S17158 = 1;
+  private int S17220 = 1;
+  private int S17190 = 1;
+  private int S17228 = 1;
+  private int S17222 = 1;
+  private int S17236 = 1;
+  private int S17244 = 1;
+  private int S17252 = 1;
   
   private int[] ends = new int[10];
   private int[] tdone = new int[10];
   
-<<<<<<< HEAD
-  public void thread10354(int [] tdone, int [] ends){
-        switch(S10172){
-=======
-  public void thread10102(int [] tdone, int [] ends){
-        switch(S9920){
->>>>>>> main
+  public void thread17551(int [] tdone, int [] ends){
+        switch(S17252){
       case 0 : 
         active[9]=0;
         ends[9]=0;
@@ -77,8 +57,8 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-        if(labelApplied.getprestatus()){//sysj\labellerPlant.sysj line: 84, column: 26
-          labelAppliedE.setPresent();//sysj\labellerPlant.sysj line: 84, column: 40
+        if(labelApplied.getprestatus()){//sysj\labellerPlant.sysj line: 112, column: 26
+          labelAppliedE.setPresent();//sysj\labellerPlant.sysj line: 112, column: 40
           currsigs.addElement(labelAppliedE);
           active[9]=1;
           ends[9]=1;
@@ -94,13 +74,8 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10353(int [] tdone, int [] ends){
-        switch(S10164){
-=======
-  public void thread10101(int [] tdone, int [] ends){
-        switch(S9912){
->>>>>>> main
+  public void thread17550(int [] tdone, int [] ends){
+        switch(S17244){
       case 0 : 
         active[8]=0;
         ends[8]=0;
@@ -108,8 +83,8 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-        if(bottleClamped.getprestatus()){//sysj\labellerPlant.sysj line: 82, column: 26
-          bottleClampedE.setPresent();//sysj\labellerPlant.sysj line: 82, column: 41
+        if(bottleClamped.getprestatus()){//sysj\labellerPlant.sysj line: 110, column: 26
+          bottleClampedE.setPresent();//sysj\labellerPlant.sysj line: 110, column: 41
           currsigs.addElement(bottleClampedE);
           active[8]=1;
           ends[8]=1;
@@ -125,13 +100,8 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10352(int [] tdone, int [] ends){
-        switch(S10156){
-=======
-  public void thread10100(int [] tdone, int [] ends){
-        switch(S9904){
->>>>>>> main
+  public void thread17549(int [] tdone, int [] ends){
+        switch(S17236){
       case 0 : 
         active[7]=0;
         ends[7]=0;
@@ -139,8 +109,8 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-        if(labelPrinted.getprestatus()){//sysj\labellerPlant.sysj line: 80, column: 26
-          labelPrintedE.setPresent();//sysj\labellerPlant.sysj line: 80, column: 40
+        if(labelPrinted.getprestatus()){//sysj\labellerPlant.sysj line: 108, column: 26
+          labelPrintedE.setPresent();//sysj\labellerPlant.sysj line: 108, column: 40
           currsigs.addElement(labelPrintedE);
           active[7]=1;
           ends[7]=1;
@@ -156,13 +126,8 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10351(int [] tdone, int [] ends){
-        switch(S10148){
-=======
-  public void thread10099(int [] tdone, int [] ends){
-        switch(S9896){
->>>>>>> main
+  public void thread17548(int [] tdone, int [] ends){
+        switch(S17228){
       case 0 : 
         active[6]=0;
         ends[6]=0;
@@ -170,33 +135,19 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-<<<<<<< HEAD
-        switch(S10142){
+        switch(S17222){
           case 0 : 
-            S10142=0;
-            if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 78, column: 26
-              bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 78, column: 44
+            S17222=0;
+            if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 106, column: 26
+              bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 106, column: 44
               currsigs.addElement(bottleAtLabellerE);
-              S10142=1;
-=======
-        switch(S9890){
-          case 0 : 
-            S9890=0;
-            if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 78, column: 26
-              bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 78, column: 44
-              currsigs.addElement(bottleAtLabellerE);
-              S9890=1;
->>>>>>> main
+              S17222=1;
               active[6]=1;
               ends[6]=1;
               tdone[6]=1;
             }
             else {
-<<<<<<< HEAD
-              S10142=1;
-=======
-              S9890=1;
->>>>>>> main
+              S17222=1;
               active[6]=1;
               ends[6]=1;
               tdone[6]=1;
@@ -204,31 +155,18 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 1 : 
-<<<<<<< HEAD
-            S10142=1;
-            S10142=0;
-            if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 78, column: 26
-              bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 78, column: 44
+            S17222=1;
+            S17222=0;
+            if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 106, column: 26
+              bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 106, column: 44
               currsigs.addElement(bottleAtLabellerE);
-              S10142=1;
-=======
-            S9890=1;
-            S9890=0;
-            if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 78, column: 26
-              bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 78, column: 44
-              currsigs.addElement(bottleAtLabellerE);
-              S9890=1;
->>>>>>> main
+              S17222=1;
               active[6]=1;
               ends[6]=1;
               tdone[6]=1;
             }
             else {
-<<<<<<< HEAD
-              S10142=1;
-=======
-              S9890=1;
->>>>>>> main
+              S17222=1;
               active[6]=1;
               ends[6]=1;
               tdone[6]=1;
@@ -241,13 +179,8 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10350(int [] tdone, int [] ends){
-        switch(S10140){
-=======
-  public void thread10098(int [] tdone, int [] ends){
-        switch(S9888){
->>>>>>> main
+  public void thread17547(int [] tdone, int [] ends){
+        switch(S17220){
       case 0 : 
         active[5]=0;
         ends[5]=0;
@@ -255,20 +188,12 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-<<<<<<< HEAD
-        switch(S10110){
+        switch(S17190){
           case 0 : 
-            if(applyLabel.getprestatus()){//sysj\labellerPlant.sysj line: 69, column: 19
-              System.out.println("LabellerPlant [Applicator]: Applying label...");//sysj\labellerPlant.sysj line: 70, column: 13
-              S10110=1;
-=======
-        switch(S9858){
-          case 0 : 
-            if(applyLabel.getprestatus()){//sysj\labellerPlant.sysj line: 69, column: 19
-              System.out.println("LabellerPlant [Applicator]: Applying label...");//sysj\labellerPlant.sysj line: 70, column: 13
-              S9858=1;
->>>>>>> main
-              labelApplied.setPresent();//sysj\labellerPlant.sysj line: 72, column: 17
+            if(applyLabel.getprestatus()){//sysj\labellerPlant.sysj line: 97, column: 19
+              System.out.println("LabellerPlant [Applicator]: Applying label...");//sysj\labellerPlant.sysj line: 98, column: 13
+              S17190=1;
+              labelApplied.setPresent();//sysj\labellerPlant.sysj line: 100, column: 17
               currsigs.addElement(labelApplied);
               active[5]=1;
               ends[5]=1;
@@ -282,18 +207,14 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 1 : 
-            if(!applyLabel.getprestatus()){//sysj\labellerPlant.sysj line: 71, column: 19
-<<<<<<< HEAD
-              S10110=2;
-=======
-              S9858=2;
->>>>>>> main
+            if(!applyLabel.getprestatus()){//sysj\labellerPlant.sysj line: 99, column: 19
+              S17190=2;
               active[5]=1;
               ends[5]=1;
               tdone[5]=1;
             }
             else {
-              labelApplied.setPresent();//sysj\labellerPlant.sysj line: 72, column: 17
+              labelApplied.setPresent();//sysj\labellerPlant.sysj line: 100, column: 17
               currsigs.addElement(labelApplied);
               active[5]=1;
               ends[5]=1;
@@ -302,13 +223,8 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 2 : 
-<<<<<<< HEAD
-            S10110=2;
-            S10110=0;
-=======
-            S9858=2;
-            S9858=0;
->>>>>>> main
+            S17190=2;
+            S17190=0;
             active[5]=1;
             ends[5]=1;
             tdone[5]=1;
@@ -320,13 +236,8 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10349(int [] tdone, int [] ends){
-        switch(S10108){
-=======
-  public void thread10097(int [] tdone, int [] ends){
-        switch(S9856){
->>>>>>> main
+  public void thread17546(int [] tdone, int [] ends){
+        switch(S17188){
       case 0 : 
         active[4]=0;
         ends[4]=0;
@@ -334,20 +245,12 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-<<<<<<< HEAD
-        switch(S10078){
+        switch(S17158){
           case 0 : 
-            if(clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 56, column: 10
-              System.out.println("LabellerPlant [Clamp]: Clamping bottle...");//sysj\labellerPlant.sysj line: 57, column: 4
-              S10078=1;
-=======
-        switch(S9826){
-          case 0 : 
-            if(clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 56, column: 10
-              System.out.println("LabellerPlant [Clamp]: Clamping bottle...");//sysj\labellerPlant.sysj line: 57, column: 4
-              S9826=1;
->>>>>>> main
-              bottleClamped.setPresent();//sysj\labellerPlant.sysj line: 59, column: 5
+            if(clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 84, column: 10
+              System.out.println("LabellerPlant [Clamp]: Clamping bottle...");//sysj\labellerPlant.sysj line: 85, column: 4
+              S17158=1;
+              bottleClamped.setPresent();//sysj\labellerPlant.sysj line: 87, column: 5
               currsigs.addElement(bottleClamped);
               active[4]=1;
               ends[4]=1;
@@ -361,19 +264,15 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 1 : 
-            if(!clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 58, column: 10
-              System.out.println("LabellerPlant [Clamp]: Bottle released.");//sysj\labellerPlant.sysj line: 61, column: 4
-<<<<<<< HEAD
-              S10078=2;
-=======
-              S9826=2;
->>>>>>> main
+            if(!clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 86, column: 10
+              System.out.println("LabellerPlant [Clamp]: Bottle released.");//sysj\labellerPlant.sysj line: 89, column: 4
+              S17158=2;
               active[4]=1;
               ends[4]=1;
               tdone[4]=1;
             }
             else {
-              bottleClamped.setPresent();//sysj\labellerPlant.sysj line: 59, column: 5
+              bottleClamped.setPresent();//sysj\labellerPlant.sysj line: 87, column: 5
               currsigs.addElement(bottleClamped);
               active[4]=1;
               ends[4]=1;
@@ -382,13 +281,8 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 2 : 
-<<<<<<< HEAD
-            S10078=2;
-            S10078=0;
-=======
-            S9826=2;
-            S9826=0;
->>>>>>> main
+            S17158=2;
+            S17158=0;
             active[4]=1;
             ends[4]=1;
             tdone[4]=1;
@@ -400,13 +294,8 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10348(int [] tdone, int [] ends){
-        switch(S10076){
-=======
-  public void thread10096(int [] tdone, int [] ends){
-        switch(S9824){
->>>>>>> main
+  public void thread17545(int [] tdone, int [] ends){
+        switch(S17156){
       case 0 : 
         active[3]=0;
         ends[3]=0;
@@ -414,20 +303,12 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-<<<<<<< HEAD
-        switch(S10046){
+        switch(S17126){
           case 0 : 
-            if(printLabel.getprestatus()){//sysj\labellerPlant.sysj line: 44, column: 19
-              System.out.println("LabellerPlant [Printer]: Printing label...");//sysj\labellerPlant.sysj line: 45, column: 13
-              S10046=1;
-=======
-        switch(S9794){
-          case 0 : 
-            if(printLabel.getprestatus()){//sysj\labellerPlant.sysj line: 44, column: 19
-              System.out.println("LabellerPlant [Printer]: Printing label...");//sysj\labellerPlant.sysj line: 45, column: 13
-              S9794=1;
->>>>>>> main
-              labelPrinted.setPresent();//sysj\labellerPlant.sysj line: 47, column: 17
+            if(printLabel.getprestatus()){//sysj\labellerPlant.sysj line: 72, column: 19
+              System.out.println("LabellerPlant [Printer]: Printing label...");//sysj\labellerPlant.sysj line: 73, column: 13
+              S17126=1;
+              labelPrinted.setPresent();//sysj\labellerPlant.sysj line: 75, column: 17
               currsigs.addElement(labelPrinted);
               active[3]=1;
               ends[3]=1;
@@ -441,18 +322,14 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 1 : 
-            if(!printLabel.getprestatus()){//sysj\labellerPlant.sysj line: 46, column: 19
-<<<<<<< HEAD
-              S10046=2;
-=======
-              S9794=2;
->>>>>>> main
+            if(!printLabel.getprestatus()){//sysj\labellerPlant.sysj line: 74, column: 19
+              S17126=2;
               active[3]=1;
               ends[3]=1;
               tdone[3]=1;
             }
             else {
-              labelPrinted.setPresent();//sysj\labellerPlant.sysj line: 47, column: 17
+              labelPrinted.setPresent();//sysj\labellerPlant.sysj line: 75, column: 17
               currsigs.addElement(labelPrinted);
               active[3]=1;
               ends[3]=1;
@@ -461,13 +338,8 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 2 : 
-<<<<<<< HEAD
-            S10046=2;
-            S10046=0;
-=======
-            S9794=2;
-            S9794=0;
->>>>>>> main
+            S17126=2;
+            S17126=0;
             active[3]=1;
             ends[3]=1;
             tdone[3]=1;
@@ -479,13 +351,8 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10347(int [] tdone, int [] ends){
-        switch(S10044){
-=======
-  public void thread10095(int [] tdone, int [] ends){
-        switch(S9792){
->>>>>>> main
+  public void thread17544(int [] tdone, int [] ends){
+        switch(S17124){
       case 0 : 
         active[2]=0;
         ends[2]=0;
@@ -493,26 +360,19 @@ public class LabellerPlant extends ClockDomain{
         break;
       
       case 1 : 
-<<<<<<< HEAD
-        switch(S10018){
+        switch(S16974){
           case 0 : 
-            if(clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 27, column: 10
-              System.out.println("LabellerPlant [Conveyor]: Bottle clamped, holding position...");//sysj\labellerPlant.sysj line: 30, column: 4
-              S10018=1;
-=======
-        switch(S9766){
-          case 0 : 
-            if(clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 27, column: 10
-              System.out.println("LabellerPlant [Conveyor]: Bottle clamped, holding position...");//sysj\labellerPlant.sysj line: 30, column: 4
-              S9766=1;
->>>>>>> main
+            if(bottleFromConveyor.getprestatus()){//sysj\labellerPlant.sysj line: 32, column: 10
+              ConveyorLabellerBridge.setLabellerTakenAck(true);//sysj\labellerPlant.sysj line: 36, column: 4
+              System.out.println("LabellerPlant [Conveyor]: Presenting bottle at labeller...");//sysj\labellerPlant.sysj line: 37, column: 4
+              S16974=1;
+              bottleAtLabeller.setPresent();//sysj\labellerPlant.sysj line: 39, column: 5
+              currsigs.addElement(bottleAtLabeller);
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
             }
             else {
-              bottleAtLabeller.setPresent();//sysj\labellerPlant.sysj line: 28, column: 5
-              currsigs.addElement(bottleAtLabeller);
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
@@ -520,16 +380,95 @@ public class LabellerPlant extends ClockDomain{
             break;
           
           case 1 : 
-            if(!clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 36, column: 10
-              System.out.println("LabellerPlant [Conveyor]: Bottle released, ready for next.");//sysj\labellerPlant.sysj line: 37, column: 4
-              System.out.println("LabellerPlant [Conveyor]: Presenting bottle at labeller...");//sysj\labellerPlant.sysj line: 26, column: 4
-<<<<<<< HEAD
-              S10018=0;
-=======
-              S9766=0;
->>>>>>> main
-              bottleAtLabeller.setPresent();//sysj\labellerPlant.sysj line: 28, column: 5
+            if(clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 38, column: 10
+              System.out.println("LabellerPlant [Conveyor]: Bottle clamped, holding position...");//sysj\labellerPlant.sysj line: 41, column: 4
+              S16974=2;
+              active[2]=1;
+              ends[2]=1;
+              tdone[2]=1;
+            }
+            else {
+              bottleAtLabeller.setPresent();//sysj\labellerPlant.sysj line: 39, column: 5
               currsigs.addElement(bottleAtLabeller);
+              active[2]=1;
+              ends[2]=1;
+              tdone[2]=1;
+            }
+            break;
+          
+          case 2 : 
+            if(!bottleFromConveyor.getprestatus()){//sysj\labellerPlant.sysj line: 44, column: 10
+              ConveyorLabellerBridge.setLabellerTakenAck(false);//sysj\labellerPlant.sysj line: 45, column: 4
+              S16974=3;
+              active[2]=1;
+              ends[2]=1;
+              tdone[2]=1;
+            }
+            else {
+              active[2]=1;
+              ends[2]=1;
+              tdone[2]=1;
+            }
+            break;
+          
+          case 3 : 
+            if(!clampBottle.getprestatus()){//sysj\labellerPlant.sysj line: 51, column: 10
+              System.out.println("LabellerPlant [Conveyor]: Bottle released, ready for next.");//sysj\labellerPlant.sysj line: 52, column: 4
+              S16974=4;
+              tSort_thread_2 = System.currentTimeMillis();//sysj\labellerPlant.sysj line: 58, column: 5
+              if(System.currentTimeMillis() - tSort_thread_2 < 5000){//sysj\labellerPlant.sysj line: 59, column: 12
+                LabellerSorterBridge.setBottleFromLabeller(true);//sysj\labellerPlant.sysj line: 60, column: 6
+                active[2]=1;
+                ends[2]=1;
+                tdone[2]=1;
+              }
+              else {
+                ends[2]=2;
+                ;//sysj\labellerPlant.sysj line: 59, column: 5
+                LabellerSorterBridge.setBottleFromLabeller(false);//sysj\labellerPlant.sysj line: 64, column: 4
+                S16974=5;
+                active[2]=1;
+                ends[2]=1;
+                tdone[2]=1;
+              }
+            }
+            else {
+              active[2]=1;
+              ends[2]=1;
+              tdone[2]=1;
+            }
+            break;
+          
+          case 4 : 
+            if(sorterTakenAck.getprestatus()){//sysj\labellerPlant.sysj line: 57, column: 10
+              LabellerSorterBridge.setBottleFromLabeller(false);//sysj\labellerPlant.sysj line: 64, column: 4
+              S16974=5;
+              active[2]=1;
+              ends[2]=1;
+              tdone[2]=1;
+            }
+            else {
+              if(System.currentTimeMillis() - tSort_thread_2 < 5000){//sysj\labellerPlant.sysj line: 59, column: 12
+                LabellerSorterBridge.setBottleFromLabeller(true);//sysj\labellerPlant.sysj line: 60, column: 6
+                active[2]=1;
+                ends[2]=1;
+                tdone[2]=1;
+              }
+              else {
+                ends[2]=2;
+                ;//sysj\labellerPlant.sysj line: 59, column: 5
+                LabellerSorterBridge.setBottleFromLabeller(false);//sysj\labellerPlant.sysj line: 64, column: 4
+                S16974=5;
+                active[2]=1;
+                ends[2]=1;
+                tdone[2]=1;
+              }
+            }
+            break;
+          
+          case 5 : 
+            if(!sorterTakenAck.getprestatus()){//sysj\labellerPlant.sysj line: 65, column: 10
+              S16974=0;
               active[2]=1;
               ends[2]=1;
               tdone[2]=1;
@@ -547,15 +486,10 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10345(int [] tdone, int [] ends){
-        S10172=1;
-=======
-  public void thread10093(int [] tdone, int [] ends){
-        S9920=1;
->>>>>>> main
-    if(labelApplied.getprestatus()){//sysj\labellerPlant.sysj line: 84, column: 26
-      labelAppliedE.setPresent();//sysj\labellerPlant.sysj line: 84, column: 40
+  public void thread17542(int [] tdone, int [] ends){
+        S17252=1;
+    if(labelApplied.getprestatus()){//sysj\labellerPlant.sysj line: 112, column: 26
+      labelAppliedE.setPresent();//sysj\labellerPlant.sysj line: 112, column: 40
       currsigs.addElement(labelAppliedE);
       active[9]=1;
       ends[9]=1;
@@ -568,15 +502,10 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10344(int [] tdone, int [] ends){
-        S10164=1;
-=======
-  public void thread10092(int [] tdone, int [] ends){
-        S9912=1;
->>>>>>> main
-    if(bottleClamped.getprestatus()){//sysj\labellerPlant.sysj line: 82, column: 26
-      bottleClampedE.setPresent();//sysj\labellerPlant.sysj line: 82, column: 41
+  public void thread17541(int [] tdone, int [] ends){
+        S17244=1;
+    if(bottleClamped.getprestatus()){//sysj\labellerPlant.sysj line: 110, column: 26
+      bottleClampedE.setPresent();//sysj\labellerPlant.sysj line: 110, column: 41
       currsigs.addElement(bottleClampedE);
       active[8]=1;
       ends[8]=1;
@@ -589,15 +518,10 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10343(int [] tdone, int [] ends){
-        S10156=1;
-=======
-  public void thread10091(int [] tdone, int [] ends){
-        S9904=1;
->>>>>>> main
-    if(labelPrinted.getprestatus()){//sysj\labellerPlant.sysj line: 80, column: 26
-      labelPrintedE.setPresent();//sysj\labellerPlant.sysj line: 80, column: 40
+  public void thread17540(int [] tdone, int [] ends){
+        S17236=1;
+    if(labelPrinted.getprestatus()){//sysj\labellerPlant.sysj line: 108, column: 26
+      labelPrintedE.setPresent();//sysj\labellerPlant.sysj line: 108, column: 40
       currsigs.addElement(labelPrintedE);
       active[7]=1;
       ends[7]=1;
@@ -610,94 +534,52 @@ public class LabellerPlant extends ClockDomain{
     }
   }
 
-<<<<<<< HEAD
-  public void thread10342(int [] tdone, int [] ends){
-        S10148=1;
-    S10142=0;
-    if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 78, column: 26
-      bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 78, column: 44
+  public void thread17539(int [] tdone, int [] ends){
+        S17228=1;
+    S17222=0;
+    if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 106, column: 26
+      bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 106, column: 44
       currsigs.addElement(bottleAtLabellerE);
-      S10142=1;
-=======
-  public void thread10090(int [] tdone, int [] ends){
-        S9896=1;
-    S9890=0;
-    if(bottleAtLabeller.getprestatus()){//sysj\labellerPlant.sysj line: 78, column: 26
-      bottleAtLabellerE.setPresent();//sysj\labellerPlant.sysj line: 78, column: 44
-      currsigs.addElement(bottleAtLabellerE);
-      S9890=1;
->>>>>>> main
+      S17222=1;
       active[6]=1;
       ends[6]=1;
       tdone[6]=1;
     }
     else {
-<<<<<<< HEAD
-      S10142=1;
-=======
-      S9890=1;
->>>>>>> main
+      S17222=1;
       active[6]=1;
       ends[6]=1;
       tdone[6]=1;
     }
   }
 
-<<<<<<< HEAD
-  public void thread10341(int [] tdone, int [] ends){
-        S10140=1;
-    S10110=0;
-=======
-  public void thread10089(int [] tdone, int [] ends){
-        S9888=1;
-    S9858=0;
->>>>>>> main
+  public void thread17538(int [] tdone, int [] ends){
+        S17220=1;
+    S17190=0;
     active[5]=1;
     ends[5]=1;
     tdone[5]=1;
   }
 
-<<<<<<< HEAD
-  public void thread10340(int [] tdone, int [] ends){
-        S10108=1;
-    S10078=0;
-=======
-  public void thread10088(int [] tdone, int [] ends){
-        S9856=1;
-    S9826=0;
->>>>>>> main
+  public void thread17537(int [] tdone, int [] ends){
+        S17188=1;
+    S17158=0;
     active[4]=1;
     ends[4]=1;
     tdone[4]=1;
   }
 
-<<<<<<< HEAD
-  public void thread10339(int [] tdone, int [] ends){
-        S10076=1;
-    S10046=0;
-=======
-  public void thread10087(int [] tdone, int [] ends){
-        S9824=1;
-    S9794=0;
->>>>>>> main
+  public void thread17536(int [] tdone, int [] ends){
+        S17156=1;
+    S17126=0;
     active[3]=1;
     ends[3]=1;
     tdone[3]=1;
   }
 
-<<<<<<< HEAD
-  public void thread10338(int [] tdone, int [] ends){
-        S10044=1;
-    System.out.println("LabellerPlant [Conveyor]: Presenting bottle at labeller...");//sysj\labellerPlant.sysj line: 26, column: 4
-    S10018=0;
-=======
-  public void thread10086(int [] tdone, int [] ends){
-        S9792=1;
-    System.out.println("LabellerPlant [Conveyor]: Presenting bottle at labeller...");//sysj\labellerPlant.sysj line: 26, column: 4
-    S9766=0;
->>>>>>> main
-    bottleAtLabeller.setPresent();//sysj\labellerPlant.sysj line: 28, column: 5
-    currsigs.addElement(bottleAtLabeller);
+  public void thread17535(int [] tdone, int [] ends){
+        S17124=1;
+    S16974=0;
     active[2]=1;
     ends[2]=1;
     tdone[2]=1;
@@ -710,192 +592,100 @@ public class LabellerPlant extends ClockDomain{
     }
     
     RUN: while(true){
-<<<<<<< HEAD
-      switch(S10336){
+      switch(S17533){
         case 0 : 
-          S10336=0;
+          S17533=0;
           break RUN;
         
         case 1 : 
-          S10336=2;
-          S10336=2;
-          new Thread(new LabellerGUI()).start();//sysj\labellerPlant.sysj line: 20, column: 3
-          System.out.println("LabellerPlant: Subsystem initialized.");//sysj\labellerPlant.sysj line: 21, column: 2
-          thread10338(tdone,ends);
-          thread10339(tdone,ends);
-          thread10340(tdone,ends);
-          thread10341(tdone,ends);
-          thread10342(tdone,ends);
-          thread10343(tdone,ends);
-          thread10344(tdone,ends);
-          thread10345(tdone,ends);
-          int biggest10346 = 0;
-          if(ends[2]>=biggest10346){
-            biggest10346=ends[2];
+          S17533=2;
+          S17533=2;
+          new Thread(new LabellerGUI()).start();//sysj\labellerPlant.sysj line: 24, column: 3
+          System.out.println("LabellerPlant: Subsystem initialized.");//sysj\labellerPlant.sysj line: 25, column: 2
+          thread17535(tdone,ends);
+          thread17536(tdone,ends);
+          thread17537(tdone,ends);
+          thread17538(tdone,ends);
+          thread17539(tdone,ends);
+          thread17540(tdone,ends);
+          thread17541(tdone,ends);
+          thread17542(tdone,ends);
+          int biggest17543 = 0;
+          if(ends[2]>=biggest17543){
+            biggest17543=ends[2];
           }
-          if(ends[3]>=biggest10346){
-            biggest10346=ends[3];
+          if(ends[3]>=biggest17543){
+            biggest17543=ends[3];
           }
-          if(ends[4]>=biggest10346){
-            biggest10346=ends[4];
+          if(ends[4]>=biggest17543){
+            biggest17543=ends[4];
           }
-          if(ends[5]>=biggest10346){
-            biggest10346=ends[5];
+          if(ends[5]>=biggest17543){
+            biggest17543=ends[5];
           }
-          if(ends[6]>=biggest10346){
-            biggest10346=ends[6];
+          if(ends[6]>=biggest17543){
+            biggest17543=ends[6];
           }
-          if(ends[7]>=biggest10346){
-            biggest10346=ends[7];
+          if(ends[7]>=biggest17543){
+            biggest17543=ends[7];
           }
-          if(ends[8]>=biggest10346){
-            biggest10346=ends[8];
+          if(ends[8]>=biggest17543){
+            biggest17543=ends[8];
           }
-          if(ends[9]>=biggest10346){
-            biggest10346=ends[9];
+          if(ends[9]>=biggest17543){
+            biggest17543=ends[9];
           }
-          if(biggest10346 == 1){
-=======
-      switch(S10084){
-        case 0 : 
-          S10084=0;
-          break RUN;
-        
-        case 1 : 
-          S10084=2;
-          S10084=2;
-          new Thread(new LabellerGUI()).start();//sysj\labellerPlant.sysj line: 20, column: 3
-          System.out.println("LabellerPlant: Subsystem initialized.");//sysj\labellerPlant.sysj line: 21, column: 2
-          thread10086(tdone,ends);
-          thread10087(tdone,ends);
-          thread10088(tdone,ends);
-          thread10089(tdone,ends);
-          thread10090(tdone,ends);
-          thread10091(tdone,ends);
-          thread10092(tdone,ends);
-          thread10093(tdone,ends);
-          int biggest10094 = 0;
-          if(ends[2]>=biggest10094){
-            biggest10094=ends[2];
-          }
-          if(ends[3]>=biggest10094){
-            biggest10094=ends[3];
-          }
-          if(ends[4]>=biggest10094){
-            biggest10094=ends[4];
-          }
-          if(ends[5]>=biggest10094){
-            biggest10094=ends[5];
-          }
-          if(ends[6]>=biggest10094){
-            biggest10094=ends[6];
-          }
-          if(ends[7]>=biggest10094){
-            biggest10094=ends[7];
-          }
-          if(ends[8]>=biggest10094){
-            biggest10094=ends[8];
-          }
-          if(ends[9]>=biggest10094){
-            biggest10094=ends[9];
-          }
-          if(biggest10094 == 1){
->>>>>>> main
+          if(biggest17543 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
         
         case 2 : 
-<<<<<<< HEAD
-          thread10347(tdone,ends);
-          thread10348(tdone,ends);
-          thread10349(tdone,ends);
-          thread10350(tdone,ends);
-          thread10351(tdone,ends);
-          thread10352(tdone,ends);
-          thread10353(tdone,ends);
-          thread10354(tdone,ends);
-          int biggest10355 = 0;
-          if(ends[2]>=biggest10355){
-            biggest10355=ends[2];
+          thread17544(tdone,ends);
+          thread17545(tdone,ends);
+          thread17546(tdone,ends);
+          thread17547(tdone,ends);
+          thread17548(tdone,ends);
+          thread17549(tdone,ends);
+          thread17550(tdone,ends);
+          thread17551(tdone,ends);
+          int biggest17552 = 0;
+          if(ends[2]>=biggest17552){
+            biggest17552=ends[2];
           }
-          if(ends[3]>=biggest10355){
-            biggest10355=ends[3];
+          if(ends[3]>=biggest17552){
+            biggest17552=ends[3];
           }
-          if(ends[4]>=biggest10355){
-            biggest10355=ends[4];
+          if(ends[4]>=biggest17552){
+            biggest17552=ends[4];
           }
-          if(ends[5]>=biggest10355){
-            biggest10355=ends[5];
+          if(ends[5]>=biggest17552){
+            biggest17552=ends[5];
           }
-          if(ends[6]>=biggest10355){
-            biggest10355=ends[6];
+          if(ends[6]>=biggest17552){
+            biggest17552=ends[6];
           }
-          if(ends[7]>=biggest10355){
-            biggest10355=ends[7];
+          if(ends[7]>=biggest17552){
+            biggest17552=ends[7];
           }
-          if(ends[8]>=biggest10355){
-            biggest10355=ends[8];
+          if(ends[8]>=biggest17552){
+            biggest17552=ends[8];
           }
-          if(ends[9]>=biggest10355){
-            biggest10355=ends[9];
+          if(ends[9]>=biggest17552){
+            biggest17552=ends[9];
           }
-          if(biggest10355 == 1){
-=======
-          thread10095(tdone,ends);
-          thread10096(tdone,ends);
-          thread10097(tdone,ends);
-          thread10098(tdone,ends);
-          thread10099(tdone,ends);
-          thread10100(tdone,ends);
-          thread10101(tdone,ends);
-          thread10102(tdone,ends);
-          int biggest10103 = 0;
-          if(ends[2]>=biggest10103){
-            biggest10103=ends[2];
-          }
-          if(ends[3]>=biggest10103){
-            biggest10103=ends[3];
-          }
-          if(ends[4]>=biggest10103){
-            biggest10103=ends[4];
-          }
-          if(ends[5]>=biggest10103){
-            biggest10103=ends[5];
-          }
-          if(ends[6]>=biggest10103){
-            biggest10103=ends[6];
-          }
-          if(ends[7]>=biggest10103){
-            biggest10103=ends[7];
-          }
-          if(ends[8]>=biggest10103){
-            biggest10103=ends[8];
-          }
-          if(ends[9]>=biggest10103){
-            biggest10103=ends[9];
-          }
-          if(biggest10103 == 1){
->>>>>>> main
+          if(biggest17552 == 1){
             active[1]=1;
             ends[1]=1;
             break RUN;
           }
           //FINXME code
-<<<<<<< HEAD
-          if(biggest10355 == 0){
-            S10336=0;
+          if(biggest17552 == 0){
+            S17533=0;
             active[1]=0;
             ends[1]=0;
-            S10336=0;
-=======
-          if(biggest10103 == 0){
-            S10084=0;
-            active[1]=0;
-            ends[1]=0;
-            S10084=0;
->>>>>>> main
+            S17533=0;
             break RUN;
           }
         
@@ -928,11 +718,10 @@ public class LabellerPlant extends ClockDomain{
           printLabel.gethook();
           clampBottle.gethook();
           applyLabel.gethook();
-<<<<<<< HEAD
           liquidARatio.gethook();
           targetVolumeMl.gethook();
-=======
->>>>>>> main
+          bottleFromConveyor.gethook();
+          sorterTakenAck.gethook();
           df = true;
         }
         runClockDomain();
@@ -940,11 +729,10 @@ public class LabellerPlant extends ClockDomain{
       printLabel.setpreclear();
       clampBottle.setpreclear();
       applyLabel.setpreclear();
-<<<<<<< HEAD
       liquidARatio.setpreclear();
       targetVolumeMl.setpreclear();
-=======
->>>>>>> main
+      bottleFromConveyor.setpreclear();
+      sorterTakenAck.setpreclear();
       labelPrinted.setpreclear();
       bottleClamped.setpreclear();
       labelApplied.setpreclear();
@@ -968,15 +756,18 @@ public class LabellerPlant extends ClockDomain{
       dummyint = applyLabel.getStatus() ? applyLabel.setprepresent() : applyLabel.setpreclear();
       applyLabel.setpreval(applyLabel.getValue());
       applyLabel.setClear();
-<<<<<<< HEAD
       dummyint = liquidARatio.getStatus() ? liquidARatio.setprepresent() : liquidARatio.setpreclear();
       liquidARatio.setpreval(liquidARatio.getValue());
       liquidARatio.setClear();
       dummyint = targetVolumeMl.getStatus() ? targetVolumeMl.setprepresent() : targetVolumeMl.setpreclear();
       targetVolumeMl.setpreval(targetVolumeMl.getValue());
       targetVolumeMl.setClear();
-=======
->>>>>>> main
+      dummyint = bottleFromConveyor.getStatus() ? bottleFromConveyor.setprepresent() : bottleFromConveyor.setpreclear();
+      bottleFromConveyor.setpreval(bottleFromConveyor.getValue());
+      bottleFromConveyor.setClear();
+      dummyint = sorterTakenAck.getStatus() ? sorterTakenAck.setprepresent() : sorterTakenAck.setpreclear();
+      sorterTakenAck.setpreval(sorterTakenAck.getValue());
+      sorterTakenAck.setClear();
       labelPrinted.sethook();
       labelPrinted.setClear();
       bottleClamped.sethook();
@@ -998,11 +789,10 @@ public class LabellerPlant extends ClockDomain{
         printLabel.gethook();
         clampBottle.gethook();
         applyLabel.gethook();
-<<<<<<< HEAD
         liquidARatio.gethook();
         targetVolumeMl.gethook();
-=======
->>>>>>> main
+        bottleFromConveyor.gethook();
+        sorterTakenAck.gethook();
       }
       runFinisher();
       if(active[1] == 0){

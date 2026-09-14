@@ -5,6 +5,8 @@
                       <iSignal Name="printLabel"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="clampBottle"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="applyLabel"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="bottleFromConveyor" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="sorterTakenAck"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
 
                       <!-- Outputs to Controller -->
                       <oSignal Name="bottleAtLabeller" To="LabellerControllerCD.bottleAtLabeller" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />

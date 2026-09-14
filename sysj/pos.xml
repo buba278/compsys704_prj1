@@ -6,8 +6,8 @@
 
                       <oSignal Name="orderReady" To="CoordinatorCD.orderReady" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
 
-                      <oSignal Name="batchDoneE"      To="UI.batchDoneE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
-                      <oSignal Name="completionTimeE" To="UI.completionTimeE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
+                      <oSignal Name="batchDoneE"      To="UI.batchDoneE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20004" />
+                      <oSignal Name="completionTimeE" To="UI.completionTimeE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20004" />
               </ClockDomain>
       </SubSystem>
 </System>

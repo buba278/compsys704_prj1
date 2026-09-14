@@ -1,5 +1,6 @@
 import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
+import run.RotaryCapperBridge;
 CapperController(
     input signal bottleAtPos4; 								
     input signal gripperMaxLower;							
@@ -61,6 +62,20 @@ CapperController(
         }
         System.out.println("CapperController: Gripper full twist achieved or aborted. Releasing clamp & resetting.");
      	twin.recordEvent("Cap screwed on", productId);
+
+     	// Tell the Rotary Table the cap is on, so it can widen this into a
+     	// real capOnBottleAtPos1 and offer the next bottle. Ack-or-timeout
+     	// hold, not a bare single-tick emit, since this crosses the socket
+     	// to RotaryTablePlantCD and repeats once per bottle - see CLAUDE.md.
+     	{
+     		long tAck = System.currentTimeMillis();
+     		while (System.currentTimeMillis() - tAck < 200) {
+     			RotaryCapperBridge.setCapperTakenAck(true);
+     			pause;
+     		}
+     		RotaryCapperBridge.setCapperTakenAck(false);
+     	}
+
         abort(gripperInitPos) {
         {
             sustain sendClamp;
