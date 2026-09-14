@@ -168,6 +168,12 @@ public class TwinServer {
             	    return "OK";
             	}
             	
+            	case "PRODUCT_AT_POSITION": {
+            	    int position = Integer.parseInt(parts[1]);
+            	    String productId = SystemTwin.getInstance().getProductIdAtPosition(position);
+            	    return productId != null ? productId : "ERR no product at position " + position;
+            	}
+            	
                 case "PLANT_UPDATE": {
                     PlantTwin twin = requireStation(parts[1]);
                     PlantTwin.State state = PlantTwin.State.valueOf(parts[2]);

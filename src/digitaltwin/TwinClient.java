@@ -88,6 +88,10 @@ public final class TwinClient {
     public synchronized void reportBatchDone(int elapsedMs) {
         sendCommand("BATCH_DONE|" + elapsedMs);
     }
+    
+    public synchronized String getProductIdAtPosition(int position) {
+        return sendCommand("PRODUCT_AT_POSITION|" + position);
+    }
 
     /** Returns the full SystemTwin JSON feed, or null if the server is unreachable. */
     public synchronized String querySystemJson() {

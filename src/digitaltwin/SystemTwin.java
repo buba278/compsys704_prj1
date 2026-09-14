@@ -86,6 +86,15 @@ public class SystemTwin {
     public PlantTwin getPlantTwin(String stationId) {
         return plantTwins.get(stationId);
     }
+    
+    public synchronized String getProductIdAtPosition(int position) {
+        for (ProductTwin product : activeProducts.values()) {
+            if (product.getCurrentPosition() == position) {
+                return product.getProductId();
+            }
+        }
+        return null;
+    }
  
     synchronized void archiveProductTwin(String productId, boolean rejected) {
         ProductTwin twin = activeProducts.remove(productId);

@@ -25,6 +25,7 @@ CapperController(
     	
         System.out.println("CapperController: Waiting for bottle at Position 4...");
         await (bottleAtPos4);
+        String productId = twin.getProductIdAtPosition(4);
         System.out.println("CapperController: Bottle detected. Starting capping sequence.");
         twin.update(PlantTwin.State.IN_PROGRESS);
         
@@ -59,7 +60,7 @@ CapperController(
             }
         }
         System.out.println("CapperController: Gripper full twist achieved or aborted. Releasing clamp & resetting.");
-     	twin.recordEvent("Cap screwed on", null);
+     	twin.recordEvent("Cap screwed on", productId);
         abort(gripperInitPos) {
         {
             sustain sendClamp;
