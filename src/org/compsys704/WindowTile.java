@@ -10,23 +10,26 @@ import javax.swing.JFrame;
  * there's no single place to lay them all out at once - every panel has to
  * know its own assigned spot. Positions are fractions of the current screen
  * size (not fixed pixels), so the same layout scales to any machine's
- * resolution. Filler and the Purchase Order System are noticeably wider than
- * the rest (dev controls / order queue side panels), so they each get a
- * half-width slot in their own row instead of sharing a uniform grid cell
- * with the narrower panels - a uniform grid left them overlapping their
- * neighbours.
+ * resolution. Grouped by physical flow rather than a plain grid, so windows
+ * that are adjacent in the pipeline end up adjacent on screen too: top row
+ * is the two wide "entry point" windows (Conveyor load/collect, the Purchase
+ * Order System); middle row is the three rotary-table stations in process
+ * order (Filler = Station 2, Lid Placer = Station 3, Capper = Station 4)
+ * plus the Rotary Table itself; bottom row is what comes after the table
+ * (Labeller, then Sorter). See StationHeader for the matching on-panel
+ * "STATION N" labels.
  */
 public class WindowTile {
 	private static final java.util.Map<String, double[]> POSITIONS = new java.util.HashMap<String, double[]>();
 	static {
 		POSITIONS.put("conveyor",    new double[]{ 0.00, 0.00 });
-		POSITIONS.put("rotarytable", new double[]{ 0.33, 0.00 });
-		POSITIONS.put("capper",      new double[]{ 0.66, 0.00 });
-		POSITIONS.put("labeller",    new double[]{ 0.00, 0.33 });
-		POSITIONS.put("sorter",      new double[]{ 0.33, 0.33 });
-		POSITIONS.put("loader",      new double[]{ 0.66, 0.33 });
-		POSITIONS.put("filler",      new double[]{ 0.00, 0.66 });
-		POSITIONS.put("pos",         new double[]{ 0.50, 0.66 });
+		POSITIONS.put("pos",         new double[]{ 0.40, 0.00 });
+		POSITIONS.put("filler",      new double[]{ 0.00, 0.33 });
+		POSITIONS.put("loader",      new double[]{ 0.75, 0.00 });
+		POSITIONS.put("capper",      new double[]{ 0.80, 0.60 });
+		POSITIONS.put("rotarytable", new double[]{ 0.35, 0.33 });
+		POSITIONS.put("labeller",    new double[]{ 0.00, 0.70 });
+		POSITIONS.put("sorter",      new double[]{ 0.60, 0.55 });
 	}
 
 	public static void place(JFrame frame, String key) {

@@ -5,10 +5,10 @@
 			<iSignal Name="bottleAtPos5"           Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="capOnBottleAtPos1"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="tableBusy"              Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
+			<iSignal Name="tableHasFreeSlot"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="readyToRotate"          Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 
 			<oSignal Name="rotaryTableTrigger"    To="RotaryTablePlantCD.rotaryTableTrigger" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10017" />
-			<oSignal Name="tableRotationComplete" To="UI.tableRotationComplete"              Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
 
 			<!-- mode / rotateM come straight from the GUI, same pattern as
 			     "mode" / "pusherExtendM" going straight to ControllerCD

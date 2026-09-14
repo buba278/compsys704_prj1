@@ -39,9 +39,14 @@ public class CapLoader extends JFrame {
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
-		this.add(panel,c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		this.add(StationHeader.make("STATION 3 — LID PLACER"), c);
+		c.fill = GridBagConstraints.NONE;
 		c.gridx = 0;
 		c.gridy = 1;
+		this.add(panel,c);
+		c.gridx = 0;
+		c.gridy = 2;
 		this.add(ss,c);
 		
 		// Radio buttons
@@ -94,10 +99,10 @@ public class CapLoader extends JFrame {
 		pan3.add(pan);
 		pan3.add(pan2);
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = 3;
 		this.add(pan3,c);
-		
-		this.setTitle("Cap Loader");
+
+		this.setTitle("Lid Placer");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		WindowTile.place(this, "loader");
 		this.setResizable(false);

@@ -51,6 +51,12 @@ public class Ports {
 	public static final String ROTARYTABLE_FILLER_TAKEN_ACK       = "RotaryTablePlantCD.fillerTakenAck";
 	public static final String COORDINATOR_BOTTLE_READY_FOR_FILLER = "CoordinatorCD.bottleReadyForFiller";
 
+	// Conveyor acks the Rotary Table's Pos 5 handoff immediately on receipt,
+	// rather than the Rotary Table guessing a fixed wait - the Conveyor's own
+	// downstream handoff to the Labeller alone can take up to 30s, far too
+	// long to hold a fixed timer for.
+	public static final String ROTARYTABLE_CONVEYOR_TAKEN_ACK      = "RotaryTablePlantCD.conveyorTakenAck";
+
 	// Pos 1 handoff handshake with the Conveyor
 	public static final String CONVEYOR_CONTROLLER_POS1_TAKEN_ACK = "ConveyorControllerCD.pos1TakenAck";
 	public static final String CONVEYOR_PLANT_POS1_TAKEN_ACK      = "ConveyorPlantCD.pos1TakenAck";

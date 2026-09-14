@@ -40,6 +40,9 @@ public class LabellerVizWorker extends Worker {
                 }
                 break;
 
+            case "liquidARatioE": case "targetVolumeMlE":
+                break; // value arrives via setIntSignal
+
             default:
                 System.err.println("Wrong sig name : " + signame);
                 System.exit(1);
@@ -47,10 +50,19 @@ public class LabellerVizWorker extends Worker {
     }
 
     @Override
-    public void setIntSignal(int value) {}
+    public void setIntSignal(int value) {
+        switch (signame) {
+            case "liquidARatioE":   LabellerState.LIQUID_RATIO = value; break;
+            case "targetVolumeMlE": LabellerState.BOTTLE_SIZE_ML = value; break;
+            default:
+                System.err.println("Wrong sig name : " + signame);
+                System.exit(1);
+        }
+    }
 
     static final List<String> signames = Arrays.asList(
-        "bottleAtLabellerE", "bottleClampedE", "labelPrintedE", "labelAppliedE"
+        "bottleAtLabellerE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
+        "liquidARatioE", "targetVolumeMlE"
     );
 
     @Override

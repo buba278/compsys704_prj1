@@ -3,6 +3,7 @@ import run.RotaryConveyorBridge;
 import run.RotaryCapperBridge;
 import run.RotaryFillerBridge;
 import run.RotaryLidBridge;
+import run.RotaryTableState;
 
 rotaryTablePlant(
 		input signal rotaryTableTrigger;
@@ -10,20 +11,39 @@ rotaryTablePlant(
 		input signal capperTakenAck;
 		input signal fillerTakenAck;
 		input signal lidPlacedAck;
+		input signal conveyorTakenAck;
 		output signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1;
-		output signal tableBusy;
-		output Integer signal bottleStageE;
+		output signal tableBusy, tableHasFreeSlot;
+		output Integer signal bottleStage1E, bottleStage2E, bottleStage3E;
 		output signal tableAlignedWithSensorE, bottleAtPos5E, capOnBottleAtPos1E, rotaryTableTriggerE;
 		)
 ->
 {
 	new Thread(new RotaryTableGUI()).start();
 
+	// One bottle can be assigned to each of these local signals at a time;
+	// see RotaryTableState for how the dispatcher below picks a free lane
+	// and why plain Java fields are safe for that (no real concurrency
+	// within one clock domain - see CLAUDE.md).
+	signal dispatchLane1, dispatchLane2, dispatchLane3;
+
 	{ // table rotation / position sensor
-	  
+
 		await(start);
 		loop {
-			abort(rotaryTableTrigger){
+			// Wait for an actual request before responding, then respond for
+			// as long as it's held - the previous version did this backwards
+			// (abort(rotaryTableTrigger){sustain tableAlignedWithSensor;}
+			// sustains tableAlignedWithSensor UNTIL triggered, not WHILE
+			// triggered), so tableAlignedWithSensor was asserted continuously
+			// from process startup, before any bottle had ever been
+			// requested. Harmless for the old single-bottle pipeline (it
+			// just treated whatever it saw first as "bottle 1" and moved on
+			// once real bottles started arriving), but the multi-lane
+			// dispatcher below reacts to every tick and was catching that
+			// startup assertion as a real, distinct phantom bottle.
+			await(rotaryTableTrigger);
+			abort(!rotaryTableTrigger) {
 				sustain tableAlignedWithSensor;
 			}
 			// simulated settle time for one 60-degree step
@@ -31,208 +51,482 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Automatic per-bottle pipeline: once the table is aligned with a
-	  // fresh bottle, hand it to the Filler (via the Coordinator) first,
-	  // then the Capper, then to the Conveyor at Pos 5 - fill before cap,
-	  // matching the physical process (you can't fill a sealed bottle) -
-	  // all sequentially in
-	  // one thread, since this simplified table model only ever carries one
-	  // bottle through its whole cycle at a time (no separate physical
-	  // travel time between checkpoints to model), which also avoids having
-	  // to share "has this bottle been capped/filled yet" latch state
-	  // across separate parallel threads (a plain signal like
-	  // capOnBottleAtPos1 below is only ever a brief acknowledgement pulse
-	  // to the Controller, not a sustained state, so it can't itself be
-	  // used as that latch).
-	  //
-	  // Replaces the old capOnBottleAtPos1Toggle/bottleAtPos5Toggle GUI dev
-	  // buttons (removed - nothing sent them anymore once this automatic
-	  // path existed) and the old standalone "Pos 5 -> Conveyor" thread
-	  // (folded in here, since nothing was ever automatically clearing
-	  // bottleAtPos5 back to false once that toggle was gone).
-	  //
-	  // tableBusy is emitted throughout every stage below and read by
-	  // rotaryTableController.sysj before it accepts a new bottle from the
-	  // Conveyor - without it, capOnBottleAtPos1/bottleAtPos5 (both now
-	  // brief automatic pulses rather than a manually-held toggle) give the
-	  // Controller essentially no real protection against starting a second
-	  // bottle's rotation while this one is still mid-cycle, which is what
-	  // caused the rotation to intermittently misfire.
-	  //
-	  // bottleStageE is a pure viz mirror (0=idle, 1=at Capper, 2=at Filler,
-	  // 3=departing to Pos 5, 4=at Lid Placer) so the GUI can show which
-	  // position the current bottle is actually at - see RotaryTableCanvas/
-	  // RotaryTableState/RotaryTableVizWorker.
-	  //
-	  // Each stage uses RotaryCapperBridge/RotaryFillerBridge/
-	  // RotaryConveyorBridge (single-segment "run" package classes) rather
-	  // than SignalLevelClients declared inline here - this build of sjc
-	  // crashes resolving types from multi-segment packages such as
-	  // org.compsys704 when used for a local instance declaration inside a
-	  // .sysj reactive body (confirmed by isolated repro). Ack-or-timeout
-	  // holds throughout (not flat holds): each repeats once per bottle in
-	  // a loop, the shape CLAUDE.md calls for a real ack rather than a
-	  // fixed guess at how long each stage takes.
-		final long STAGE_VIEW_DELAY_MS = 1500;
+	{ // Tells the Controller whether it's worth offering a new bottle at
+	  // all - see RotaryTableState.anyLaneIdle(). Replaces the old
+	  // "tableBusy blocks everything until the whole cycle finishes" gate,
+	  // which was the actual reason only one bottle could be on the table
+	  // at once (see git history / CLAUDE.md before this change).
+		while(true) {
+			if (RotaryTableState.anyLaneIdle()) {
+				emit tableHasFreeSlot;
+			}
+			pause;
+		}
+	}
+	||
+	{ // Dispatcher: claims each new-bottle pulse from the Controller for
+	  // exactly one idle lane, then waits for the pulse to clear before
+	  // watching for the next one - see RotaryTableState.
 		loop {
 			await(tableAlignedWithSensor);
-			System.out.printf("[RT] bottle aligned, offering to Filler%n");
+			if (RotaryTableState.lane1Idle) {
+				RotaryTableState.lane1Idle = false;
+				emit dispatchLane1;
+			} else if (RotaryTableState.lane2Idle) {
+				RotaryTableState.lane2Idle = false;
+				emit dispatchLane2;
+			} else if (RotaryTableState.lane3Idle) {
+				RotaryTableState.lane3Idle = false;
+				emit dispatchLane3;
+			}
+			await(!tableAlignedWithSensor);
+		}
+	}
+	||
+	{ // Lane 1: one of three bottles that can be in flight on the table at
+	  // once, each running the full Filler -> Lid Placer -> Capper ->
+	  // Conveyor pipeline independently. Filler/Lid Placer/Capper/the
+	  // Conveyor handoff are each a single physical station though, so a
+	  // lane must claim the matching RotaryTableState lock before offering
+	  // to one and release it right after - otherwise two lanes could both
+	  // assert the same cross-domain "bottle ready" signal at once with no
+	  // way to tell which bottle actually got served. Ack-or-timeout holds
+	  // throughout, same shape as the original single-bottle version this
+	  // replaced - see CLAUDE.md.
+		final long STAGE_VIEW_DELAY_MS = 400;
+		loop {
+			await(dispatchLane1);
+			System.out.printf("[RT] lane1: bottle assigned, offering to Filler%n");
 
-			// Stage 1: Filler, via the Coordinator (which owns the
-			// recipe/batch fault-tolerance logic - see coordinator.sysj).
-			// A longer safety-net window than the Capper's below: filling
-			// legitimately takes longer, and the Coordinator may briefly
-			// not be ready yet (e.g. between orders).
+			while (!RotaryTableState.tryClaimFiller()) { pause; }
+			// A previous lane's fillerTakenAck can still be lingering
+			// present the instant this lane claims the lock - entering
+			// abort(fillerTakenAck) then would tear down after one tick
+			// without a real fill (see CLAUDE.md's abort entry-precondition
+			// pitfall).
+			await(!fillerTakenAck);
 			long tFillStart = System.currentTimeMillis();
 			abort(fillerTakenAck) {
 				long t2 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t2 < 30000) {
 					RotaryFillerBridge.setBottleReadyForFiller(true);
 					emit tableBusy;
-					emit bottleStageE(2);
+					emit bottleStage1E(2);
 					pause;
 				}
 			}
 			RotaryFillerBridge.setBottleReadyForFiller(false);
 			present(fillerTakenAck) {
-				System.out.printf("[RT] fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart);
+				System.out.printf("[RT] lane1: fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart);
 			} else {
-				System.out.printf("[RT] TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart);
+				System.out.printf("[RT] lane1: TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart);
 			}
+			RotaryTableState.releaseFiller();
 
-			// Viewing pause: from here on, hold the completed stage on screen
-			// for a moment before advancing, so a human watching the GUI can
-			// actually see each machine in action instead of every stage
-			// (near-instant once its ack arrives, since reactions are
-			// unthrottled - see CLAUDE.md) blitzing past in the same frame.
 			{
 				long tGap1 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap1 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStageE(2);
+					emit bottleStage1E(2);
 					pause;
 				}
 			}
 
-			// Stage 2: Lid Placer (Pos 3), before capping - you can't screw a
-			// cap on over a lid that isn't there yet. PlantCD's arm/pusher
-			// gate each movement on "enable" going true then dropping back to
-			// false before it'll accept the next one (a manual step/deadman
-			// interlock in the original GUI-driven lab). This bridge can't
-			// see PlantCD's internal reaction state to time discrete pulses,
-			// so it drives "enable" as a square wave instead - but each phase
-			// must actually be held for a real duration (not toggled every
-			// single tick, which was the original mistake here): PlantCD's
-			// receive buffer is a single slot, not a queue (see CLAUDE.md's
-			// cross-clock-domain signal reliability section), so a same-tick
-			// flip can race past PlantCD's own tick loop and never be
-			// observed at all, leaving "enable" looking permanently absent to
-			// it and every movement stuck waiting forever.
-			System.out.printf("[RT] offering to Lid Placer%n");
+			while (!RotaryTableState.tryClaimLid()) { pause; }
+			await(!lidPlacedAck);
+			System.out.printf("[RT] lane1: offering to Lid Placer%n");
 			long tLidStart = System.currentTimeMillis();
 			abort(lidPlacedAck) {
 				long t5 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t5 < 15000) {
 					RotaryLidBridge.setRequest(true);
-					// 100ms-on/100ms-off square wave, computed from elapsed
-					// time rather than nested while loops (sjc's bounded-loop
-					// check doesn't accept a wall-clock while nested inside
-					// another) - long enough per phase to survive the
-					// single-slot receive buffer race described above.
 					long sinceStart = System.currentTimeMillis() - t5;
 					boolean enableFlag = (sinceStart % 200) < 100;
 					RotaryLidBridge.setEnable(enableFlag);
 					emit tableBusy;
-					emit bottleStageE(4);
+					emit bottleStage1E(4);
 					pause;
 				}
 			}
 			RotaryLidBridge.setRequest(false);
 			RotaryLidBridge.setEnable(false);
 			present(lidPlacedAck) {
-				System.out.printf("[RT] lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart);
+				System.out.printf("[RT] lane1: lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart);
 			} else {
-				System.out.printf("[RT] TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart);
+				System.out.printf("[RT] lane1: TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart);
 			}
+			RotaryTableState.releaseLid();
 
-			// Viewing pause (see comment above the Filler one).
 			{
 				long tGap2 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap2 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStageE(4);
+					emit bottleStage1E(4);
 					pause;
 				}
 			}
 
-			// Stage 3: Capper.
-			System.out.printf("[RT] offering to Capper%n");
+			while (!RotaryTableState.tryClaimCapper()) { pause; }
+			await(!capperTakenAck);
+			System.out.printf("[RT] lane1: offering to Capper%n");
 			long tCapStart = System.currentTimeMillis();
 			abort(capperTakenAck) {
 				long t0 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t0 < 10000) {
 					RotaryCapperBridge.setBottleAtPos4(true);
 					emit tableBusy;
-					emit bottleStageE(1);
+					emit bottleStage1E(1);
 					pause;
 				}
 			}
 			RotaryCapperBridge.setBottleAtPos4(false);
 			present(capperTakenAck) {
-				System.out.printf("[RT] capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
-				// Widen the ack into a real capOnBottleAtPos1 notification
-				// pulse to the Controller, same shape as fillDoneCoordE etc.
-				// elsewhere - survives the socket race to
-				// RotaryTableControllerCD.
+				System.out.printf("[RT] lane1: capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
 				long t1 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t1 < 200) {
 					emit capOnBottleAtPos1;
 					emit tableBusy;
-					emit bottleStageE(1);
+					emit bottleStage1E(1);
 					pause;
 				}
 			} else {
-				System.out.printf("[RT] TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
+				System.out.printf("[RT] lane1: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
 			}
+			RotaryTableState.releaseCapper();
 
-			// Viewing pause (see comment above the Filler one).
 			{
 				long tGap3 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap3 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStageE(1);
+					emit bottleStage1E(1);
 					pause;
 				}
 			}
 
-			// Stage 4: hand off to the Conveyor at Pos 5, whether or not
-			// filling actually happened (a fill timeout shouldn't strand
-			// the bottle on the table forever).
-			System.out.printf("[RT] handing off to Conveyor at Pos 5%n");
-			long t3 = System.currentTimeMillis();
-			while (System.currentTimeMillis() - t3 < 200) {
-				emit bottleAtPos5;
-				emit tableBusy;
-				emit bottleStageE(3);
-				RotaryConveyorBridge.setBottleFromTable(true);
-				pause;
+			while (!RotaryTableState.tryClaimConveyorExit()) { pause; }
+			await(!conveyorTakenAck);
+			System.out.printf("[RT] lane1: handing off to Conveyor at Pos 5%n");
+			long tExitStart = System.currentTimeMillis();
+			abort(conveyorTakenAck) {
+				long t3 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t3 < 35000) {
+					emit bottleAtPos5;
+					emit tableBusy;
+					emit bottleStage1E(3);
+					RotaryConveyorBridge.setBottleFromTable(true);
+					pause;
+				}
 			}
 			RotaryConveyorBridge.setBottleFromTable(false);
+			present(conveyorTakenAck) {
+				System.out.printf("[RT] lane1: conveyorTakenAck received after %dms%n", System.currentTimeMillis() - tExitStart);
+			} else {
+				System.out.printf("[RT] lane1: TIMED OUT waiting for conveyorTakenAck after %dms%n", System.currentTimeMillis() - tExitStart);
+			}
+			RotaryTableState.releaseConveyorExit();
 
-			// Back to idle - held briefly rather than a bare single-tick
-			// emit, same reasoning as everything else here.
 			{
 				long t4 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t4 < 200) {
-					emit bottleStageE(0);
+					emit bottleStage1E(0);
 					pause;
 				}
 			}
-			System.out.printf("[RT] bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart);
+			System.out.printf("[RT] lane1: bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart);
 
-			// Don't re-offer the same bottle again until the table rotates
-			// away and a fresh one arrives.
-			await(!tableAlignedWithSensor);
+			RotaryTableState.lane1Idle = true;
+		}
+	}
+	||
+	{ // Lane 2 - identical to Lane 1, see its comments.
+		final long STAGE_VIEW_DELAY_MS = 400;
+		loop {
+			await(dispatchLane2);
+			System.out.printf("[RT] lane2: bottle assigned, offering to Filler%n");
+
+			while (!RotaryTableState.tryClaimFiller()) { pause; }
+			// A previous lane's fillerTakenAck can still be lingering
+			// present the instant this lane claims the lock - entering
+			// abort(fillerTakenAck) then would tear down after one tick
+			// without a real fill (see CLAUDE.md's abort entry-precondition
+			// pitfall).
+			await(!fillerTakenAck);
+			long tFillStart = System.currentTimeMillis();
+			abort(fillerTakenAck) {
+				long t2 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t2 < 30000) {
+					RotaryFillerBridge.setBottleReadyForFiller(true);
+					emit tableBusy;
+					emit bottleStage2E(2);
+					pause;
+				}
+			}
+			RotaryFillerBridge.setBottleReadyForFiller(false);
+			present(fillerTakenAck) {
+				System.out.printf("[RT] lane2: fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart);
+			} else {
+				System.out.printf("[RT] lane2: TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart);
+			}
+			RotaryTableState.releaseFiller();
+
+			{
+				long tGap1 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tGap1 < STAGE_VIEW_DELAY_MS) {
+					emit tableBusy;
+					emit bottleStage2E(2);
+					pause;
+				}
+			}
+
+			while (!RotaryTableState.tryClaimLid()) { pause; }
+			await(!lidPlacedAck);
+			System.out.printf("[RT] lane2: offering to Lid Placer%n");
+			long tLidStart = System.currentTimeMillis();
+			abort(lidPlacedAck) {
+				long t5 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t5 < 15000) {
+					RotaryLidBridge.setRequest(true);
+					long sinceStart = System.currentTimeMillis() - t5;
+					boolean enableFlag = (sinceStart % 200) < 100;
+					RotaryLidBridge.setEnable(enableFlag);
+					emit tableBusy;
+					emit bottleStage2E(4);
+					pause;
+				}
+			}
+			RotaryLidBridge.setRequest(false);
+			RotaryLidBridge.setEnable(false);
+			present(lidPlacedAck) {
+				System.out.printf("[RT] lane2: lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart);
+			} else {
+				System.out.printf("[RT] lane2: TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart);
+			}
+			RotaryTableState.releaseLid();
+
+			{
+				long tGap2 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tGap2 < STAGE_VIEW_DELAY_MS) {
+					emit tableBusy;
+					emit bottleStage2E(4);
+					pause;
+				}
+			}
+
+			while (!RotaryTableState.tryClaimCapper()) { pause; }
+			await(!capperTakenAck);
+			System.out.printf("[RT] lane2: offering to Capper%n");
+			long tCapStart = System.currentTimeMillis();
+			abort(capperTakenAck) {
+				long t0 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t0 < 10000) {
+					RotaryCapperBridge.setBottleAtPos4(true);
+					emit tableBusy;
+					emit bottleStage2E(1);
+					pause;
+				}
+			}
+			RotaryCapperBridge.setBottleAtPos4(false);
+			present(capperTakenAck) {
+				System.out.printf("[RT] lane2: capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
+				long t1 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t1 < 200) {
+					emit capOnBottleAtPos1;
+					emit tableBusy;
+					emit bottleStage2E(1);
+					pause;
+				}
+			} else {
+				System.out.printf("[RT] lane2: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
+			}
+			RotaryTableState.releaseCapper();
+
+			{
+				long tGap3 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tGap3 < STAGE_VIEW_DELAY_MS) {
+					emit tableBusy;
+					emit bottleStage2E(1);
+					pause;
+				}
+			}
+
+			while (!RotaryTableState.tryClaimConveyorExit()) { pause; }
+			await(!conveyorTakenAck);
+			System.out.printf("[RT] lane2: handing off to Conveyor at Pos 5%n");
+			long tExitStart = System.currentTimeMillis();
+			abort(conveyorTakenAck) {
+				long t3 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t3 < 35000) {
+					emit bottleAtPos5;
+					emit tableBusy;
+					emit bottleStage2E(3);
+					RotaryConveyorBridge.setBottleFromTable(true);
+					pause;
+				}
+			}
+			RotaryConveyorBridge.setBottleFromTable(false);
+			present(conveyorTakenAck) {
+				System.out.printf("[RT] lane2: conveyorTakenAck received after %dms%n", System.currentTimeMillis() - tExitStart);
+			} else {
+				System.out.printf("[RT] lane2: TIMED OUT waiting for conveyorTakenAck after %dms%n", System.currentTimeMillis() - tExitStart);
+			}
+			RotaryTableState.releaseConveyorExit();
+
+			{
+				long t4 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t4 < 200) {
+					emit bottleStage2E(0);
+					pause;
+				}
+			}
+			System.out.printf("[RT] lane2: bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart);
+
+			RotaryTableState.lane2Idle = true;
+		}
+	}
+	||
+	{ // Lane 3 - identical to Lane 1, see its comments.
+		final long STAGE_VIEW_DELAY_MS = 400;
+		loop {
+			await(dispatchLane3);
+			System.out.printf("[RT] lane3: bottle assigned, offering to Filler%n");
+
+			while (!RotaryTableState.tryClaimFiller()) { pause; }
+			// A previous lane's fillerTakenAck can still be lingering
+			// present the instant this lane claims the lock - entering
+			// abort(fillerTakenAck) then would tear down after one tick
+			// without a real fill (see CLAUDE.md's abort entry-precondition
+			// pitfall).
+			await(!fillerTakenAck);
+			long tFillStart = System.currentTimeMillis();
+			abort(fillerTakenAck) {
+				long t2 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t2 < 30000) {
+					RotaryFillerBridge.setBottleReadyForFiller(true);
+					emit tableBusy;
+					emit bottleStage3E(2);
+					pause;
+				}
+			}
+			RotaryFillerBridge.setBottleReadyForFiller(false);
+			present(fillerTakenAck) {
+				System.out.printf("[RT] lane3: fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart);
+			} else {
+				System.out.printf("[RT] lane3: TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart);
+			}
+			RotaryTableState.releaseFiller();
+
+			{
+				long tGap1 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tGap1 < STAGE_VIEW_DELAY_MS) {
+					emit tableBusy;
+					emit bottleStage3E(2);
+					pause;
+				}
+			}
+
+			while (!RotaryTableState.tryClaimLid()) { pause; }
+			await(!lidPlacedAck);
+			System.out.printf("[RT] lane3: offering to Lid Placer%n");
+			long tLidStart = System.currentTimeMillis();
+			abort(lidPlacedAck) {
+				long t5 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t5 < 15000) {
+					RotaryLidBridge.setRequest(true);
+					long sinceStart = System.currentTimeMillis() - t5;
+					boolean enableFlag = (sinceStart % 200) < 100;
+					RotaryLidBridge.setEnable(enableFlag);
+					emit tableBusy;
+					emit bottleStage3E(4);
+					pause;
+				}
+			}
+			RotaryLidBridge.setRequest(false);
+			RotaryLidBridge.setEnable(false);
+			present(lidPlacedAck) {
+				System.out.printf("[RT] lane3: lidPlacedAck received after %dms%n", System.currentTimeMillis() - tLidStart);
+			} else {
+				System.out.printf("[RT] lane3: TIMED OUT waiting for lidPlacedAck after %dms - moving on without a lid%n", System.currentTimeMillis() - tLidStart);
+			}
+			RotaryTableState.releaseLid();
+
+			{
+				long tGap2 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tGap2 < STAGE_VIEW_DELAY_MS) {
+					emit tableBusy;
+					emit bottleStage3E(4);
+					pause;
+				}
+			}
+
+			while (!RotaryTableState.tryClaimCapper()) { pause; }
+			await(!capperTakenAck);
+			System.out.printf("[RT] lane3: offering to Capper%n");
+			long tCapStart = System.currentTimeMillis();
+			abort(capperTakenAck) {
+				long t0 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t0 < 10000) {
+					RotaryCapperBridge.setBottleAtPos4(true);
+					emit tableBusy;
+					emit bottleStage3E(1);
+					pause;
+				}
+			}
+			RotaryCapperBridge.setBottleAtPos4(false);
+			present(capperTakenAck) {
+				System.out.printf("[RT] lane3: capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
+				long t1 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t1 < 200) {
+					emit capOnBottleAtPos1;
+					emit tableBusy;
+					emit bottleStage3E(1);
+					pause;
+				}
+			} else {
+				System.out.printf("[RT] lane3: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
+			}
+			RotaryTableState.releaseCapper();
+
+			{
+				long tGap3 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tGap3 < STAGE_VIEW_DELAY_MS) {
+					emit tableBusy;
+					emit bottleStage3E(1);
+					pause;
+				}
+			}
+
+			while (!RotaryTableState.tryClaimConveyorExit()) { pause; }
+			await(!conveyorTakenAck);
+			System.out.printf("[RT] lane3: handing off to Conveyor at Pos 5%n");
+			long tExitStart = System.currentTimeMillis();
+			abort(conveyorTakenAck) {
+				long t3 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t3 < 35000) {
+					emit bottleAtPos5;
+					emit tableBusy;
+					emit bottleStage3E(3);
+					RotaryConveyorBridge.setBottleFromTable(true);
+					pause;
+				}
+			}
+			RotaryConveyorBridge.setBottleFromTable(false);
+			present(conveyorTakenAck) {
+				System.out.printf("[RT] lane3: conveyorTakenAck received after %dms%n", System.currentTimeMillis() - tExitStart);
+			} else {
+				System.out.printf("[RT] lane3: TIMED OUT waiting for conveyorTakenAck after %dms%n", System.currentTimeMillis() - tExitStart);
+			}
+			RotaryTableState.releaseConveyorExit();
+
+			{
+				long t4 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t4 < 200) {
+					emit bottleStage3E(0);
+					pause;
+				}
+			}
+			System.out.printf("[RT] lane3: bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart);
+
+			RotaryTableState.lane3Idle = true;
 		}
 	}
 	||

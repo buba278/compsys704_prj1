@@ -6,6 +6,10 @@ public class ConveyorState {
 	public static volatile boolean BOTTLE_AT_POS1 = false;
 	public static volatile boolean BOTTLE_LEFT_POS5 = false;
 
+	// How many bottles are currently on the Rotary Table - see
+	// run.TableOccupancy (the source of truth) and ConveyorVizWorker.
+	public static volatile int BOTTLES_ON_TABLE = 0;
+
 	// horizontal scroll offset for the belt-marks animation, advanced by the
 	// canvas on every repaint while the motor is running
 	public static volatile double BELT_OFFSET = 0;

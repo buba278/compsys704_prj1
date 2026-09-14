@@ -27,6 +27,7 @@ public class ConveyorVizWorker extends Worker {
 		// real-time duration - see ConveyorState/ConveyorCanvas.
 		case "leftMovingE":     if (status) ConveyorState.advanceLeftStep(); break;
 		case "rightMovingE":    if (status) ConveyorState.advanceRightStep(); break;
+		case "bottlesOnTableE": break; // value arrives via setIntSignal
 		default:
 			System.err.println("Wrong sig name : " + signame);
 			System.exit(1);
@@ -35,13 +36,17 @@ public class ConveyorVizWorker extends Worker {
 
 	@Override
 	public void setIntSignal(int value) {
-		System.err.println("Wrong sig name : " + signame);
-		System.exit(1);
+		if (signame.equals("bottlesOnTableE")) {
+			ConveyorState.BOTTLES_ON_TABLE = value;
+		} else {
+			System.err.println("Wrong sig name : " + signame);
+			System.exit(1);
+		}
 	}
 
 	static final List<String> signames = Arrays.asList(
 			"motorOnE", "bottleAtPos1E", "bottleLeftPos5E", "bottleEnteredE", "bottleReceivedE",
-			"leftMovingE", "rightMovingE");
+			"leftMovingE", "rightMovingE", "bottlesOnTableE");
 
 	@Override
 	public boolean hasSignal(String sn) {

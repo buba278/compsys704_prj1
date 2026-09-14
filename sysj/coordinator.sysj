@@ -13,6 +13,8 @@ Coordinator(
     output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
     output signal bottleAtPos2;                                 // coordinator -> fillerController
     output signal bottleAtPos2P;                                // coordinator -> fillerPlant (same event, 2nd socket)
+    output Integer signal bottlesNeeded;                        // coordinator -> conveyorPlant (auto-loads one bottle per unit ordered)
+    output Integer signal liquidARatioL, targetVolumeMlL;       // coordinator -> labellerPlant (same recipe, 3rd socket, so the label matches what's actually in the bottle)
 
     output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
 )
@@ -35,9 +37,20 @@ Coordinator(
 		
         long tRecipe = System.currentTimeMillis();
         twin.startBatch("batch" + tRecipe, quantity);
-        while (System.currentTimeMillis() - tRecipe < 50) {
+        // Timer for the widened hold below starts only now, after the twin
+        // call has already returned - startBatch() can block for a while
+        // establishing (or failing to establish) its socket to the twin
+        // server, and starting the clock before that call silently ate the
+        // whole hold window before the loop's first condition check ever
+        // ran true, so bottlesNeeded (and the other recipe signals) never
+        // actually got emitted at all.
+        long tEmit = System.currentTimeMillis();
+        while (System.currentTimeMillis() - tEmit < 300) {
             emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
+            emit bottlesNeeded(quantity);
+            emit liquidARatioL(ratioA);
+            emit targetVolumeMlL(volume);
             pause;
         }
 

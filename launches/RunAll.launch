@@ -75,6 +75,16 @@
     <booleanAttribute key="org.eclipse.debug.core.launchGroup.9.enabled" value="true"/>
     <stringAttribute key="org.eclipse.debug.core.launchGroup.9.mode" value="inherit"/>
     <stringAttribute key="org.eclipse.debug.core.launchGroup.9.name" value="RunLabellerPlant"/>
+    <stringAttribute key="org.eclipse.debug.core.launchGroup.15.action" value="NONE"/>
+    <booleanAttribute key="org.eclipse.debug.core.launchGroup.15.adoptIfRunning" value="false"/>
+    <booleanAttribute key="org.eclipse.debug.core.launchGroup.15.enabled" value="true"/>
+    <stringAttribute key="org.eclipse.debug.core.launchGroup.15.mode" value="inherit"/>
+    <stringAttribute key="org.eclipse.debug.core.launchGroup.15.name" value="RunController"/>
+    <stringAttribute key="org.eclipse.debug.core.launchGroup.16.action" value="NONE"/>
+    <booleanAttribute key="org.eclipse.debug.core.launchGroup.16.adoptIfRunning" value="false"/>
+    <booleanAttribute key="org.eclipse.debug.core.launchGroup.16.enabled" value="true"/>
+    <stringAttribute key="org.eclipse.debug.core.launchGroup.16.mode" value="inherit"/>
+    <stringAttribute key="org.eclipse.debug.core.launchGroup.16.name" value="RunPlant"/>
     <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
         <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
     </listAttribute>

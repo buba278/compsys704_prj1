@@ -13,7 +13,7 @@
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.compsys704.LoggingLauncherConsole"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="COMPSYS704_Lab_3"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="sysj/conveyerPlant.xml"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="sysj/conveyorPlant.xml"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="COMPSYS704_PRJ1"/>
 <booleanAttribute key="org.eclipse.debug.core.capture_output" value="true"/>
 </launchConfiguration>

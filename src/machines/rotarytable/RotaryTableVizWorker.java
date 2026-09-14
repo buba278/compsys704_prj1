@@ -14,7 +14,8 @@ public class RotaryTableVizWorker extends Worker {
 		case "bottleAtPos5E":           RotaryTableState.BOTTLE_AT_POS5 = status; break;
 		case "capOnBottleAtPos1E":      RotaryTableState.CAP_ON_BOTTLE_AT_POS1 = status; break;
 		case "rotaryTableTriggerE":     if (status) RotaryTableState.triggerStep(); break;
-		case "bottleStageE":            break; // value arrives via setIntSignal
+		case "bottleStage1E": case "bottleStage2E": case "bottleStage3E":
+			break; // value arrives via setIntSignal
 		default:
 			System.err.println("Wrong sig name : " + signame);
 			System.exit(1);
@@ -23,16 +24,19 @@ public class RotaryTableVizWorker extends Worker {
 
 	@Override
 	public void setIntSignal(int value) {
-		if (signame.equals("bottleStageE")) {
-			RotaryTableState.BOTTLE_STAGE = value;
-		} else {
+		switch (signame) {
+		case "bottleStage1E": RotaryTableState.LANE_STAGE[0] = value; break;
+		case "bottleStage2E": RotaryTableState.LANE_STAGE[1] = value; break;
+		case "bottleStage3E": RotaryTableState.LANE_STAGE[2] = value; break;
+		default:
 			System.err.println("Wrong sig name : " + signame);
 			System.exit(1);
 		}
 	}
 
 	static final List<String> signames = Arrays.asList(
-			"tableAlignedWithSensorE", "bottleAtPos5E", "capOnBottleAtPos1E", "rotaryTableTriggerE", "bottleStageE");
+			"tableAlignedWithSensorE", "bottleAtPos5E", "capOnBottleAtPos1E", "rotaryTableTriggerE",
+			"bottleStage1E", "bottleStage2E", "bottleStage3E");
 
 	@Override
 	public boolean hasSignal(String sn) {

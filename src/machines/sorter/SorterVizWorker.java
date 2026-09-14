@@ -33,6 +33,8 @@ public class SorterVizWorker extends Worker {
             case "rejectedE":
                 if (status) SorterState.REJECTED = true;
                 break;
+            case "sortedCountE": case "rejectedCountE":
+                break; // value arrives via setIntSignal
             default:
                 System.err.println("Wrong sig name : " + signame);
                 System.exit(1);
@@ -40,11 +42,16 @@ public class SorterVizWorker extends Worker {
     }
 
     @Override
-    public void setIntSignal(int value) {}
+    public void setIntSignal(int value) {
+        switch (signame) {
+            case "sortedCountE":   SorterState.SORTED_COUNT = value; break;
+            case "rejectedCountE": SorterState.REJECTED_COUNT = value; break;
+        }
+    }
 
     static final List<String> signames = Arrays.asList(
-        "bottleAtSorterE", "bottleDefectiveE", "pusherExtendedE", 
-        "pusherRetractedE", "sortedE", "rejectedE"
+        "bottleAtSorterE", "bottleDefectiveE", "pusherExtendedE",
+        "pusherRetractedE", "sortedE", "rejectedE", "sortedCountE", "rejectedCountE"
     );
 
     @Override

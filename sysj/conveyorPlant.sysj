@@ -1,14 +1,19 @@
 import run.ConveyorGUI;
 import run.ConveyorLabellerBridge;
+import run.RotaryConveyorBridge;
+import run.LoaderState;
+import run.TableOccupancy;
 
 conveyorPlant(
 		input signal motConveyorOnOff;
 		input signal enable, loadBottle, bottleFromTable, pos1TakenAck;
 		input signal labellerTakenAck;
+		input Integer signal bottlesNeeded;
 		output signal bottleAtPos1, bottleLeftPos5;
 		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
 		output signal bottleEnteredE, bottleReceivedE;
 		output signal leftMovingE, rightMovingE;
+		output Integer signal bottlesOnTableE;
 		)
 ->
 {
@@ -18,6 +23,10 @@ conveyorPlant(
 	// physically translating on that segment of the belt, used purely to
 	// drive the "motor running" indicator
 	signal leftMoving, rightMoving;
+
+	// Stands in for a real Bottle Loader station reacting to the Coordinator,
+	// alongside the manual Load Bottle button - see LoaderState.
+	signal autoLoadBottle;
 
 	{ // Motor status echo to GUI: the belt visibly runs whenever it is
 	  // actually transporting a bottle (auto) or being jogged manually
@@ -29,13 +38,76 @@ conveyorPlant(
 		}
 	}
 	||
+	{ // Latches the Coordinator's bottlesNeeded into LoaderState - a plain
+	  // Java field is safe here since only this process ever touches it (see
+	  // LoaderState; statics don't cross clock-domain processes, so this has
+	  // to be a real signal from the Coordinator, converted to same-process
+	  // state right here rather than shared directly).
+		boolean sawBottlesNeeded = false;
+		while(true){
+			present(bottlesNeeded){
+				// Only latch on the rising edge - bottlesNeeded is held present
+				// for a wide window (see coordinator.sysj), and present() isn't
+				// edge-triggered, so calling addPending() on every tick it's
+				// held would add far more bottles than the order actually needs.
+				if (!sawBottlesNeeded) {
+					sawBottlesNeeded = true;
+					LoaderState.addPending((Integer)#bottlesNeeded);
+				}
+			} else {
+				sawBottlesNeeded = false;
+			}
+			pause;
+		}
+	}
+	||
+	{ // Auto-loader: feeds bottles in automatically as the Coordinator's
+	  // orders need them, standing in for a real Bottle Loader station.
+	  // Paced by bottleAtPos1 itself - only pulses a fresh autoLoadBottle
+	  // once Pos 1 has actually cleared, so it can't outrun the left
+	  // segment's own one-bottle-at-a-time pacing below.
+		boolean printedWaiting = false;
+		while(true){
+			await(!bottleAtPos1);
+			if (LoaderState.tryConsumePending()) {
+				printedWaiting = false;
+				System.out.printf("[Conveyor] auto-loader pulsing autoLoadBottle%n");
+				// Held well past the left segment's own post-handoff overhead
+				// (the TableOccupancy widened hold right after Pos1 clears,
+				// ~100ms) - a shorter hold here can go absent again before the
+				// left segment's while(true) loop ever gets back around to its
+				// own await(loadBottle || autoLoadBottle) check, silently
+				// dropping this pulse even though both threads are in the same
+				// clock domain (same race as the cross-domain one in
+				// CLAUDE.md, just without a socket in between). Confirmed via
+				// timestamped diagnostics: a 50ms hold here reliably lost the
+				// pulse to exactly that gap.
+				long t0 = System.currentTimeMillis();
+				while (System.currentTimeMillis() - t0 < 300) { emit autoLoadBottle; pause; }
+				// Only wait for bottleAtPos1 (confirming this load actually
+				// went through) right after a real pulse - waiting for it
+				// unconditionally would deadlock whenever nothing was
+				// pending yet (e.g. at startup, before any order exists):
+				// bottleAtPos1 would then never become present, since
+				// nothing was ever loaded to cause it.
+				await(bottleAtPos1);
+			} else {
+				if (!printedWaiting) {
+					printedWaiting = true;
+					System.out.printf("[Conveyor] auto-loader idle, nothing pending%n");
+				}
+				pause;
+			}
+		}
+	}
+	||
 	{ // Left segment: Bottle Loader -> Pos 1
 	  // loadBottle stands in for the Bottle Loader
 	  // The belt starts moving by itself the moment a bottle is queued (no
 	  // separate start button needed) provided the system is ready (enable),
 	  // and the bottle is handed to the Rotary Table once it reaches Pos 1.
 		while(true){
-			await(loadBottle);
+			await(loadBottle || autoLoadBottle);
 			await(enable);
 			// tells the GUI a bottle now starts travelling in from the loading
 			// end - held for a bounded time rather than a single tick, since
@@ -80,6 +152,14 @@ conveyorPlant(
 			abort(pos1TakenAck) {
 				sustain bottleAtPos1;
 			}
+
+			// One more bottle now on the table, from this belt's point of
+			// view - see TableOccupancy.
+			{
+				int onTable = TableOccupancy.increment();
+				long tCount = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tCount < 100) { emit bottlesOnTableE(onTable); pause; }
+			}
 		}
 	}
 	||
@@ -92,6 +172,14 @@ conveyorPlant(
 		while(true){
 			await(bottleFromTable);
 			await(enable);
+
+			// One fewer bottle on the table now - see TableOccupancy.
+			{
+				int onTable = TableOccupancy.decrement();
+				long tCount = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tCount < 100) { emit bottlesOnTableE(onTable); pause; }
+			}
+
 			// tells the GUI a bottle now starts travelling out from Pos 5 -
 			// see the matching bottleEnteredE comment above for why this is
 			// a bounded hold rather than a bare single-tick emit
@@ -136,6 +224,20 @@ conveyorPlant(
 			}
 			ConveyorLabellerBridge.setBottleFromConveyor(false);
 			await(!labellerTakenAck);
+
+			// Only now - genuinely ready for the next bottleFromTable, not
+			// just having received this one - tell the Rotary Table it can
+			// send its next bottle. Acking any earlier would let the Rotary
+			// Table's next handoff race this segment's own still-running
+			// travel/labeller sequence above (see CLAUDE.md).
+			{
+				long tAck = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tAck < 200) {
+					RotaryConveyorBridge.setConveyorTakenAck(true);
+					pause;
+				}
+			}
+			RotaryConveyorBridge.setConveyorTakenAck(false);
 		}
 	}
 	||

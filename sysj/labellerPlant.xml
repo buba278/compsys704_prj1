@@ -7,6 +7,8 @@
                       <iSignal Name="applyLabel"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="bottleFromConveyor" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="sorterTakenAck"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="liquidARatio"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="targetVolumeMl"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
 
                       <!-- Outputs to Controller -->
                       <oSignal Name="bottleAtLabeller" To="LabellerControllerCD.bottleAtLabeller" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
@@ -18,6 +20,8 @@
 					<oSignal Name="labelPrintedE"     To="UI.labelPrintedE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
 					<oSignal Name="bottleClampedE"    To="UI.bottleClampedE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
 					<oSignal Name="labelAppliedE"     To="UI.labelAppliedE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+					<oSignal Name="liquidARatioE"     To="UI.liquidARatioE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+					<oSignal Name="targetVolumeMlE"   To="UI.targetVolumeMlE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
               
               </ClockDomain>
       </SubSystem>

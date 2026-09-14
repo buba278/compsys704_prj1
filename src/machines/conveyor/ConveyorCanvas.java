@@ -87,6 +87,14 @@ public class ConveyorCanvas extends JPanel {
 		g.drawString("Pos 5", POS5_X - 12, BELT_Y + BELT_HEIGHT + 16);
 		g.drawString("Collection end", BELT_RIGHT - 90, BELT_Y - 6);
 
+		// bottles between Pos 1 and Pos 5 are on the Rotary Table, not the
+		// belt itself, so there's nothing to draw for them here - show the
+		// count instead, centred in that gap.
+		String onTable = "On Rotary Table: " + ConveyorState.BOTTLES_ON_TABLE;
+		int midX = (POS1_X + POS5_X) / 2;
+		java.awt.FontMetrics fm = g.getFontMetrics();
+		g.drawString(onTable, midX - fm.stringWidth(onTable) / 2, BELT_Y + BELT_HEIGHT / 2 + 5);
+
 		// the bottle travelling from the loading end to Pos 1 - eased toward
 		// the model's real tick count (LEFT_STEP), not a fixed animation
 		// duration, so it visually arrives at Pos 1 exactly when the model

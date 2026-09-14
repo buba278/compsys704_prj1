@@ -6,31 +6,53 @@ import java.awt.Font;
 import java.awt.Graphics;
  
 public class LabellerCanvas extends JPanel {
- 
+
 	private static final long serialVersionUID = 1L;
+
+	// Matches FillerCanvas's scale so the same bottle reads as the same size
+	// across both windows.
+	private static final double PIXELS_PER_ML = 0.3;
+	private static final int BASE_VOLUME_ML = 200;
+	private static final double WIDTH_PER_ML = 30.0 / BASE_VOLUME_ML;
+	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // matches FillerCanvas
+	private static final Color LIQUID_B_COLOR = new Color(255, 195, 130);
+
 	@Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
+
         int centerX = getWidth() / 2;
-        int baseY = 220; 
- 
-        // 1. Draw Rectangular Bottle
+        int baseY = 220;
+
+        // 1. Draw the bottle, sized and filled to match what the Filler
+        // actually put in it (LabellerState.BOTTLE_SIZE_ML/LIQUID_RATIO,
+        // driven by the Coordinator's recipe - see labellerPlant.sysj). By
+        // the time a bottle reaches here it's already full, so the whole
+        // height is coloured rather than showing a live fill level.
+        int bottleHeight = (int) (LabellerState.BOTTLE_SIZE_ML * PIXELS_PER_ML);
+        int bottleWidth = (int) (LabellerState.BOTTLE_SIZE_ML * WIDTH_PER_ML);
+        int bottleTop = baseY - bottleHeight;
         if (LabellerState.BOTTLE_PRESENT) {
-            g.setColor(new Color(200, 230, 255));
-            g.fillRect(centerX - 20, baseY - 80, 40, 80);
+            int aHeight = (int) (bottleHeight * (LabellerState.LIQUID_RATIO / 100.0));
+            g.setColor(LIQUID_A_COLOR);
+            g.fillRect(centerX - bottleWidth / 2, baseY - aHeight, bottleWidth, aHeight);
+            if (aHeight < bottleHeight) {
+                g.setColor(LIQUID_B_COLOR);
+                g.fillRect(centerX - bottleWidth / 2, bottleTop, bottleWidth, bottleHeight - aHeight);
+            }
             g.setColor(Color.BLACK);
-            g.drawRect(centerX - 20, baseY - 80, 40, 80);
+            g.drawRect(centerX - bottleWidth / 2, bottleTop, bottleWidth, bottleHeight);
+            g.drawString(LabellerState.BOTTLE_SIZE_ML + "ml", centerX - bottleWidth / 2, bottleTop - 6);
         }
- 
+
         // 2. Draw Clamps (Long rectangles enclosing the bottle)
-        // If clamped, offset is 20 (touching the 40px wide bottle). If not, retracted to 50.
-        int clampOffset = LabellerState.CLAMPED ? 20 : 50; 
+        // If clamped, offset is 20 (touching the bottle). If not, retracted to 50.
+        int clampOffset = LabellerState.CLAMPED ? bottleWidth / 2 : 50;
         g.setColor(Color.GRAY);
         // Left Clamp
-        g.fillRect(centerX - clampOffset - 20, baseY - 70, 20, 60); 
+        g.fillRect(centerX - clampOffset - 20, baseY - 70, 20, 60);
         // Right Clamp
-        g.fillRect(centerX + clampOffset, baseY - 70, 20, 60);      
+        g.fillRect(centerX + clampOffset, baseY - 70, 20, 60);
  
         // 3. Draw Printer & Hovering Label
         g.setColor(Color.DARK_GRAY);
@@ -44,7 +66,6 @@ public class LabellerCanvas extends JPanel {
         }
  
         // 4. Draw Applied Label on Bottle
-     // 4. Draw Applied Label on Bottle
         if (LabellerState.BOTTLE_PRESENT && LabellerState.LABEL_APPLIED) {
             g.setColor(Color.WHITE);
             g.fillRect(centerX - 15, baseY - 55, 30, 30); // Applied sticker
@@ -54,11 +75,7 @@ public class LabellerCanvas extends JPanel {
         }
 	}
  
-    /**
-     * Draws a small label sticker showing ID / bottle size / liquid ratio.
-     * These values are hardcoded placeholders in LabellerState for now, until
-     * the real liquidARatio/targetVolumeMl signals are wired through.
-     */
+    // Draws a small label sticker showing ID / bottle size / liquid ratio.
     private void drawLabel(Graphics g, int x, int y, int w, int h) {
         g.setColor(Color.WHITE);
         g.fillRect(x, y, w, h);
