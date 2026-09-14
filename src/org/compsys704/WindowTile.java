@@ -23,11 +23,11 @@ public class WindowTile {
 	private static final java.util.Map<String, double[]> POSITIONS = new java.util.HashMap<String, double[]>();
 	static {
 		POSITIONS.put("conveyor",    new double[]{ 0.00, 0.00 });
-		POSITIONS.put("pos",         new double[]{ 0.30, 0.00 });
+		POSITIONS.put("pos",         new double[]{ 0.40, 0.00 });
 		POSITIONS.put("filler",      new double[]{ 0.00, 0.33 });
-		POSITIONS.put("loader",      new double[]{ 0.25, 0.33 });
-		POSITIONS.put("capper",      new double[]{ 0.50, 0.33 });
-		POSITIONS.put("rotarytable", new double[]{ 0.75, 0.33 });
+		POSITIONS.put("loader",      new double[]{ 0.80, 0.00 });
+		POSITIONS.put("capper",      new double[]{ 0.80, 0.60 });
+		POSITIONS.put("rotarytable", new double[]{ 0.50, 0.33 });
 		POSITIONS.put("labeller",    new double[]{ 0.00, 0.66 });
 		POSITIONS.put("sorter",      new double[]{ 0.25, 0.66 });
 	}
