@@ -81,11 +81,18 @@ public class Canvas extends JPanel {
 			g.drawImage(cap, 152, 155, null);
 		}
 
-		if (States.FAULTED) {
-			g.setColor(Color.red);
-			g.fillOval(10, 10, 16, 16);
-			g.setColor(Color.black);
-			g.drawString("FAULT", 30, 22);
-		}
+		// Fault indicator - always drawn (grey when off), matching FillerCanvas
+		g.setColor(States.FAULTED ? Color.red : Color.lightGray);
+		g.fillOval(10, 10, 16, 16);
+		g.setColor(Color.black);
+		g.drawString("FAULT", 30, 22);
+
+		// Placeholder for the redundant-line rerouting from the IP report
+		// (section 6) - not wired to any real backup instance yet, just
+		// lights up alongside a fault so the idea can be narrated.
+		g.setColor(States.FAULTED ? Color.orange : Color.lightGray);
+		g.fillOval(10, 32, 16, 16);
+		g.setColor(Color.black);
+		g.drawString("BACKUP MODE", 30, 44);
 	}
 }

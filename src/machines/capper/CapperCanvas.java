@@ -66,13 +66,19 @@ public class CapperCanvas extends JPanel {
         g.setColor(Color.BLUE);
         g.fillOval(sliderX - 8, sliderY - 8, 16, 16);
 
-        // 5. Fault indicator
-        if (CapperState.FAULTED) {
-            g.setColor(Color.RED);
-            g.fillOval(10, 10, 16, 16);
-            g.setColor(Color.BLACK);
-            g.drawString("FAULT", 30, 22);
-        }
+        // 5. Fault indicator - always drawn (grey when off), matching FillerCanvas
+        g.setColor(CapperState.FAULTED ? Color.RED : Color.LIGHT_GRAY);
+        g.fillOval(10, 10, 16, 16);
+        g.setColor(Color.BLACK);
+        g.drawString("FAULT", 30, 22);
+
+        // Placeholder for the redundant-line rerouting from the IP report
+        // (section 6) - not wired to any real backup instance yet, just
+        // lights up alongside a fault so the idea can be narrated.
+        g.setColor(CapperState.FAULTED ? Color.ORANGE : Color.LIGHT_GRAY);
+        g.fillOval(10, 32, 16, 16);
+        g.setColor(Color.BLACK);
+        g.drawString("BACKUP MODE", 30, 44);
         }
  
 	public CapperCanvas() {

@@ -11,6 +11,7 @@ conveyorPlant(
 		input signal motConveyorOnOff;
 		input signal enable, loadBottle, bottleFromTable, pos1TakenAck;
 		input signal labellerTakenAck;
+		input signal bottleDefectiveFromTable;
 		input Integer signal bottlesNeeded;
 		output signal bottleAtPos1, bottleLeftPos5;
 		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
@@ -193,6 +194,17 @@ conveyorPlant(
 			await(bottleFromTable);
 			await(enable);
 
+			// Latched the instant bottleFromTable arrives - the Rotary
+			// Table asserts bottleDefectiveFromTable in lockstep with
+			// bottleFromTable itself (see rotaryTablePlant.sysj), so this
+			// correctly reflects THIS bottle's outcome, not a stale one.
+			boolean defective;
+			present (bottleDefectiveFromTable) {
+				defective = true;
+			} else {
+				defective = false;
+			}
+
 			// One fewer bottle on the table now - see TableOccupancy.
 			{
 				int onTable = TableOccupancy.decrement();
@@ -239,10 +251,12 @@ conveyorPlant(
 				while (System.currentTimeMillis() - tLabel < 30000) {
 					emit bottleLeftPos5;
 					ConveyorLabellerBridge.setBottleFromConveyor(true);
+					ConveyorLabellerBridge.setBottleDefectiveFromConveyor(defective);
 					pause;
 				}
 			}
 			ConveyorLabellerBridge.setBottleFromConveyor(false);
+			ConveyorLabellerBridge.setBottleDefectiveFromConveyor(false);
 			await(!labellerTakenAck);
 
 			// Only now - genuinely ready for the next bottleFromTable, not

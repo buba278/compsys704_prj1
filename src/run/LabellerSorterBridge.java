@@ -15,7 +15,12 @@ public class LabellerSorterBridge {
 			new SignalLevelClient(Ports.PORT_SORTER_PLANT, Ports.SORTER_BOTTLE_FROM_LABELLER);
 	private static final SignalLevelClient SORTER_TAKEN_ACK =
 			new SignalLevelClient(Ports.PORT_LABELLER_PLANT, Ports.LABELLER_SORTER_TAKEN_ACK);
+	// Carries the defective flag on from ConveyorLabellerBridge - see
+	// rotaryTablePlant.sysj / conveyorPlant.sysj / labellerPlant.sysj.
+	private static final SignalLevelClient BOTTLE_DEFECTIVE_FROM_LABELLER =
+			new SignalLevelClient(Ports.PORT_SORTER_PLANT, Ports.SORTER_BOTTLE_DEFECTIVE_FROM_LABELLER);
 
 	public static void setBottleFromLabeller(boolean state) { BOTTLE_FROM_LABELLER.send(state); }
 	public static void setSorterTakenAck(boolean state) { SORTER_TAKEN_ACK.send(state); }
+	public static void setBottleDefectiveFromLabeller(boolean state) { BOTTLE_DEFECTIVE_FROM_LABELLER.send(state); }
 }

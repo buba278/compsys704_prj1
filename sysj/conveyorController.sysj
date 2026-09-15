@@ -45,24 +45,36 @@ conveyorController(
 		loop {
 			await(autoMode);
 			abort(manualMode) {
-				boolean handoffPending = false;
+				// Two INDEPENDENT edge guards, not one shared "pending" flag -
+				// a previous version reset a single handoffPending flag from
+				// both present() blocks, which meant the ack block (even
+				// edge-guarded on pos1TakenAck) could still clear it while
+				// bottleAtPos1 was itself still transiently present, letting
+				// the arrival block below see "!handoffPending" as true again
+				// and fire a second, phantom readyToRotate for a bottle
+				// that's already been taken. sawBottleAtPos1 now edge-guards
+				// purely on bottleAtPos1's own presence, with no dependency
+				// on the ack's timing at all - confirmed by a live log still
+				// showing two full handoff cycles for a single real bottle
+				// after the first fix. See CLAUDE.md.
+				boolean sawBottleAtPos1 = false;
 				boolean sawTakenAck = false;
 				loop {
 					present(bottleAtPos1) {
-						// Don't tell the Rotary Table it's safe to rotate the
-						// instant the model signals arrival - the on-screen
-						// bottle (eased toward this same model progress in
-						// ConveyorCanvas) needs a little longer to visually
-						// settle at the Pos 1 marker. handoffPending guards
-						// this so the wait only starts once per bottle rather
-						// than re-arming every tick bottleAtPos1 stays present.
-						if (!handoffPending) {
-							handoffPending = true;
+						if (!sawBottleAtPos1) {
+							sawBottleAtPos1 = true;
+							// Don't tell the Rotary Table it's safe to rotate
+							// the instant the model signals arrival - the
+							// on-screen bottle (eased toward this same model
+							// progress in ConveyorCanvas) needs a little
+							// longer to visually settle at the Pos 1 marker.
 							long tArrive = System.currentTimeMillis();
 							while (System.currentTimeMillis() - tArrive < 200) { pause; }
 							RotaryConveyorBridge.setReadyToRotate(true);
 							System.out.printf("Conveyor: bottle at Pos 1 - handing to Rotary Table%n");
 						}
+					} else {
+						sawBottleAtPos1 = false;
 					}
 					present(pos1TakenAck) {
 						// Rotary Table has committed to taking the bottle -
@@ -71,16 +83,9 @@ conveyorController(
 						// bottleAtPos1 on its side. Only act on the rising
 						// edge - pos1TakenAck stays present for the whole
 						// cross-process round trip, and present() isn't
-						// edge-triggered, so re-running this every tick could
-						// reset handoffPending while bottleAtPos1 is still
-						// transiently present too, letting the block above
-						// re-arm and send a second, phantom readyToRotate for
-						// a bottle that's already been taken - see CLAUDE.md
-						// and the resulting extra rotary table lane dispatch
-						// this caused.
+						// edge-triggered - see CLAUDE.md.
 						if (!sawTakenAck) {
 							sawTakenAck = true;
-							handoffPending = false;
 							RotaryConveyorBridge.setReadyToRotate(false);
 							System.out.printf("Conveyor: Rotary Table has taken the bottle from Pos 1%n");
 						}

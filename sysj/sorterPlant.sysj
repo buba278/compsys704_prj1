@@ -3,6 +3,7 @@ import run.SorterGUI;
 SorterPlant(
     input signal extendPusher;
     input signal bottleFromLabeller;      // Labeller -> Sorter handoff (Auto Mode)
+    input signal bottleDefectiveFromLabeller; // Labeller -> Sorter (real outcome: was this bottle abandoned upstream?)
 
     // Manual Mode Inputs (from Java UI)
     input signal manualMode;
@@ -57,9 +58,21 @@ SorterPlant(
                 }
                 pause;
             } else {
-                // AUTO MODE: Random defect sensor on bottle arrival
+                // AUTO MODE: reject a bottle for a real reason - it was
+                // genuinely abandoned by a station somewhere upstream
+                // (unfilled, no lid, or uncapped), carried here via
+                // bottleDefectiveFromLabeller (see rotaryTablePlant.sysj /
+                // conveyorPlant.sysj / labellerPlant.sysj) - not a coin
+                // flip. Latched the instant bottleAtSorter arrives, since
+                // the Labeller asserts both in lockstep.
                 await (bottleAtSorter);
-                if (Math.random() < 0.25) {
+                boolean defective;
+                present (bottleDefectiveFromLabeller) {
+                    defective = true;
+                } else {
+                    defective = false;
+                }
+                if (defective) {
                     System.out.println("SorterPlant [Sensor]: Defect detected on bottle!");
                     abort (!bottleAtSorter || manualMode) {
                         sustain bottleDefective;
@@ -84,20 +97,31 @@ SorterPlant(
     }
     ||
     {
-        // 3. Pusher Actuator Simulation (Pacing ticks for smooth animation)
+        // 3. Pusher Actuator Simulation
+        // Wall-clock paced, not just a few bare ticks - at unthrottled tick
+        // speed (see CLAUDE.md) a handful of pause;s is imperceptibly fast,
+        // which made the whole sort cycle feel instant even though the
+        // controller side already paces its own inspection/hold steps
+        // properly.
         while (true) {
             abort (extendPusher) {
                 sustain pusherRetracted;
             }
             System.out.println("SorterPlant [Pusher]: Extending...");
-            pause; pause; pause;
+            {
+                long tExtend = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tExtend < 500) { pause; }
+            }
 
             System.out.println("SorterPlant [Pusher]: Fully extended.");
             abort (!extendPusher) {
                 sustain pusherExtended;
             }
             System.out.println("SorterPlant [Pusher]: Retracting...");
-            pause; pause; pause;
+            {
+                long tRetract = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tRetract < 500) { pause; }
+            }
         }
     }
     ||
