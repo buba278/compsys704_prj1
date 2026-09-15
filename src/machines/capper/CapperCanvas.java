@@ -65,6 +65,14 @@ public class CapperCanvas extends JPanel {
         // Draw the twist indicator (slider)
         g.setColor(Color.BLUE);
         g.fillOval(sliderX - 8, sliderY - 8, 16, 16);
+
+        // 5. Fault indicator
+        if (CapperState.FAULTED) {
+            g.setColor(Color.RED);
+            g.fillOval(10, 10, 16, 16);
+            g.setColor(Color.BLACK);
+            g.drawString("FAULT", 30, 22);
+        }
         }
  
 	public CapperCanvas() {

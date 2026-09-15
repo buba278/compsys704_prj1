@@ -16,4 +16,7 @@ public class CapperState {
     // Twist angle (0 to 270 degrees)
     public static volatile int TWIST_ANGLE = 0;
 
+    // Fault indicator (see run.CapperFaultState / the IP report)
+    public static volatile boolean FAULTED = false;
+
 }

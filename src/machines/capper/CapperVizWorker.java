@@ -47,6 +47,9 @@ public class CapperVizWorker extends Worker {
             case "gripperFullTwistE":
                 if (status) CapperState.TWIST_ANGLE = 270; // Fully twisted
                 break;
+            case "capperFaultE":
+                if (status) CapperState.FAULTED = true;
+                break;
             default:
                 System.err.println("Wrong sig name : " + signame);
                 System.exit(1);
@@ -60,7 +63,7 @@ public class CapperVizWorker extends Worker {
 
     static final List<String> signames = Arrays.asList(
         "bottleAtPos4E", "bottleGoneE", "gripperMaxLowerE", "gripperMaxLiftE",
-        "gripperInitPosE", "gripperFullTwistE"
+        "gripperInitPosE", "gripperFullTwistE", "capperFaultE"
     );
 
     @Override

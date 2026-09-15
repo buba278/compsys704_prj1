@@ -1,16 +1,25 @@
 import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
 import run.RotaryLidBridge;
+import run.LidFaultState;
 
 Controller(
 		input signal pusherRetracted,pusherExtended,WPgripped,armAtSource,armAtDest,empty,request;
 		output signal pusherExtend,vacOn,armSource,armDest;
 		input Integer signal mode;
 		input signal pusherExtendM,vacOnM,armSourceM,armDestM;
+		input signal clearLidFaultM;								// GUI -> controller (operator clears an active fault)
+		output signal lidFaultE;									// controller -> UI viz (fault indicator)
+		output signal lidFaultOut;									// controller -> coordinator (station faulted)
 		)
 ->{
 
 	signal auto, manual;
+	// Bridges LidFaultState.stationFaulted into a signal the placement
+	// thread can abort on, and attemptTimedOut into a per-attempt-timeout
+	// signal - mirrors CapperController's identical fault architecture
+	// (see CLAUDE.md and the IP report).
+	signal stationFault, attemptTimedOut;
 
 	{
 		int modeVal = 0;
@@ -63,23 +72,89 @@ Controller(
 						sustain armSource;
 					}
 
-					// 5 & 6. Vacuum on, hold until gripped, then hold the grip while the arm swivels to destination.
-					abort (WPgripped && armAtDest) {
-						{sustain vacOn;}
-						||
-						{sustain armDest;}
+					// 5 & 6. Vacuum on, hold until gripped, then hold the grip while
+					// the arm swivels to destination - retried up to 3 times,
+					// since a lid can be knocked loose mid-grip rather than
+					// simply not arriving on time (see the IP report). Driven by
+					// abort(signal){ loop{...} } rather than a Java while() -
+					// sjc's JavaPrettyPrinter crashes with "TerminateNode can
+					// have only one child" when a present/else whose branches
+					// both pause() sits directly inside a while() loop, even
+					// with nothing else nearby (confirmed by bisecting a
+					// minimal reproduction against this sjc build) - see the
+					// identical workaround in capperController.sysj.
+					int attempt = 0;
+					signal placeSucceeded, retriesExhausted;
+					abort (placeSucceeded || retriesExhausted) {
+						loop {
+							attempt = attempt + 1;
+							System.out.printf("lid grip attempt %d/3%n", attempt);
+							LidFaultState.beginAttempt();
+							abort ((WPgripped && armAtDest) || stationFault || attemptTimedOut) {
+								{sustain vacOn;}
+								||
+								{sustain armDest;}
+							}
+							LidFaultState.endAttempt();
+							present (WPgripped && armAtDest) {
+								emit placeSucceeded;
+							} else {
+							present (stationFault) {
+								// Manually triggered (or already raised) mid-attempt -
+								// stop retrying and go straight to the fault path below.
+								emit retriesExhausted;
+							} else {
+								if (attempt >= 3) {
+									System.out.printf("lid grip attempt %d timed out, giving up%n", attempt);
+									emit retriesExhausted;
+								} else {
+									System.out.printf("lid grip attempt %d timed out, retrying%n", attempt);
+									abort (armAtSource) {
+										sustain armSource;
+									}
+								}
+							}
+							}
+							pause;
+						}
 					}
-					// 7. The vacuum is switched off (wait until the workpiece is released, e.g. via !WPgripped).
-					await(!WPgripped);
-					// 8. The arm swivels to the position retracted so that the cup can be picked up by other machine.
-					abort (armAtSource) {
-						sustain armSource;
+					boolean placeOk;
+					present (placeSucceeded) {
+						placeOk = true;
+					} else {
+						placeOk = false;
 					}
-					twin.recordEvent("lid placed");
-					twin.update(PlantTwin.State.IDLE);
 
-					// Tell the Rotary Table the lid is placed, so it can move
-					// the bottle on to the Capper. Ack-or-timeout hold, not a
+					if (placeOk) {
+						// 7. The vacuum is switched off (wait until the workpiece is released, e.g. via !WPgripped).
+						await(!WPgripped);
+						// 8. The arm swivels to the position retracted so that the cup can be picked up by other machine.
+						abort (armAtSource) {
+							sustain armSource;
+						}
+						twin.recordEvent("lid placed");
+						twin.update(PlantTwin.State.IDLE);
+					} else {
+						if (!LidFaultState.isStationFaulted()) {
+							LidFaultState.raiseStationFault();
+						}
+						System.out.printf("FAULT - lid placement failed after %d attempts, bottle abandoned%n", attempt);
+						twin.update(PlantTwin.State.ERROR);
+						twin.recordEvent("Lid placement aborted (fault)");
+						// Safe state: arm retracted, vacuum already off (not
+						// asserted since we left the grip block above).
+						abort (armAtSource) {
+							sustain armSource;
+						}
+						System.out.printf("awaiting fault clear before returning to rotation%n");
+						await (!stationFault);
+						System.out.printf("fault cleared, resuming%n");
+					}
+
+					// Tell the Rotary Table this station is done with the bottle
+					// (whether placed or faulted) so it can move on to the
+					// Capper - same abandon-and-continue philosophy as the
+					// Filler/Capper, see CLAUDE.md. Ack-or-timeout hold, not a
 					// bare single-tick emit, since this crosses the socket to
 					// RotaryTablePlantCD and repeats once per bottle - see
 					// CLAUDE.md.
@@ -121,6 +196,50 @@ Controller(
 				}
 			}
 			await (auto);
+		}
+	}
+	||
+	{
+		// Bridges LidFaultState into stationFault/attemptTimedOut and
+		// latches the GUI's Clear Fault button - mirrors CapperController's
+		// identical bridging thread. No direct "trigger fault" signal here
+		// (unlike an earlier version) - matching the Filler, the only way
+		// to demonstrate a fault is to simulate the real physical cause
+		// ("Drop Lid" on the Plant side, see plant.sysj) so this
+		// controller's own retry/timeout detection is what actually raises
+		// it, not the GUI faking the end state.
+		loop {
+			present (clearLidFaultM) {
+				LidFaultState.clearStationFault();
+			}
+			if (LidFaultState.isStationFaulted()) {
+				emit stationFault;
+				emit lidFaultE;
+			}
+			if (LidFaultState.isAttemptTimedOut(8000)) {
+				emit attemptTimedOut;
+			}
+			pause;
+		}
+	}
+	||
+	{
+		// Escalates a station fault to the Coordinator. The await(!stationFault)
+		// at the end matters: stationFault stays present for the whole fault,
+		// and await isn't edge-triggered, so without it this would restart
+		// every time the hold below expires for as long as the fault lasts -
+		// see CLAUDE.md.
+		loop {
+			await (stationFault);
+			System.out.printf("lidFaultOut -> coordinator (holding)%n");
+			abort (!request) {
+				long tFault = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tFault < 200) {
+					emit lidFaultOut;
+					pause;
+				}
+			}
+			await (!stationFault);
 		}
 	}
 }

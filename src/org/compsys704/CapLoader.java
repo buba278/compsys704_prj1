@@ -102,6 +102,27 @@ public class CapLoader extends JFrame {
 		c.gridy = 3;
 		this.add(pan3,c);
 
+		// Fault tolerance testing controls (see the IP report): a manual
+		// trigger to demonstrate the detection/escalation path without
+		// waiting for a real failure, and a clear button since the
+		// controller has no way of confirming a physical repair on its own.
+		JButton dropLidButton = new JButton("Drop Lid");
+		dropLidButton.addActionListener(new SignalClient(Ports.PORT_LOADER_PLANT, Ports.LOADER_DROP_LID_M));
+		JButton clearFaultButton = new JButton("Clear Fault");
+		clearFaultButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				States.FAULTED = false;
+			}
+		});
+		clearFaultButton.addActionListener(new SignalClient(Ports.PORT_LOADER_CONTROLLER, Ports.LOADER_CLEAR_FAULT_M));
+		JPanel faultPanel = new JPanel();
+		faultPanel.setBorder(BorderFactory.createTitledBorder("Fault injection"));
+		faultPanel.add(dropLidButton);
+		faultPanel.add(clearFaultButton);
+		c.gridx = 0;
+		c.gridy = 4;
+		this.add(faultPanel, c);
+
 		this.setTitle("Lid Placer");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		WindowTile.place(this, "loader");
