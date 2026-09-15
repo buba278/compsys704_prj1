@@ -24,10 +24,20 @@ public class RotaryConveyorBridge {
 			new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_BOTTLE_FROM_TABLE);
 	private static final SignalLevelClient CONVEYOR_TAKEN_ACK =
 			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_CONVEYOR_TAKEN_ACK);
+	// Carries whether THIS bottle was abandoned (unfilled/no lid/uncapped) by
+	// any station on its way around the table - set/cleared in lockstep with
+	// BOTTLE_FROM_TABLE above so it's always correctly scoped to the one
+	// bottle currently being handed off (the claim/release locks in
+	// RotaryTableState already guarantee only one lane hands off at a time).
+	// Lets the Sorter reject a bottle for a real reason instead of a coin
+	// flip - see sorterPlant.sysj.
+	private static final SignalLevelClient BOTTLE_DEFECTIVE_FROM_TABLE =
+			new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_BOTTLE_DEFECTIVE_FROM_TABLE);
 
 	public static void setReadyToRotate(boolean state) { READY_TO_ROTATE.send(state); }
 	public static void setPos1AckToController(boolean state) { POS1_ACK_TO_CONTROLLER.send(state); }
 	public static void setPos1AckToPlant(boolean state) { POS1_ACK_TO_PLANT.send(state); }
 	public static void setBottleFromTable(boolean state) { BOTTLE_FROM_TABLE.send(state); }
 	public static void setConveyorTakenAck(boolean state) { CONVEYOR_TAKEN_ACK.send(state); }
+	public static void setBottleDefectiveFromTable(boolean state) { BOTTLE_DEFECTIVE_FROM_TABLE.send(state); }
 }

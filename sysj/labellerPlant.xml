@@ -6,6 +6,7 @@
                       <iSignal Name="clampBottle"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="applyLabel"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="bottleFromConveyor" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="bottleDefectiveFromConveyor" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="sorterTakenAck"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="liquidARatio"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="targetVolumeMl"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />

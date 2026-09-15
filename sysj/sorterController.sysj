@@ -46,6 +46,15 @@ SorterController(
         System.out.println("SorterController: Bottle (" + productId + ") detected. Inspecting...");
         twin.update(PlantTwin.State.IN_PROGRESS);
 
+        // Simulated scan time before acting on the result - without this
+        // the inspection outcome (bottleDefective) is already known the
+        // instant the bottle arrives, so nothing visibly happens between
+        // "detected" and the pusher already moving.
+        {
+            long tInspect = System.currentTimeMillis();
+            while (System.currentTimeMillis() - tInspect < 600) { pause; }
+        }
+
         present (bottleDefective) {
             System.out.println("SorterController: Defect detected - diverting bottle.");
 

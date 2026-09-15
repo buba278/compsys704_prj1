@@ -8,6 +8,7 @@
 			<iSignal Name="pos1TakenAck"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
 			<iSignal Name="labellerTakenAck" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
 			<iSignal Name="bottlesNeeded"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
+			<iSignal Name="bottleDefectiveFromTable" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
 
 			<oSignal Name="bottleAtPos1"   To="ConveyorControllerCD.bottleAtPos1"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10006" />
 			<oSignal Name="bottleLeftPos5" To="ConveyorControllerCD.bottleLeftPos5" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10006" />

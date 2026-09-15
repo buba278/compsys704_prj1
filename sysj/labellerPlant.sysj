@@ -13,6 +13,7 @@ LabellerPlant(
     input signal applyLabel;
     input Integer signal liquidARatio, targetVolumeMl;
     input signal bottleFromConveyor;
+    input signal bottleDefectiveFromConveyor;
     input signal sorterTakenAck;
 
     output signal bottleAtLabellerE;
@@ -32,6 +33,16 @@ LabellerPlant(
 		// other side of this handshake), rather than free-running.
 		while(true){
 			await(bottleFromConveyor);
+			// Latched the instant bottleFromConveyor arrives - the Conveyor
+			// asserts bottleDefectiveFromConveyor in lockstep with it (see
+			// conveyorPlant.sysj), so this correctly reflects THIS bottle's
+			// outcome, not a stale one.
+			boolean defective;
+			present (bottleDefectiveFromConveyor) {
+				defective = true;
+			} else {
+				defective = false;
+			}
 			// commit to taking the bottle: ack back to the Conveyor so it
 			// can drop its offer, same two-phase shape as the Pos1 handoff
 			// in rotaryTableController.sysj.
@@ -60,10 +71,12 @@ LabellerPlant(
 				long tSort = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tSort < 5000) {
 					LabellerSorterBridge.setBottleFromLabeller(true);
+					LabellerSorterBridge.setBottleDefectiveFromLabeller(defective);
 					pause;
 				}
 			}
 			LabellerSorterBridge.setBottleFromLabeller(false);
+			LabellerSorterBridge.setBottleDefectiveFromLabeller(false);
 			await(!sorterTakenAck);
 
 			// The bottle has now genuinely left - tell the UI so it stops

@@ -62,16 +62,23 @@ rotaryTableController(
 
 				await(readyToRotate);
 
-				// commit to taking the bottle from Pos 1
-				RotaryConveyorBridge.setPos1AckToController(true);
-				RotaryConveyorBridge.setPos1AckToPlant(true);
-
 				abort(tableAlignedWithSensor) {
 					loop {
 						emit rotaryTableTrigger;
 						pause;
 					}
 				}
+
+				// Only now - once the Plant has actually dispatched the
+				// bottle onto the table (tableAlignedWithSensor), not just
+				// the instant this controller starts trying - commit to
+				// taking the bottle from Pos 1. Acking any earlier let the
+				// Conveyor release its Pos 1 marker and start loading the
+				// next bottle before this one had genuinely entered the
+				// table, which is what made bottles look like they were
+				// rushing straight through Pos 1 - see CLAUDE.md.
+				RotaryConveyorBridge.setPos1AckToController(true);
+				RotaryConveyorBridge.setPos1AckToPlant(true);
 
 				// complete the handshake: wait for the Conveyor Controller
 				// to see our ack and drop its request before we drop ours,

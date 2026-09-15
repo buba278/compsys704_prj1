@@ -75,6 +75,7 @@ public class Ports {
 	public static final String CONVEYOR_LOAD_BOTTLE       = "ConveyorPlantCD.loadBottle";
 	// real: driven automatically by RotaryConveyorBridge, not a GUI button
 	public static final String CONVEYOR_BOTTLE_FROM_TABLE = "ConveyorPlantCD.bottleFromTable";
+	public static final String CONVEYOR_BOTTLE_DEFECTIVE_FROM_TABLE = "ConveyorPlantCD.bottleDefectiveFromTable";
 
 	// fault tolerance: manual fault injection from the Filler GUI
 	public static final String FILLER_OVERFILL_M                = "FillerPlantCD.overfillM";
@@ -124,10 +125,15 @@ public class Ports {
 	// Conveyor <-> Labeller handoff (collection point)
 	public static final String LABELLER_BOTTLE_FROM_CONVEYOR = "LabellerPlantCD.bottleFromConveyor";
 	public static final String CONVEYOR_LABELLER_TAKEN_ACK   = "ConveyorPlantCD.labellerTakenAck";
+	// Carries whether this bottle was abandoned upstream (unfilled/no lid/
+	// uncapped) - see rotaryTablePlant.sysj/conveyorPlant.sysj. Lets the
+	// Sorter reject for a real reason instead of a coin flip.
+	public static final String LABELLER_BOTTLE_DEFECTIVE_FROM_CONVEYOR = "LabellerPlantCD.bottleDefectiveFromConveyor";
 
 	// Labeller <-> Sorter handoff
 	public static final String SORTER_BOTTLE_FROM_LABELLER = "SorterPlantCD.bottleFromLabeller";
 	public static final String LABELLER_SORTER_TAKEN_ACK   = "LabellerPlantCD.sorterTakenAck";
+	public static final String SORTER_BOTTLE_DEFECTIVE_FROM_LABELLER = "SorterPlantCD.bottleDefectiveFromLabeller";
 
 	// === SORTER ===
 	public static final int PORT_SORTER_CONTROLLER = 10025;
