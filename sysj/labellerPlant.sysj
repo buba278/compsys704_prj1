@@ -16,6 +16,7 @@ LabellerPlant(
     input signal sorterTakenAck;
 
     output signal bottleAtLabellerE;
+	output signal bottleGoneE;
 	output signal labelPrintedE;
 	output signal bottleClampedE;
 	output signal labelAppliedE;
@@ -64,6 +65,19 @@ LabellerPlant(
 			}
 			LabellerSorterBridge.setBottleFromLabeller(false);
 			await(!sorterTakenAck);
+
+			// The bottle has now genuinely left - tell the UI so it stops
+			// showing the last-finished bottle's label indefinitely (see
+			// LabellerVizWorker). Widened hold since this crosses the socket
+			// to the UI process and is a discrete one-off event, not a
+			// held state - see CLAUDE.md.
+			{
+				long tGone = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tGone < 50) {
+					emit bottleGoneE;
+					pause;
+				}
+			}
 		}
 	}
 	||

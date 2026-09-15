@@ -10,9 +10,11 @@ public class LabellerCanvas extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	// Matches FillerCanvas's scale so the same bottle reads as the same size
-	// across both windows.
+	// across both windows - height is fixed (sized for BASE_VOLUME_ML) and
+	// only width grows with volume, same as FillerCanvas's own container.
 	private static final double PIXELS_PER_ML = 0.3;
 	private static final int BASE_VOLUME_ML = 200;
+	private static final int BOTTLE_HEIGHT = (int) (BASE_VOLUME_ML * PIXELS_PER_ML);
 	private static final double WIDTH_PER_ML = 30.0 / BASE_VOLUME_ML;
 	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // matches FillerCanvas
 	private static final Color LIQUID_B_COLOR = new Color(255, 195, 130);
@@ -29,7 +31,7 @@ public class LabellerCanvas extends JPanel {
         // driven by the Coordinator's recipe - see labellerPlant.sysj). By
         // the time a bottle reaches here it's already full, so the whole
         // height is coloured rather than showing a live fill level.
-        int bottleHeight = (int) (LabellerState.BOTTLE_SIZE_ML * PIXELS_PER_ML);
+        int bottleHeight = BOTTLE_HEIGHT;
         int bottleWidth = (int) (LabellerState.BOTTLE_SIZE_ML * WIDTH_PER_ML);
         int bottleTop = baseY - bottleHeight;
         if (LabellerState.BOTTLE_PRESENT) {
