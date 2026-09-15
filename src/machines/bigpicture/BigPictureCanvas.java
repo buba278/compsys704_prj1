@@ -337,15 +337,15 @@ public class BigPictureCanvas extends JPanel {
 	// --- rotary table: dial + per-bottle status, same information RotaryTableCanvas shows --
 
 	private void drawRotaryTable(Graphics2D g) {
-		double diff = RotaryTableState.TARGET_ANGLE_DEG - RotaryTableState.CURRENT_ANGLE_DEG;
-		RotaryTableState.CURRENT_ANGLE_DEG += diff * EASE_FACTOR;
-
 		g.setColor(Color.DARK_GRAY);
 		g.drawOval(TABLE_CENTER_X - TABLE_RADIUS, TABLE_CENTER_Y - TABLE_RADIUS, TABLE_RADIUS * 2, TABLE_RADIUS * 2);
 
 		g.setColor(new Color(225, 225, 225));
 		for (int i = 0; i < 6; i++) {
-			double spokeAngleDeg = angleDeg(i) + RotaryTableState.CURRENT_ANGLE_DEG;
+			// Static spokes, same as RotaryTableCanvas's own dial - RotaryTableState
+			// deliberately no longer tracks a table rotation angle (see its own
+			// comment): each lane's bottle moves independently, not the whole dial.
+			double spokeAngleDeg = angleDeg(i);
 			double spokeRad = Math.toRadians(spokeAngleDeg);
 			int sx = (int) (TABLE_CENTER_X + TABLE_RADIUS * Math.cos(spokeRad));
 			int sy = (int) (TABLE_CENTER_Y + TABLE_RADIUS * Math.sin(spokeRad));

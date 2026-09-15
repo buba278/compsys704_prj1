@@ -75,6 +75,8 @@ Coordinator(
             emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
             emit bottlesNeeded(quantity);
+            emit liquidARatioL(ratioA);
+            emit targetVolumeMlL(volume);
             emit liquidARatioC(ratioA);
             emit liquidARatioE(ratioA);
             emit targetVolumeMlE(volume);
@@ -121,14 +123,24 @@ Coordinator(
                     } else {
                         System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
                     }
+                    if (!bottleFaulted) {
+                        filled = filled + 1;
+                    }
                     // Tell the Rotary Table this bottle's filling stage is done (whether
                     // filled or faulted) so it can hand the bottle on to Pos 5. Ack-or-
                     // timeout hold, not a bare single-tick emit, since this crosses the
                     // socket to RotaryTablePlantCD and repeats once per bottle - see
-                    // CLAUDE.md.
+                    // CLAUDE.md. Also carries this bottle's outcome to the BigPicture
+                    // viz (bottleFaultedE/bottlesFilledE) on the same hold, rather than
+                    // a separate ack loop, to avoid double-acking fillerTakenAck.
                     long tFillerAck = System.currentTimeMillis();
                     while (System.currentTimeMillis() - tFillerAck < 200) {
                         RotaryFillerBridge.setFillerTakenAck(true);
+                        if (bottleFaulted) {
+                            emit bottleFaultedE;
+                        } else {
+                            emit bottlesFilledE(filled);
+                        }
                         pause;
                     }
                     RotaryFillerBridge.setFillerTakenAck(false);
