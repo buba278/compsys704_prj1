@@ -8,6 +8,7 @@
                       <iSignal Name="capGripped"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
                       <iSignal Name="gripperInitPos"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
                       <iSignal Name="gripperFullTwist"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="clearCapperFaultM" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
 
 
                       <!-- Output Signals mapped to a Client transmitter (assumed targeting CapperPlantCD) -->
@@ -16,6 +17,9 @@
                       <oSignal Name="sendGripperUntwist" To="CapperPlantCD.sendGripperUntwist" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10011" />
                       <oSignal Name="sendGripCap"        To="CapperPlantCD.sendGripCap"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10011" />
                       <oSignal Name="sendClamp"          To="CapperPlantCD.sendClamp"          Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10011" />
+
+                      <oSignal Name="capperFaultE"       To="UI.capperFaultE"                  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
+                      <oSignal Name="capperFaultOut"     To="CoordinatorCD.capperFaultOut"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
               </ClockDomain>
       </SubSystem>
 </System>

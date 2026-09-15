@@ -1,4 +1,5 @@
 import run.CapperGUI;
+import run.CapperFaultState;
 
 CapperPlant(
     input signal sendGripperDown;
@@ -7,6 +8,7 @@ CapperPlant(
     input signal sendGripCap;
     input signal sendClamp;
     input signal bottleAtPos4;
+    input signal capperJamM;								// GUI -> capperPlant (manual fault injection: cap knocked off, twist never completes)
 
     output signal gripperMaxLower;
     output signal gripperMaxLift;
@@ -72,15 +74,35 @@ CapperPlant(
             pause;
             pause;
 
-            System.out.println("CapperPlant [Rotation]: Full twist achieved.");
-            abort(sendGripperUntwist){
-                sustain gripperFullTwist;
+            if (!CapperFaultState.isJamArmed()) {
+                System.out.println("CapperPlant [Rotation]: Full twist achieved.");
+                abort(sendGripperUntwist){
+                    sustain gripperFullTwist;
+                }
+            } else {
+                // Jammed: cap knocked loose before reaching full twist -
+                // gripperFullTwist never asserts, so the controller's own
+                // per-attempt timeout (not this plant) is what notices and
+                // retries - see run.CapperFaultState and the IP report.
+                System.out.println("CapperPlant [Rotation]: JAMMED - cap slipped, full twist never achieved");
+                await(!sendGripperTwist);
             }
             System.out.println("CapperPlant [Rotation]: Untwisting back to start position...");
             pause;
             pause;
         }
 
+    }
+    ||
+    {
+        // Latches the GUI's "Jam Twist" manual fault trigger - mirrors
+        // FillerPlant's overfillM/stallM bridging thread.
+        while(true){
+            present(capperJamM){
+                CapperFaultState.armJam();
+            }
+            pause;
+        }
     }
     ||
      //To viz

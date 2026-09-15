@@ -100,6 +100,23 @@ public class Ports {
 	// Reuses REQUEST_SIGNAL/ENABLE_SIGNAL/PORT_LOADER_* above (this IS that station).
 	public static final String LID_PLACED_ACK = "RotaryTablePlantCD.lidPlacedAck";
 
+	// fault tolerance: manual fault injection / clear from the Capper GUI.
+	// "Jam Twist" (like the Filler's Overfill/Stall) goes to the PLANT -
+	// it simulates the physical cause (a cap knocked loose before the
+	// twist completes) so the controller's own retry/timeout detection is
+	// what actually raises the fault, not the GUI faking the end state.
+	public static final String CAPPER_JAM_M         = "CapperPlantCD.capperJamM";
+	public static final String CAPPER_CLEAR_FAULT_M = "CapperControllerCD.clearCapperFaultM";
+
+	// fault tolerance: manual fault injection / clear from the Lid Placer GUI.
+	// "Drop Lid" (like the Filler's Overfill/Stall) goes to the PLANT - it
+	// simulates the physical cause (a lid slipping out of the grip before
+	// WPgripped ever asserts) so the controller's own retry/timeout
+	// detection is what actually raises the fault, not the GUI faking the
+	// end state.
+	public static final String LOADER_DROP_LID_M    = "PlantCD.dropLidM";
+	public static final String LOADER_CLEAR_FAULT_M = "ControllerCD.clearLidFaultM";
+
 	// === LABELLER ===
 	public static final int PORT_LABELLER_CONTROLLER = 10008;
 	public static final int PORT_LABELLER_PLANT      = 10009;

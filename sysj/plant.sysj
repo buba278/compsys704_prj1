@@ -1,8 +1,10 @@
 import run.GUI;
+import run.LidFaultState;
 
 Plant(
 		input signal pusherExtend,vacOn,armSource,armDest;
 		input signal enable,refill;
+		input signal dropLidM;										// GUI -> plant (manual fault injection: lid slips out of grip, never gripped)
 		output signal pusherRetracted,pusherExtended,WPgripped,armAtSource,armAtDest,empty;
 		output signal pusherRetractedE,pusherExtendedE,WPgrippedE,armAtSourceE,armAtDestE,emptyE;
 		)
@@ -45,13 +47,34 @@ Plant(
 			present(vacOn && armAtSource){
 				if((Integer)#capPos == 1){
 					emit capPos(0);
-					abort(!vacOn){
-						sustain WPgripped; 
-					}
-					present(armAtSource){
+					if (!LidFaultState.isDropArmed()) {
+						abort(!vacOn){
+							sustain WPgripped;
+						}
+						present(armAtSource){
+							emit capPos(1);
+						}
+					} else {
+						// Dropped: the lid slips out before WPgripped ever
+						// asserts - the controller's own per-attempt timeout
+						// (not this plant) is what notices and retries, see
+						// run.LidFaultState and the IP report.
+						System.out.println("Plant [Vacuum]: DROPPED - lid slipped, never gripped");
+						await(!vacOn);
 						emit capPos(1);
 					}
 				}
+			}
+			pause;
+		}
+	}
+	||
+	{
+		// Latches the GUI's "Drop Lid" manual fault trigger - mirrors
+		// FillerPlant's overfillM/stallM bridging thread.
+		while(true){
+			present(dropLidM){
+				LidFaultState.armDrop();
 			}
 			pause;
 		}

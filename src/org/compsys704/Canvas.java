@@ -80,5 +80,12 @@ public class Canvas extends JPanel {
 		if(!States.MAG_EMPTY){
 			g.drawImage(cap, 152, 155, null);
 		}
+
+		if (States.FAULTED) {
+			g.setColor(Color.red);
+			g.fillOval(10, 10, 16, 16);
+			g.setColor(Color.black);
+			g.drawString("FAULT", 30, 22);
+		}
 	}
 }

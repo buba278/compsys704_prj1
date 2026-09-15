@@ -19,6 +19,10 @@
 			<iSignal Name="vacOnM"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
 			<iSignal Name="armSourceM"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
 			<iSignal Name="armDestM"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
+
+			<iSignal Name="clearLidFaultM" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
+			<oSignal Name="lidFaultE"   To="UI.lidFaultE"              Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20000" />
+			<oSignal Name="lidFaultOut" To="CoordinatorCD.lidFaultOut" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
 		</ClockDomain>
 	</SubSystem>
 </System>

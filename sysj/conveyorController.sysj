@@ -46,6 +46,7 @@ conveyorController(
 			await(autoMode);
 			abort(manualMode) {
 				boolean handoffPending = false;
+				boolean sawTakenAck = false;
 				loop {
 					present(bottleAtPos1) {
 						// Don't tell the Rotary Table it's safe to rotate the
@@ -67,10 +68,24 @@ conveyorController(
 						// Rotary Table has committed to taking the bottle -
 						// safe to drop our request now. The plant is
 						// watching the same ack independently to release
-						// bottleAtPos1 on its side.
-						handoffPending = false;
-						RotaryConveyorBridge.setReadyToRotate(false);
-						System.out.printf("Conveyor: Rotary Table has taken the bottle from Pos 1%n");
+						// bottleAtPos1 on its side. Only act on the rising
+						// edge - pos1TakenAck stays present for the whole
+						// cross-process round trip, and present() isn't
+						// edge-triggered, so re-running this every tick could
+						// reset handoffPending while bottleAtPos1 is still
+						// transiently present too, letting the block above
+						// re-arm and send a second, phantom readyToRotate for
+						// a bottle that's already been taken - see CLAUDE.md
+						// and the resulting extra rotary table lane dispatch
+						// this caused.
+						if (!sawTakenAck) {
+							sawTakenAck = true;
+							handoffPending = false;
+							RotaryConveyorBridge.setReadyToRotate(false);
+							System.out.printf("Conveyor: Rotary Table has taken the bottle from Pos 1%n");
+						}
+					} else {
+						sawTakenAck = false;
 					}
 					present(bottleLeftPos5) {
 						System.out.printf("Conveyor: bottle travelling to collection point%n");

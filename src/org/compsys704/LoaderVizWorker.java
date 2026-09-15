@@ -36,14 +36,17 @@ public class LoaderVizWorker extends Worker{
 		case "emptyE":
 			States.MAG_EMPTY = status;
 			break;
-		default: 
+		case "lidFaultE":
+			if (status) States.FAULTED = true;
+			break;
+		default:
 			System.err.println("Wrong sig name : "+signame);
 			System.exit(1);
 		}
 	}
 	
 	
-	static final List<String> signames = Arrays.asList("pusherRetractedE","pusherExtendedE","WPgrippedE","armAtSourceE","armAtDestE","emptyE");
+	static final List<String> signames = Arrays.asList("pusherRetractedE","pusherExtendedE","WPgrippedE","armAtSourceE","armAtDestE","emptyE","lidFaultE");
 	
 	@Override
 	public boolean hasSignal(String sn) {

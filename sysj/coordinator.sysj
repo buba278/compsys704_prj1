@@ -1,14 +1,17 @@
 import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
 import run.RotaryFillerBridge;
+import run.CoordinatorBatchState;
 Coordinator(
     input signal orderReady;                                    // POS -> coordinator
     input Integer signal orderLiquidARatio, orderTargetVolume, orderQuantity;
     input signal fillDoneE;                                     // filler -> coordinator (repointed)
     input signal fillReady;                                     // filler confirms reset, ready for next bottle
     input signal fillFaultOut;                                  // filler -> coordinator (station faulted, stop presenting this bottle)
-    input signal sortComplete;
+    input signal sortedOkE, sortRejectedE;                      // sorter -> coordinator (per-bottle outcome; drives batch completion and replacement bottles)
     input signal bottleReadyForFiller;                          // rotary table -> coordinator (real bottle handoff)
+    input signal capperFaultOut;                                // capper -> coordinator (station faulted, logged only - no redundant line yet)
+    input signal lidFaultOut;                                   // lid placer -> coordinator (station faulted, logged only - no redundant line yet)
 
     output Integer signal liquidARatio, targetVolumeMl;         // coordinator -> fillerController
     output signal bottleAtPos2;                                 // coordinator -> fillerController
@@ -20,6 +23,21 @@ Coordinator(
 )
 ->
 {
+	// An order is only complete once `quantity` bottles have actually been
+	// sorted OK - a reject doesn't count toward it and queues a replacement
+	// instead (see run.CoordinatorBatchState and the sort-outcome thread
+	// below). The counters live in that plain Java class rather than as
+	// SystemJ local variables shared across these `||` threads - a local
+	// variable declared before a `||` split is NOT actually shared, sjc
+	// generates a separate per-thread copy of it (confirmed by a compile
+	// failure referencing it from a sibling thread), so cross-thread state
+	// within one domain has to go through a Java class instead, same as
+	// RotaryTableState/FillerFaultState/CapperFaultState (safe because
+	// SystemJ threads within one clock domain run cooperatively, one at a
+	// time per reaction, not as real concurrent OS threads - see CLAUDE.md).
+	signal orderSatisfied; // level-asserted once goodSorted >= this order's quantity
+
+	{
 	TwinClient twin = new TwinClient("coordinator", "127.0.0.1", 9090);
     loop {
         System.out.printf("[Coordinator] waiting for orderLiquidARatio%n");
@@ -55,53 +73,70 @@ Coordinator(
         }
 
         long start = System.currentTimeMillis();
-        int filled = 0;
+        CoordinatorBatchState.startOrder(quantity);
         int attempt = 0;
-        while (filled < quantity) {
-            attempt = attempt + 1;
-            boolean bottleFaulted = false;
-            System.out.printf("[Coordinator] awaiting a real bottle handoff from the Rotary Table, attempt %d%n", attempt);
-            await (bottleReadyForFiller);
-            System.out.printf("[Coordinator] abort-block start, attempt %d (bottle %d/%d)%n", attempt, filled + 1, quantity);
-            abort (fillDoneE || fillFaultOut) {
-                loop {
-                    emit bottleAtPos2;
-                    emit bottleAtPos2P;
-                    pause;
+
+        // Driven by abort(orderSatisfied){ loop{...} } rather than a Java
+        // while() - sjc's JavaPrettyPrinter crashes with "TerminateNode can
+        // have only one child" when a present/else whose branches both
+        // pause() sits directly inside a while() loop, even with nothing
+        // else nearby (confirmed by bisecting a minimal reproduction - see
+        // the identical workaround in capperController.sysj/controller.sysj
+        // and the CLAUDE.md entry on it). goodSorted and neededTotal are
+        // updated by the sorter-outcome thread below as bottles actually
+        // reach the sorter, arbitrarily long after they're started here, so
+        // this loop just keeps starting bottles up to whatever neededTotal
+        // currently is and otherwise waits - a reject bumping neededTotal
+        // mid-flight is picked up on this same loop's next tick.
+        abort (orderSatisfied) {
+            loop {
+                if (CoordinatorBatchState.getStarted() < CoordinatorBatchState.getNeededTotal()) {
+                    int startedNow = CoordinatorBatchState.incrementStarted();
+                    attempt = attempt + 1;
+                    boolean bottleFaulted = false;
+                    System.out.printf("[Coordinator] awaiting a real bottle handoff from the Rotary Table, attempt %d%n", attempt);
+                    await (bottleReadyForFiller);
+                    System.out.printf("[Coordinator] abort-block start, attempt %d (started %d/%d, %d/%d sorted good)%n", attempt, startedNow, CoordinatorBatchState.getNeededTotal(), CoordinatorBatchState.getGoodSorted(), quantity);
+                    abort (fillDoneE || fillFaultOut) {
+                        loop {
+                            emit bottleAtPos2;
+                            emit bottleAtPos2P;
+                            pause;
+                        }
+                    }
+                    present (fillFaultOut) {
+                        bottleFaulted = true;
+                        System.out.printf("[Coordinator] fillFaultOut received on attempt %d - station faulted, replacement queued%n", attempt);
+                    } else {
+                        System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
+                    }
+                    // Tell the Rotary Table this bottle's filling stage is done (whether
+                    // filled or faulted) so it can hand the bottle on to Pos 5. Ack-or-
+                    // timeout hold, not a bare single-tick emit, since this crosses the
+                    // socket to RotaryTablePlantCD and repeats once per bottle - see
+                    // CLAUDE.md.
+                    long tFillerAck = System.currentTimeMillis();
+                    while (System.currentTimeMillis() - tFillerAck < 200) {
+                        RotaryFillerBridge.setFillerTakenAck(true);
+                        pause;
+                    }
+                    RotaryFillerBridge.setFillerTakenAck(false);
+                    await (fillReady);
+                    if (bottleFaulted) {
+                        // Abandoned at the Filler - it will never reach the
+                        // sorter, so it can never emit sortedOkE/sortRejectedE.
+                        // Count it as needing a replacement right away, same
+                        // as a real sorter rejection.
+                        int nowNeeded = CoordinatorBatchState.addNeeded(1);
+                        System.out.printf("[Coordinator] attempt %d abandoned due to fault, queuing a replacement (now need %d total)%n", attempt, nowNeeded);
+                    } else {
+                        twin.reportProgress(startedNow);
+                        System.out.printf("[Coordinator] bottle from attempt %d filled, travelling to sorting%n", attempt);
+                    }
+                } else if (CoordinatorBatchState.getGoodSorted() >= quantity) {
+                    emit orderSatisfied;
                 }
-            }
-            present (fillFaultOut) {
-                bottleFaulted = true;
-                System.out.printf("[Coordinator] fillFaultOut received on attempt %d - station faulted, awaiting recovery%n", attempt);
-            } else {
-                System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
-            }
-            // Tell the Rotary Table this bottle's filling stage is done (whether
-            // filled or faulted) so it can hand the bottle on to Pos 5. Ack-or-
-            // timeout hold, not a bare single-tick emit, since this crosses the
-            // socket to RotaryTablePlantCD and repeats once per bottle - see
-            // CLAUDE.md. Placed here (right after the outcome is known) rather
-            // than after await(fillReady) below - sjc's JavaPrettyPrinter
-            // throws "TerminateNode can have only one child" when a bounded
-            // while/pause loop sits directly between an await(...) and a
-            // following if statement; this position also makes more semantic
-            // sense, since fillReady is about the Filler being ready for the
-            // *next* bottle, not about *this* bottle being finished.
-            long tFillerAck = System.currentTimeMillis();
-            while (System.currentTimeMillis() - tFillerAck < 200) {
-                RotaryFillerBridge.setFillerTakenAck(true);
                 pause;
-            }
-            RotaryFillerBridge.setFillerTakenAck(false);
-            await (fillReady);
-            if (!bottleFaulted) {
-                filled = filled + 1;
-                twin.reportProgress(filled);
-                System.out.printf("[Coordinator] bottle %d/%d done%n", filled, quantity);
-            } else {
-                // Not counted toward the batch, since there's no redundant line to reroute to
-                // yet. This retries with a fresh bottle at the same, now-recovered station.
-                System.out.printf("[Coordinator] attempt %d abandoned due to fault, retrying (not counted toward batch)%n", attempt);
             }
         }
 
@@ -112,6 +147,63 @@ Coordinator(
             emit batchDone(elapsed);
             pause;
         }
-        System.out.printf("[Coordinator] batch complete in %d ms%n", elapsed);
+        System.out.printf("[Coordinator] batch complete in %d ms - %d/%d sorted good, %d attempts total%n", elapsed, CoordinatorBatchState.getGoodSorted(), quantity, attempt);
     }
+}
+||
+{
+	// Tracks sorter outcomes: goodSorted counts bottles that satisfy the
+	// order, while a reject bumps neededTotal so the production loop above
+	// sends a replacement. Both signals are widened holds from a different
+	// clock domain (see CLAUDE.md), so edge-guarded here - without that, a
+	// single reject/sort event held present for its whole hold window would
+	// be double (or triple) counted.
+	boolean sawSortedOk = false;
+	boolean sawSortRejected = false;
+	loop {
+		present (sortedOkE) {
+			if (!sawSortedOk) {
+				sawSortedOk = true;
+				int nowGood = CoordinatorBatchState.incrementGoodSorted();
+				System.out.printf("[Coordinator] sortedOkE received - %d sorted good so far%n", nowGood);
+			}
+		} else {
+			sawSortedOk = false;
+		}
+		present (sortRejectedE) {
+			if (!sawSortRejected) {
+				sawSortRejected = true;
+				int nowNeeded = CoordinatorBatchState.addNeeded(1);
+				System.out.printf("[Coordinator] sortRejectedE received - queuing a replacement (now need %d total)%n", nowNeeded);
+			}
+		} else {
+			sawSortRejected = false;
+		}
+		pause;
+	}
+}
+||
+{
+	// Logs Lid Placer / Capper faults as they're escalated. No redundant
+	// duplicate line exists yet (see the IP report, section 6 - out of
+	// scope for now), so there's no rerouting decision to make here; this
+	// just makes a faulted station visible at the Coordinator's own log
+	// rather than only at that station's own GUI. await(!cond) at the end
+	// of each loop matters: both fault signals stay present for the whole
+	// fault, and await isn't edge-triggered, so without it this would
+	// reprint every tick for as long as the fault lasts - see CLAUDE.md.
+	loop {
+		await (capperFaultOut);
+		System.out.printf("[Coordinator] capperFaultOut received - Capper is faulted, awaiting recovery%n");
+		await (!capperFaultOut);
+	}
+}
+||
+{
+	loop {
+		await (lidFaultOut);
+		System.out.printf("[Coordinator] lidFaultOut received - Lid Placer is faulted, awaiting recovery%n");
+		await (!lidFaultOut);
+	}
+	}
 }

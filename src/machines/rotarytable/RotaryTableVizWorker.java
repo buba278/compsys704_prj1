@@ -25,9 +25,9 @@ public class RotaryTableVizWorker extends Worker {
 	@Override
 	public void setIntSignal(int value) {
 		switch (signame) {
-		case "bottleStage1E": RotaryTableState.LANE_STAGE[0] = value; break;
-		case "bottleStage2E": RotaryTableState.LANE_STAGE[1] = value; break;
-		case "bottleStage3E": RotaryTableState.LANE_STAGE[2] = value; break;
+		case "bottleStage1E": RotaryTableState.recordLaneStage(0, value); break;
+		case "bottleStage2E": RotaryTableState.recordLaneStage(1, value); break;
+		case "bottleStage3E": RotaryTableState.recordLaneStage(2, value); break;
 		default:
 			System.err.println("Wrong sig name : " + signame);
 			System.exit(1);
