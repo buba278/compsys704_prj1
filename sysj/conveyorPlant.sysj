@@ -258,6 +258,18 @@ conveyorPlant(
 				}
 			}
 			RotaryConveyorBridge.setConveyorTakenAck(false);
+
+			// Don't re-arm on the same still-true bottleFromTable: the Rotary
+			// Table only clears it after it has itself seen conveyorTakenAck
+			// (a genuine cross-process round trip via RotaryConveyorBridge),
+			// so this loop can get back around to await(bottleFromTable)
+			// above before that clear has actually propagated back - await
+			// isn't edge-triggered, so without this it would immediately
+			// re-fire on the same stale signal and process the same bottle
+			// a second time, including a second, spurious
+			// TableOccupancy.decrement() (visible as the "on table" count
+			// drifting negative over several orders) - see CLAUDE.md.
+			await(!bottleFromTable);
 		}
 	}
 	||

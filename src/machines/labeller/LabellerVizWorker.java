@@ -19,6 +19,19 @@ public class LabellerVizWorker extends Worker {
                 }
                 break;
 
+            case "bottleGoneE":
+                // NEW: explicit off-signal companion to bottleAtLabellerE. Without
+                // this, BOTTLE_PRESENT (and the finished label) could only ever be
+                // set true and would latch forever once the first bottle arrived,
+                // showing the last bottle's label indefinitely after it left.
+                if (status) {
+                    LabellerState.BOTTLE_PRESENT = false;
+                    LabellerState.CLAMPED = false;
+                    LabellerState.LABEL_PRINTED = false;
+                    LabellerState.LABEL_APPLIED = false;
+                }
+                break;
+
             case "bottleClampedE":
                 LabellerState.CLAMPED = status;
                 break;
@@ -61,7 +74,7 @@ public class LabellerVizWorker extends Worker {
     }
 
     static final List<String> signames = Arrays.asList(
-        "bottleAtLabellerE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
+        "bottleAtLabellerE", "bottleGoneE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
         "liquidARatioE", "targetVolumeMlE"
     );
 

@@ -6,10 +6,14 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.compsys704.Ports;
+import org.compsys704.SignalClient;
 import org.compsys704.SignalServer;
 
 public class CapperPanel extends JFrame {
@@ -26,6 +30,26 @@ public class CapperPanel extends JFrame {
         c.fill = GridBagConstraints.NONE;
         c.gridy = 1;
         this.add(canvas, c);
+
+        // Fault tolerance testing controls (see the IP report): a manual
+        // trigger to demonstrate the detection/escalation path without
+        // waiting for a real failure, and a clear button since the
+        // controller has no way of confirming a physical repair on its own.
+        JButton jamTwistButton = new JButton("Jam Twist");
+        jamTwistButton.addActionListener(new SignalClient(Ports.PORT_CAPPER_PLANT, Ports.CAPPER_JAM_M));
+        JButton clearFaultButton = new JButton("Clear Fault");
+        clearFaultButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                CapperState.FAULTED = false;
+            }
+        });
+        clearFaultButton.addActionListener(new SignalClient(Ports.PORT_CAPPER_CONTROLLER, Ports.CAPPER_CLEAR_FAULT_M));
+        JPanel faultPanel = new JPanel();
+        faultPanel.setBorder(BorderFactory.createTitledBorder("Fault injection"));
+        faultPanel.add(jamTwistButton);
+        faultPanel.add(clearFaultButton);
+        c.gridy = 2;
+        this.add(faultPanel, c);
 
         this.setTitle("Capper Visualizer");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);

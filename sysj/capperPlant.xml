@@ -8,6 +8,7 @@
                       <iSignal Name="sendGripCap"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10011" />
                       <iSignal Name="sendClamp"          Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10011" />
                       <iSignal Name="bottleAtPos4" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10011"/>
+                      <iSignal Name="capperJamM"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10011"/>
 
                       <!-- Output Signals transmitted back to the CapperControllerCD -->
                       <oSignal Name="gripperMaxLower"  To="CapperControllerCD.gripperMaxLower"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10010" />

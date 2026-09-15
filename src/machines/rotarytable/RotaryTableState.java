@@ -25,16 +25,30 @@ public class RotaryTableState {
 			new java.awt.Color(70, 110, 220),  // lane 3 - blue
 	};
 
-	// Rotation angle of the table, in degrees. TARGET_ANGLE_DEG advances by one
-	// 60-degree step every time a rotaryTableTriggerE event arrives; the canvas
-	// eases CURRENT_ANGLE_DEG toward it on each repaint so the table appears to
-	// turn rather than jump straight to the next position.
-	public static volatile double CURRENT_ANGLE_DEG = 0;
-	public static volatile double TARGET_ANGLE_DEG = 0;
-
-	private static final double STEP_DEG = 60.0;
+	// When each lane's bottle last actually changed stage (System.currentTimeMillis(),
+	// 0 = never) - lets the canvas briefly highlight only the lane that just moved,
+	// instead of implying every bottle moves together on some shared "rotation" (it
+	// doesn't: each lane advances independently as it claims/releases stations - see
+	// CLAUDE.md's Rotary Table multi-bottle concurrency section). Replaces an earlier
+	// CURRENT_ANGLE_DEG/TARGET_ANGLE_DEG spinning-disc animation that advanced on every
+	// new-bottle trigger regardless of which lane (if any) actually moved as a result -
+	// purely decorative and unrelated to the real per-lane state, which is exactly what
+	// made it look like "the table rotated but only one bottle moved."
+	public static final long[] LANE_LAST_MOVE_MS = new long[3];
 
 	public static void triggerStep() {
-		TARGET_ANGLE_DEG += STEP_DEG;
+		// kept as the rotaryTableTriggerE hook point (a bottle arrival was sensed) -
+		// no visual effect of its own now; each lane's own stage change is what
+		// drives its highlight, via recordLaneStage() below.
+	}
+
+	private static final int[] lastStage = new int[3];
+
+	public static void recordLaneStage(int lane, int stage) {
+		if (stage != lastStage[lane]) {
+			lastStage[lane] = stage;
+			LANE_LAST_MOVE_MS[lane] = System.currentTimeMillis();
+		}
+		LANE_STAGE[lane] = stage;
 	}
 }

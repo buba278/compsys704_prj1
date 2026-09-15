@@ -23,8 +23,21 @@ Pos(
         }
         await (batchDone);
         int t = (Integer)#batchDone;
-        emit completionTimeE(t);
-        emit batchDoneE;
+        // Bare single-tick emits here were a genuine cross-domain signal
+        // race (see CLAUDE.md): batchDoneE crosses the socket to the POS
+        // GUI process, and a one-tick pulse can be dropped or arrive late
+        // if the GUI's receiver thread doesn't happen to poll in between -
+        // which looked like a *later* order's row going green early, since
+        // OrderQueue.markDone() just completes whatever order is currently
+        // marked in-progress in the Java-side queue, and a late-delivered
+        // batchDoneE from THIS order could land after the next one had
+        // already started.
+        long tDoneE = System.currentTimeMillis();
+        while (System.currentTimeMillis() - tDoneE < 200) {
+            emit completionTimeE(t);
+            emit batchDoneE;
+            pause;
+        }
         System.out.printf("[POS] batch complete in %d ms%n", t);
     }
 }

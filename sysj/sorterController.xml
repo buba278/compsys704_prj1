@@ -10,7 +10,8 @@
                       <!-- Output Signals mapped to a Client transmitter (targeting SorterPlantCD) -->
                       <oSignal Name="extendPusher" To="SorterPlantCD.extendPusher" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10023" />
                       
-                      <oSignal Name="sortComplete" To="CoordinatorCD.sortComplete" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
+                      <oSignal Name="sortedOkE"     To="CoordinatorCD.sortedOkE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
+                      <oSignal Name="sortRejectedE" To="CoordinatorCD.sortRejectedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
 
                       <!-- Same-domain viz-mirror outputs to the UI SignalServer -->
                       <oSignal Name="sortedE"   To="UI.sortedE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030" />

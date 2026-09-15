@@ -21,9 +21,10 @@ public class RotaryTableCanvas extends JPanel {
 	private static final int POS5_Y = 35;
 	private static final int POS1_Y = 60;
 
-	// Purely a visual easing factor for how fast CURRENT_ANGLE_DEG catches up to
-	// TARGET_ANGLE_DEG each repaint - has no bearing on the actual signals.
-	private static final double EASE_FACTOR = 0.12;
+	// How long a lane's slot stays highlighted after its own stage last changed
+	// (see RotaryTableState.LANE_LAST_MOVE_MS) - long enough to catch the eye,
+	// short enough that it reads as "just moved" rather than a steady state.
+	private static final long MOVE_HIGHLIGHT_MS = 500;
 
 	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // light blue, matches FillerCanvas
 	private static final Color LIQUID_B_COLOR = new Color(255, 195, 130);  // light orange, matches FillerCanvas
@@ -35,10 +36,6 @@ public class RotaryTableCanvas extends JPanel {
 		super.paintComponent(gOrig);
 		Graphics2D g = (Graphics2D) gOrig;
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-		// ease the displayed angle toward the latest target so a step reads as a turn
-		double diff = RotaryTableState.TARGET_ANGLE_DEG - RotaryTableState.CURRENT_ANGLE_DEG;
-		RotaryTableState.CURRENT_ANGLE_DEG += diff * EASE_FACTOR;
 
 		g.setColor(RotaryTableState.TABLE_ALIGNED ? Color.GREEN : Color.LIGHT_GRAY);
 		g.fillOval(INDICATOR_X, ALIGNED_Y, 15, 15);
@@ -73,12 +70,15 @@ public class RotaryTableCanvas extends JPanel {
 
 		final int TOP_POSITION_INDEX = 2; // Pos3 (i == 2) is drawn at the top
 
-		// the physical disc underneath the fixed stations - these spokes are
-		// the only thing that actually rotates with CURRENT_ANGLE_DEG, so the
-		// table visibly spins while the station positions themselves stay put
+		// Static spokes under the fixed stations - the stations themselves
+		// never move (each lane independently claims/releases them - see
+		// CLAUDE.md's Rotary Table multi-bottle concurrency section), so
+		// unlike an earlier version these no longer spin on every new-bottle
+		// trigger regardless of which lane (if any) actually moved as a
+		// result. Which bottle just moved is shown per-lane below instead.
 		g.setColor(new Color(225, 225, 225));
 		for (int i = 0; i < 6; i++) {
-			double spokeAngleDeg = -90 + (i - TOP_POSITION_INDEX) * 60 + RotaryTableState.CURRENT_ANGLE_DEG;
+			double spokeAngleDeg = -90 + (i - TOP_POSITION_INDEX) * 60;
 			double spokeAngleRad = Math.toRadians(spokeAngleDeg);
 			int spokeX = (int) (TABLE_CENTER_X + TABLE_RADIUS * Math.cos(spokeAngleRad));
 			int spokeY = (int) (TABLE_CENTER_Y + TABLE_RADIUS * Math.sin(spokeAngleRad));
@@ -116,11 +116,23 @@ public class RotaryTableCanvas extends JPanel {
 			boolean isCurrentStage = !occupyingLanes.isEmpty();
 			if (isCurrentStage) fill = RotaryTableState.LANE_COLORS[occupyingLanes.get(0)];
 
+			// Did any occupying lane's stage change recently? Each bottle moves
+			// independently as its own lane claims/releases stations, not in a
+			// synchronized "rotation" affecting every bottle at once - this
+			// highlight makes that visible: only the slot a bottle actually just
+			// arrived at gets the gold ring, not the whole table.
+			boolean justMoved = false;
+			for (int lane : occupyingLanes) {
+				if (System.currentTimeMillis() - RotaryTableState.LANE_LAST_MOVE_MS[lane] < MOVE_HIGHLIGHT_MS) {
+					justMoved = true;
+				}
+			}
+
 			Ellipse2D slot = new Ellipse2D.Double(slotX - SLOT_RADIUS, slotY - SLOT_RADIUS, SLOT_RADIUS * 2, SLOT_RADIUS * 2);
 			g.setColor(fill);
 			g.fill(slot);
-			g.setColor(isCurrentStage ? fill.darker() : Color.BLACK);
-			g.setStroke(new java.awt.BasicStroke(isCurrentStage ? 3f : 1f));
+			g.setColor(justMoved ? Color.ORANGE : (isCurrentStage ? fill.darker() : Color.BLACK));
+			g.setStroke(new java.awt.BasicStroke(justMoved ? 5f : (isCurrentStage ? 3f : 1f)));
 			g.draw(slot);
 			g.setStroke(new java.awt.BasicStroke(1f));
 

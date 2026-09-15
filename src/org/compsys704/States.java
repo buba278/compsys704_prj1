@@ -10,4 +10,7 @@ public class States {
 	public static volatile boolean MAG_EMPTY = false;
 	
 	public static volatile boolean CAP_READY = false;
+
+	// Fault indicator (see run.LidFaultState / the IP report)
+	public static volatile boolean FAULTED = false;
 }
