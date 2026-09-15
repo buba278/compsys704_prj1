@@ -11,7 +11,8 @@ SorterController(
     output signal extendPusher;
     output signal sortedE;
     output signal rejectedE;
-    output signal sortComplete;
+    output signal sortedOkE;											// sorterController -> coordinator (bottle passed, counts toward the order)
+    output signal sortRejectedE;										// sorterController -> coordinator (bottle rejected, coordinator sends a replacement)
 )
 ->
 {
@@ -60,6 +61,7 @@ SorterController(
             while (System.currentTimeMillis() - t0 < 300) {
                 emit extendPusher;
                 emit rejectedE;
+                emit sortRejectedE;
                 pause;
             }
 
@@ -75,6 +77,7 @@ SorterController(
             long t0 = System.currentTimeMillis();
             while (System.currentTimeMillis() - t0 < 300) {
                 emit sortedE;
+                emit sortedOkE;
                 pause;
             }
 
@@ -84,9 +87,6 @@ SorterController(
 
             await (!bottleAtSorter);
         }
-
-        // Emit sort complete signal to notify Coordinator/System
-        emit sortComplete;
 
         System.out.println("SorterController: Cycle complete. Returning to idle.");
         twin.update(PlantTwin.State.IDLE);
