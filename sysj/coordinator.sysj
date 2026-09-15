@@ -19,10 +19,20 @@ Coordinator(
     output Integer signal bottlesNeeded;                        // coordinator -> conveyorPlant (auto-loads one bottle per unit ordered)
 <<<<<<< HEAD
     output Integer signal liquidARatioL, targetVolumeMlL;       // coordinator -> labellerPlant (same recipe, 3rd socket, so the label matches what's actually in the bottle)
+<<<<<<< Updated upstream
 =======
 >>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
+=======
+    output Integer signal liquidARatioC;                        // coordinator -> conveyorPlant (same recipe, 4th socket, so the exiting bottle's colour split matches what's actually in it)
+>>>>>>> Stashed changes
 
     output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
+
+    output Integer signal liquidARatioE, targetVolumeMlE, bottlesNeededE; // coordinator -> BigPicture viz (active recipe)
+    output Integer signal bottlesFilledE;                       // coordinator -> BigPicture viz (progress within current batch)
+    output signal bottleFaultedE;                               // coordinator -> BigPicture viz (last attempt faulted)
+    output signal batchDoneE;                                   // coordinator -> BigPicture viz
+    output Integer signal batchElapsedE;                        // coordinator -> BigPicture viz (mirrors batchDone's payload)
 )
 ->
 {
@@ -65,6 +75,7 @@ Coordinator(
         // whole hold window before the loop's first condition check ever
         // ran true, so bottlesNeeded (and the other recipe signals) never
         // actually got emitted at all.
+        int filled = 0;
         long tEmit = System.currentTimeMillis();
         while (System.currentTimeMillis() - tEmit < 300) {
             emit liquidARatio(ratioA);
@@ -73,13 +84,24 @@ Coordinator(
 <<<<<<< HEAD
             emit liquidARatioL(ratioA);
             emit targetVolumeMlL(volume);
+<<<<<<< Updated upstream
 =======
 >>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
+=======
+            emit liquidARatioC(ratioA);
+            emit liquidARatioE(ratioA);
+            emit targetVolumeMlE(volume);
+            emit bottlesNeededE(quantity);
+            emit bottlesFilledE(filled);
+>>>>>>> Stashed changes
             pause;
         }
 
         long start = System.currentTimeMillis();
+<<<<<<< Updated upstream
         CoordinatorBatchState.startOrder(quantity);
+=======
+>>>>>>> Stashed changes
         int attempt = 0;
 
         // Driven by abort(orderSatisfied){ loop{...} } rather than a Java
@@ -142,6 +164,36 @@ Coordinator(
                 } else if (CoordinatorBatchState.getGoodSorted() >= quantity) {
                     emit orderSatisfied;
                 }
+<<<<<<< Updated upstream
+=======
+            }
+            present (fillFaultOut) {
+                bottleFaulted = true;
+                System.out.printf("[Coordinator] fillFaultOut received on attempt %d - station faulted, awaiting recovery%n", attempt);
+            } else {
+                System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
+            }
+            // Tell the Rotary Table this bottle's filling stage is done (whether
+            // filled or faulted) so it can hand the bottle on to Pos 5. Ack-or-
+            // timeout hold, not a bare single-tick emit, since this crosses the
+            // socket to RotaryTablePlantCD and repeats once per bottle - see
+            // CLAUDE.md. Placed here (right after the outcome is known) rather
+            // than after await(fillReady) below - sjc's JavaPrettyPrinter
+            // throws "TerminateNode can have only one child" when a bounded
+            // while/pause loop sits directly between an await(...) and a
+            // following if statement; this position also makes more semantic
+            // sense, since fillReady is about the Filler being ready for the
+            // *next* bottle, not about *this* bottle being finished.
+            int displayFilled = bottleFaulted ? filled : filled + 1;
+            long tFillerAck = System.currentTimeMillis();
+            while (System.currentTimeMillis() - tFillerAck < 200) {
+                RotaryFillerBridge.setFillerTakenAck(true);
+                if (bottleFaulted) {
+                    emit bottleFaultedE;
+                } else {
+                    emit bottlesFilledE(displayFilled);
+                }
+>>>>>>> Stashed changes
                 pause;
             }
         }
@@ -151,6 +203,8 @@ Coordinator(
         long tBatch = System.currentTimeMillis();
         while (System.currentTimeMillis() - tBatch < 50) {
             emit batchDone(elapsed);
+            emit batchDoneE;
+            emit batchElapsedE(elapsed);
             pause;
         }
         System.out.printf("[Coordinator] batch complete in %d ms - %d/%d sorted good, %d attempts total%n", elapsed, CoordinatorBatchState.getGoodSorted(), quantity, attempt);

@@ -18,6 +18,13 @@ rotaryTablePlant(
 		output signal tableBusy, tableHasFreeSlot;
 		output Integer signal bottleStageE;
 		output signal tableAlignedWithSensorE, bottleAtPos5E, capOnBottleAtPos1E, rotaryTableTriggerE;
+
+		// Same events as the *E signals above, mirrored to a second socket for the
+		// Big-Picture view (a different process from the Rotary Table's own GUI, so it
+		// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket, see
+		// CLAUDE.md).
+		output Integer signal bottleStage1BigE, bottleStage2BigE, bottleStage3BigE;
+		output signal tableAlignedWithSensorBigE, bottleAtPos5BigE, capOnBottleAtPos1BigE, rotaryTableTriggerBigE;
 		)
 ->
 {
@@ -604,12 +611,23 @@ rotaryTablePlant(
 	}
 	||
 	{ // Forward events to the GUI for the animated turntable render.
-		{while(true){present(tableAlignedWithSensor){emit tableAlignedWithSensorE;} pause;}}
+		{while(true){present(tableAlignedWithSensor){emit tableAlignedWithSensorE; emit tableAlignedWithSensorBigE;} pause;}}
 		||
-		{while(true){present(bottleAtPos5){emit bottleAtPos5E;} pause;}}
+		{while(true){present(bottleAtPos5){emit bottleAtPos5E; emit bottleAtPos5BigE;} pause;}}
 		||
-		{while(true){present(capOnBottleAtPos1){emit capOnBottleAtPos1E;} pause;}}
+		{while(true){present(capOnBottleAtPos1){emit capOnBottleAtPos1E; emit capOnBottleAtPos1BigE;} pause;}}
 		||
-		{while(true){present(rotaryTableTrigger){emit rotaryTableTriggerE;} pause;}}
+		{while(true){present(rotaryTableTrigger){emit rotaryTableTriggerE; emit rotaryTableTriggerBigE;} pause;}}
+	}
+	||
+	{ // Same lane-stage values, mirrored to the Big-Picture socket - read back off
+	  // bottleStage1E/2E/3E themselves (already the ground truth relayed to the
+	  // Rotary Table's own GUI above) rather than duplicating every emit site in
+	  // the three lane threads.
+		{while(true){present(bottleStage1E){emit bottleStage1BigE((Integer)#bottleStage1E);} pause;}}
+		||
+		{while(true){present(bottleStage2E){emit bottleStage2BigE((Integer)#bottleStage2E);} pause;}}
+		||
+		{while(true){present(bottleStage3E){emit bottleStage3BigE((Integer)#bottleStage3E);} pause;}}
 	}
 }

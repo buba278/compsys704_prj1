@@ -35,6 +35,12 @@ public class ConveyorState {
 	public static volatile int RIGHT_STEP = 0;
 	public static volatile double RIGHT_PROGRESS = 0;  // 0 = Pos 5, 1 = collection point
 
+	// Liquid A percentage the exiting bottle was actually filled with, carried as the
+	// int payload on bottleReceivedE/bottleReceivedBigE (see conveyorPlant.sysj) so the
+	// canvas can colour-split it the same way FillerCanvas does, instead of drawing a
+	// flat placeholder colour.
+	public static volatile int RIGHT_RATIO_A = 50;
+
 	// called when the plant reports a new bottle has been queued at the
 	// loading end (bottleEnteredE)
 	public static synchronized void startLeftTravel() {

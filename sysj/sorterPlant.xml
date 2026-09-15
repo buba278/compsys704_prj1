@@ -20,6 +20,13 @@
 						<oSignal Name="pusherRetractedE" To="UI.pusherRetractedE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
 					<oSignal Name="sortedCountE" To="UI.sortedCountE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
 					<oSignal Name="rejectedCountE" To="UI.rejectedCountE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10030"  />
+
+					<oSignal Name="bottleAtSorterBigE"   To="BigPicture.bottleAtSorterBigE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20009" />
+					<oSignal Name="bottleDefectiveBigE"  To="BigPicture.bottleDefectiveBigE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20009" />
+					<oSignal Name="pusherExtendedBigE"   To="BigPicture.pusherExtendedBigE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20009" />
+					<oSignal Name="pusherRetractedBigE"  To="BigPicture.pusherRetractedBigE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20009" />
+					<oSignal Name="sortedCountBigE"      To="BigPicture.sortedCountBigE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20009" />
+					<oSignal Name="rejectedCountBigE"    To="BigPicture.rejectedCountBigE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20009" />
 						<iSignal Name="manualMode" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10031" />
 					<iSignal Name="manualBottleAtSorter" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10032" />
 					<iSignal Name="manualBottleDefective" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10033" />

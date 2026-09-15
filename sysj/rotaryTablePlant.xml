@@ -21,6 +21,14 @@
 			<oSignal Name="bottleStage1E"           To="UI.bottleStage1E"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
 			<oSignal Name="bottleStage2E"           To="UI.bottleStage2E"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
 			<oSignal Name="bottleStage3E"           To="UI.bottleStage3E"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
+
+			<oSignal Name="tableAlignedWithSensorBigE" To="BigPicture.tableAlignedWithSensorBigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
+			<oSignal Name="bottleAtPos5BigE"           To="BigPicture.bottleAtPos5BigE"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
+			<oSignal Name="capOnBottleAtPos1BigE"      To="BigPicture.capOnBottleAtPos1BigE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
+			<oSignal Name="rotaryTableTriggerBigE"     To="BigPicture.rotaryTableTriggerBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
+			<oSignal Name="bottleStage1BigE"           To="BigPicture.bottleStage1BigE"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
+			<oSignal Name="bottleStage2BigE"           To="BigPicture.bottleStage2BigE"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
+			<oSignal Name="bottleStage3BigE"           To="BigPicture.bottleStage3BigE"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
 		</ClockDomain>
 	</SubSystem>
 </System>
