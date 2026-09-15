@@ -227,11 +227,8 @@ rotaryTablePlant(
 				}
 			} else {
 				System.out.printf("[RT] lane1: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
-<<<<<<< HEAD
-				System.out.printf("[RT] lane1: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
-=======
 				defective = true;
->>>>>>> e7f9481 (Final fixes for demo)
+
 			}
 			RotaryTableState.releaseCapper();
 
@@ -465,11 +462,7 @@ rotaryTablePlant(
 				System.out.printf("[RT] lane3: fillerTakenAck received after %dms%n", System.currentTimeMillis() - tFillStart);
 			} else {
 				System.out.printf("[RT] lane3: TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart);
-<<<<<<< HEAD
-				System.out.printf("[RT] lane3: TIMED OUT waiting for fillerTakenAck after %dms - moving on unfilled%n", System.currentTimeMillis() - tFillStart);
-=======
 				defective = true;
->>>>>>> e7f9481 (Final fixes for demo)
 			}
 			RotaryTableState.releaseFiller();
 
@@ -546,11 +539,7 @@ rotaryTablePlant(
 				}
 			} else {
 				System.out.printf("[RT] lane3: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
-<<<<<<< HEAD
-				System.out.printf("[RT] lane3: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
-=======
 				defective = true;
->>>>>>> e7f9481 (Final fixes for demo)
 			}
 			RotaryTableState.releaseCapper();
 			RotaryTableState.releaseCapper();

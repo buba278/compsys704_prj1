@@ -22,7 +22,6 @@ public class LabellerVizWorker extends Worker {
                 }
                 break;
 
-<<<<<<< Updated upstream
             case "bottleGoneE":
                 // NEW: explicit off-signal companion to bottleAtLabellerE. Without
                 // this, BOTTLE_PRESENT (and the finished label) could only ever be
@@ -36,10 +35,7 @@ public class LabellerVizWorker extends Worker {
                 }
                 break;
 
-            case "bottleClampedE":
-=======
             case "bottleClampedE": case "bottleClampedBigE":
->>>>>>> Stashed changes
                 LabellerState.CLAMPED = status;
                 break;
 
@@ -82,15 +78,10 @@ public class LabellerVizWorker extends Worker {
     }
 
     static final List<String> signames = Arrays.asList(
-<<<<<<< Updated upstream
-        "bottleAtLabellerE", "bottleGoneE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
-        "liquidARatioE", "targetVolumeMlE"
-=======
         "bottleAtLabellerE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
         "liquidARatioE", "targetVolumeMlE",
         "bottleAtLabellerBigE", "bottleClampedBigE", "labelPrintedBigE", "labelAppliedBigE",
         "liquidARatioBigE", "targetVolumeMlBigE"
->>>>>>> Stashed changes
     );
 
     @Override
