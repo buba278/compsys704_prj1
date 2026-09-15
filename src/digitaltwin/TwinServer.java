@@ -51,7 +51,7 @@ public class TwinServer {
         FillerPlantTwin.getInstance();
         LidPlacingPlantTwin.getInstance();
         SorterPlantTwin.getInstance();
- 
+        
         startVisualiserSocket(visualiserPort);
         startControlSocket(controlPort);
     }
@@ -154,6 +154,11 @@ public class TwinServer {
             		int targetCount = Integer.parseInt(parts[2]);
             		SystemTwin.getInstance().startBatch(batchId, targetCount);
             		return "OK";
+            	}
+            	
+            	case "ROTARY_TURN": {
+            	    SystemTwin.getInstance().onRotaryTurn();
+            	    return "OK";
             	}
             	
             	case "BATCH_PROGRESS": {

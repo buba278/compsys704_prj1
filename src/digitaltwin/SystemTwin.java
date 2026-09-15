@@ -59,9 +59,15 @@ public class SystemTwin {
     }
  
     public synchronized void onRotaryTurn() {
+    	 System.out.println("ROTARY TURN RECEIVED - turn count = " + rotaryTurnCount);
         rotaryTurnCount++;
         for (ProductTwin product : activeProducts.values()) {
             product.advancePosition();
+        
+        System.out.println(
+                "Product " + product.getProductId() +
+                " moved to position " + product.getCurrentPosition()
+            );
         }
     }
  

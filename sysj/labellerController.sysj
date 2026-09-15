@@ -26,6 +26,8 @@ LabellerController(
 			productId = "UNKNOWN";
 		}
 		
+		
+		
 		System.out.println("LabelController: Bottle detected. Starting sequence...");
 		twin.update(PlantTwin.State.IN_PROGRESS);
 

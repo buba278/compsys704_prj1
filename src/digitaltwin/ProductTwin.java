@@ -13,7 +13,7 @@ public class ProductTwin {
     private final double liquidRatio;
     private final long createdEpochMs;
  
-    private int currentPosition = 1;
+    private int currentPosition = 3;
     private Status status = Status.ON_LINE;
     private Long archivedEpochMs = null;
  

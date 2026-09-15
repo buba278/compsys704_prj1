@@ -97,6 +97,10 @@ public final class TwinClient {
     public synchronized String querySystemJson() {
         return sendCommand("QUERY_SYSTEM");
     }
+    
+    public synchronized void reportRotaryTurn() {
+        sendCommand("ROTARY_TURN");
+    }
 
     private String safe(String field) {
         if (field == null) {
