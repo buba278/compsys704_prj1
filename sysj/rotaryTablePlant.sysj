@@ -4,6 +4,7 @@ import run.RotaryCapperBridge;
 import run.RotaryFillerBridge;
 import run.RotaryLidBridge;
 import run.RotaryTableState;
+import run.RotaryTableState;
 
 rotaryTablePlant(
 		input signal rotaryTableTrigger;
@@ -12,10 +13,18 @@ rotaryTablePlant(
 		input signal fillerTakenAck;
 		input signal lidPlacedAck;
 		input signal conveyorTakenAck;
+		input signal conveyorTakenAck;
 		output signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1;
 		output signal tableBusy, tableHasFreeSlot;
-		output Integer signal bottleStage1E, bottleStage2E, bottleStage3E;
+		output Integer signal bottleStageE;
 		output signal tableAlignedWithSensorE, bottleAtPos5E, capOnBottleAtPos1E, rotaryTableTriggerE;
+
+		// Same events as the *E signals above, mirrored to a second socket for the
+		// Big-Picture view (a different process from the Rotary Table's own GUI, so it
+		// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket, see
+		// CLAUDE.md).
+		output Integer signal bottleStage1BigE, bottleStage2BigE, bottleStage3BigE;
+		output signal tableAlignedWithSensorBigE, bottleAtPos5BigE, capOnBottleAtPos1BigE, rotaryTableTriggerBigE;
 		)
 ->
 {
@@ -27,10 +36,30 @@ rotaryTablePlant(
 	// within one clock domain - see CLAUDE.md).
 	signal dispatchLane1, dispatchLane2, dispatchLane3;
 
+	// One bottle can be assigned to each of these local signals at a time;
+	// see RotaryTableState for how the dispatcher below picks a free lane
+	// and why plain Java fields are safe for that (no real concurrency
+	// within one clock domain - see CLAUDE.md).
+	signal dispatchLane1, dispatchLane2, dispatchLane3;
+
 	{ // table rotation / position sensor
+
 
 		await(start);
 		loop {
+			// Wait for an actual request before responding, then respond for
+			// as long as it's held - the previous version did this backwards
+			// (abort(rotaryTableTrigger){sustain tableAlignedWithSensor;}
+			// sustains tableAlignedWithSensor UNTIL triggered, not WHILE
+			// triggered), so tableAlignedWithSensor was asserted continuously
+			// from process startup, before any bottle had ever been
+			// requested. Harmless for the old single-bottle pipeline (it
+			// just treated whatever it saw first as "bottle 1" and moved on
+			// once real bottles started arriving), but the multi-lane
+			// dispatcher below reacts to every tick and was catching that
+			// startup assertion as a real, distinct phantom bottle.
+			await(rotaryTableTrigger);
+			abort(!rotaryTableTrigger) {
 			// Wait for an actual request before responding, then respond for
 			// as long as it's held - the previous version did this backwards
 			// (abort(rotaryTableTrigger){sustain tableAlignedWithSensor;}
@@ -93,7 +122,7 @@ rotaryTablePlant(
 	  // way to tell which bottle actually got served. Ack-or-timeout holds
 	  // throughout, same shape as the original single-bottle version this
 	  // replaced - see CLAUDE.md.
-		final long STAGE_VIEW_DELAY_MS = 400;
+		final long STAGE_VIEW_DELAY_MS = 1500;
 		loop {
 			await(dispatchLane1);
 			// Set once this bottle is abandoned at any station (unfilled, no
@@ -133,7 +162,7 @@ rotaryTablePlant(
 				long tGap1 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap1 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStage1E(2);
+					emit bottleStageE(2);
 					pause;
 				}
 			}
@@ -150,7 +179,7 @@ rotaryTablePlant(
 					boolean enableFlag = (sinceStart % 200) < 100;
 					RotaryLidBridge.setEnable(enableFlag);
 					emit tableBusy;
-					emit bottleStage1E(4);
+					emit bottleStageE(4);
 					pause;
 				}
 			}
@@ -168,7 +197,7 @@ rotaryTablePlant(
 				long tGap2 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap2 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStage1E(4);
+					emit bottleStageE(4);
 					pause;
 				}
 			}
@@ -182,7 +211,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t0 < 10000) {
 					RotaryCapperBridge.setBottleAtPos4(true);
 					emit tableBusy;
-					emit bottleStage1E(1);
+					emit bottleStageE(1);
 					pause;
 				}
 			}
@@ -193,12 +222,13 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t1 < 200) {
 					emit capOnBottleAtPos1;
 					emit tableBusy;
-					emit bottleStage1E(1);
+					emit bottleStageE(1);
 					pause;
 				}
 			} else {
 				System.out.printf("[RT] lane1: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
 				defective = true;
+
 			}
 			RotaryTableState.releaseCapper();
 
@@ -206,7 +236,7 @@ rotaryTablePlant(
 				long tGap3 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap3 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStage1E(1);
+					emit bottleStageE(1);
 					pause;
 				}
 			}
@@ -220,7 +250,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t3 < 35000) {
 					emit bottleAtPos5;
 					emit tableBusy;
-					emit bottleStage1E(3);
+					emit bottleStageE(3);
 					RotaryConveyorBridge.setBottleFromTable(true);
 					RotaryConveyorBridge.setBottleDefectiveFromTable(defective);
 					pause;
@@ -238,7 +268,7 @@ rotaryTablePlant(
 			{
 				long t4 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t4 < 200) {
-					emit bottleStage1E(0);
+					emit bottleStageE(0);
 					pause;
 				}
 			}
@@ -249,7 +279,7 @@ rotaryTablePlant(
 	}
 	||
 	{ // Lane 2 - identical to Lane 1, see its comments.
-		final long STAGE_VIEW_DELAY_MS = 400;
+		final long STAGE_VIEW_DELAY_MS = 1500;
 		loop {
 			await(dispatchLane2);
 			boolean defective = false;
@@ -268,7 +298,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t2 < 30000) {
 					RotaryFillerBridge.setBottleReadyForFiller(true);
 					emit tableBusy;
-					emit bottleStage2E(2);
+					emit bottleStageE(2);
 					pause;
 				}
 			}
@@ -290,6 +320,9 @@ rotaryTablePlant(
 				}
 			}
 
+			while (!RotaryTableState.tryClaimLid()) { pause; }
+			await(!lidPlacedAck);
+			System.out.printf("[RT] lane2: offering to Lid Placer%n");
 			while (!RotaryTableState.tryClaimLid()) { pause; }
 			await(!lidPlacedAck);
 			System.out.printf("[RT] lane2: offering to Lid Placer%n");
@@ -320,7 +353,7 @@ rotaryTablePlant(
 				long tGap2 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap2 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStage2E(4);
+					emit bottleStageE(4);
 					pause;
 				}
 			}
@@ -334,7 +367,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t0 < 10000) {
 					RotaryCapperBridge.setBottleAtPos4(true);
 					emit tableBusy;
-					emit bottleStage2E(1);
+					emit bottleStageE(1);
 					pause;
 				}
 			}
@@ -345,7 +378,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t1 < 200) {
 					emit capOnBottleAtPos1;
 					emit tableBusy;
-					emit bottleStage2E(1);
+					emit bottleStageE(1);
 					pause;
 				}
 			} else {
@@ -358,7 +391,7 @@ rotaryTablePlant(
 				long tGap3 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap3 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStage2E(1);
+					emit bottleStageE(1);
 					pause;
 				}
 			}
@@ -372,7 +405,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t3 < 35000) {
 					emit bottleAtPos5;
 					emit tableBusy;
-					emit bottleStage2E(3);
+					emit bottleStageE(3);
 					RotaryConveyorBridge.setBottleFromTable(true);
 					RotaryConveyorBridge.setBottleDefectiveFromTable(defective);
 					pause;
@@ -390,7 +423,7 @@ rotaryTablePlant(
 			{
 				long t4 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t4 < 200) {
-					emit bottleStage2E(0);
+					emit bottleStageE(0);
 					pause;
 				}
 			}
@@ -401,7 +434,7 @@ rotaryTablePlant(
 	}
 	||
 	{ // Lane 3 - identical to Lane 1, see its comments.
-		final long STAGE_VIEW_DELAY_MS = 400;
+		final long STAGE_VIEW_DELAY_MS = 1500;
 		loop {
 			await(dispatchLane3);
 			boolean defective = false;
@@ -420,7 +453,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t2 < 30000) {
 					RotaryFillerBridge.setBottleReadyForFiller(true);
 					emit tableBusy;
-					emit bottleStage3E(2);
+					emit bottleStageE(2);
 					pause;
 				}
 			}
@@ -437,7 +470,7 @@ rotaryTablePlant(
 				long tGap1 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGap1 < STAGE_VIEW_DELAY_MS) {
 					emit tableBusy;
-					emit bottleStage3E(2);
+					emit bottleStageE(2);
 					pause;
 				}
 			}
@@ -454,7 +487,7 @@ rotaryTablePlant(
 					boolean enableFlag = (sinceStart % 200) < 100;
 					RotaryLidBridge.setEnable(enableFlag);
 					emit tableBusy;
-					emit bottleStage3E(4);
+					emit bottleStageE(4);
 					pause;
 				}
 			}
@@ -480,6 +513,9 @@ rotaryTablePlant(
 			while (!RotaryTableState.tryClaimCapper()) { pause; }
 			await(!capperTakenAck);
 			System.out.printf("[RT] lane3: offering to Capper%n");
+			while (!RotaryTableState.tryClaimCapper()) { pause; }
+			await(!capperTakenAck);
+			System.out.printf("[RT] lane3: offering to Capper%n");
 			long tCapStart = System.currentTimeMillis();
 			abort(capperTakenAck) {
 				long t0 = System.currentTimeMillis();
@@ -493,6 +529,7 @@ rotaryTablePlant(
 			RotaryCapperBridge.setBottleAtPos4(false);
 			present(capperTakenAck) {
 				System.out.printf("[RT] lane3: capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
+				System.out.printf("[RT] lane3: capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
 				long t1 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t1 < 200) {
 					emit capOnBottleAtPos1;
@@ -504,6 +541,7 @@ rotaryTablePlant(
 				System.out.printf("[RT] lane3: TIMED OUT waiting for capperTakenAck after %dms - moving on uncapped%n", System.currentTimeMillis() - tCapStart);
 				defective = true;
 			}
+			RotaryTableState.releaseCapper();
 			RotaryTableState.releaseCapper();
 
 			{
@@ -524,7 +562,7 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t3 < 35000) {
 					emit bottleAtPos5;
 					emit tableBusy;
-					emit bottleStage3E(3);
+					emit bottleStageE(3);
 					RotaryConveyorBridge.setBottleFromTable(true);
 					RotaryConveyorBridge.setBottleDefectiveFromTable(defective);
 					pause;
@@ -532,6 +570,13 @@ rotaryTablePlant(
 			}
 			RotaryConveyorBridge.setBottleFromTable(false);
 			RotaryConveyorBridge.setBottleDefectiveFromTable(false);
+			present(conveyorTakenAck) {
+				System.out.printf("[RT] lane3: conveyorTakenAck received after %dms%n", System.currentTimeMillis() - tExitStart);
+			} else {
+				System.out.printf("[RT] lane3: TIMED OUT waiting for conveyorTakenAck after %dms%n", System.currentTimeMillis() - tExitStart);
+			}
+			RotaryTableState.releaseConveyorExit();
+
 			present(conveyorTakenAck) {
 				System.out.printf("[RT] lane3: conveyorTakenAck received after %dms%n", System.currentTimeMillis() - tExitStart);
 			} else {
@@ -547,18 +592,31 @@ rotaryTablePlant(
 				}
 			}
 			System.out.printf("[RT] lane3: bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart);
+			System.out.printf("[RT] lane3: bottle cycle complete, %dms total%n", System.currentTimeMillis() - tFillStart);
 
+			RotaryTableState.lane3Idle = true;
 			RotaryTableState.lane3Idle = true;
 		}
 	}
 	||
 	{ // Forward events to the GUI for the animated turntable render.
-		{while(true){present(tableAlignedWithSensor){emit tableAlignedWithSensorE;} pause;}}
+		{while(true){present(tableAlignedWithSensor){emit tableAlignedWithSensorE; emit tableAlignedWithSensorBigE;} pause;}}
 		||
-		{while(true){present(bottleAtPos5){emit bottleAtPos5E;} pause;}}
+		{while(true){present(bottleAtPos5){emit bottleAtPos5E; emit bottleAtPos5BigE;} pause;}}
 		||
-		{while(true){present(capOnBottleAtPos1){emit capOnBottleAtPos1E;} pause;}}
+		{while(true){present(capOnBottleAtPos1){emit capOnBottleAtPos1E; emit capOnBottleAtPos1BigE;} pause;}}
 		||
-		{while(true){present(rotaryTableTrigger){emit rotaryTableTriggerE;} pause;}}
+		{while(true){present(rotaryTableTrigger){emit rotaryTableTriggerE; emit rotaryTableTriggerBigE;} pause;}}
+	}
+	||
+	{ // Same lane-stage values, mirrored to the Big-Picture socket - read back off
+	  // bottleStage1E/2E/3E themselves (already the ground truth relayed to the
+	  // Rotary Table's own GUI above) rather than duplicating every emit site in
+	  // the three lane threads.
+		{while(true){present(bottleStage1E){emit bottleStage1BigE((Integer)#bottleStage1E);} pause;}}
+		||
+		{while(true){present(bottleStage2E){emit bottleStage2BigE((Integer)#bottleStage2E);} pause;}}
+		||
+		{while(true){present(bottleStage3E){emit bottleStage3BigE((Integer)#bottleStage3E);} pause;}}
 	}
 }

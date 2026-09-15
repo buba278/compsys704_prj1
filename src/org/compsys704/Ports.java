@@ -34,6 +34,10 @@ public class Ports {
 	public static final int PORT_ROTARYTABLE_CONTROLLER = 10016;
 	public static final int PORT_ROTARYTABLE_PLANT      = 10017;
 	public static final int PORT_ROTARYTABLE_VIZ        = 20002;
+	// Rotary Table -> Big-Picture viz (mirrors PORT_ROTARYTABLE_VIZ's *E signals as
+	// *BigE, since the Big-Picture window is a separate process from the Rotary
+	// Table's own GUI)
+	public static final int PORT_ROTARYTABLE_BIGPICTURE_VIZ = 20007;
 
 	// real controller inputs
 	public static final String ROTARYTABLE_MODE             = "RotaryTableControllerCD.mode";
@@ -65,6 +69,9 @@ public class Ports {
 	public static final int PORT_CONVEYOR_CONTROLLER = 10006;
 	public static final int PORT_CONVEYOR_PLANT      = 10007;
 	public static final int PORT_CONVEYOR_VIZ        = 20003;
+	// Conveyor -> Big-Picture viz (mirrors PORT_CONVEYOR_VIZ's *E signals as *BigE,
+	// since the Big-Picture window is a separate process from the Conveyor's own GUI)
+	public static final int PORT_CONVEYOR_BIGPICTURE_VIZ = 20006;
  
 	// real controller inputs
 	public static final String CONVEYOR_MODE       = "ConveyorControllerCD.mode";
@@ -121,6 +128,9 @@ public class Ports {
 	// === LABELLER ===
 	public static final int PORT_LABELLER_CONTROLLER = 10008;
 	public static final int PORT_LABELLER_PLANT      = 10009;
+	// Labeller -> Big-Picture viz (mirrors its own viz port's *E signals as *BigE,
+	// since the Big-Picture window is a separate process from the Labeller's own GUI)
+	public static final int PORT_LABELLER_BIGPICTURE_VIZ = 20008;
 
 	// Conveyor <-> Labeller handoff (collection point)
 	public static final String LABELLER_BOTTLE_FROM_CONVEYOR = "LabellerPlantCD.bottleFromConveyor";
@@ -138,6 +148,9 @@ public class Ports {
 	// === SORTER ===
 	public static final int PORT_SORTER_CONTROLLER = 10025;
 	public static final int PORT_SORTER_PLANT      = 10023;
+	// Sorter -> Big-Picture viz (mirrors its own viz port's *E signals as *BigE,
+	// since the Big-Picture window is a separate process from the Sorter's own GUI)
+	public static final int PORT_SORTER_BIGPICTURE_VIZ = 20009;
 
 	// === COORDINATOR + POS ===
 	public static final int PORT_COORDINATOR = 10004;
@@ -146,6 +159,14 @@ public class Ports {
 	// so whichever GUI started second would fail to bind its live-event
 	// port (BindException) and its display just wouldn't update.
 	public static final int PORT_POS_VIZ     = 20004;
+	// Order-queue sync: the individual Pos window is the hub (see
+	// machines.pos.OrderQueue.startAsHub(), called from PosPanel.main()) and the
+	// Big-Picture window mirrors it as a client (startAsClient(), from
+	// BigPicture.main()), so both show the exact same queue and a submission from
+	// either one ends up on this same list.
+	public static final int PORT_POS_QUEUE_SYNC = 20010;
+	// Coordinator -> Big-Picture viz (batch/recipe progress, no per-station GUI of its own)
+	public static final int PORT_COORDINATOR_VIZ = 20005;
 
 	// GUI order-form -> Pos clock domain
 	public static final String POS_SUBMIT        = "PosCD.submit";

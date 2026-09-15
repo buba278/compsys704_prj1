@@ -17,16 +17,19 @@ public class ConveyorVizWorker extends Worker {
 	@Override
 	public void setSignal(boolean status) {
 		switch (signame) {
-		case "motorOnE":        ConveyorState.MOTOR_ON = status; break;
-		case "bottleAtPos1E":   ConveyorState.setBottleAtPos1(status); break;
-		case "bottleLeftPos5E": ConveyorState.setBottleLeftPos5(status); break;
-		case "bottleEnteredE":  if (status) ConveyorState.startLeftTravel(); break;
-		case "bottleReceivedE": if (status) ConveyorState.startRightTravel(); break;
+		// *BigE names are the same events mirrored to the Big-Picture window's own
+		// socket (see conveyorPlant.sysj/xml) - handled identically to their *E
+		// counterpart since both just drive this same ConveyorState.
+		case "motorOnE": case "motorOnBigE":               ConveyorState.MOTOR_ON = status; break;
+		case "bottleAtPos1E": case "bottleAtPos1BigE":     ConveyorState.setBottleAtPos1(status); break;
+		case "bottleLeftPos5E": case "bottleLeftPos5BigE": ConveyorState.setBottleLeftPos5(status); break;
+		case "bottleEnteredE": case "bottleEnteredBigE":   if (status) ConveyorState.startLeftTravel(); break;
+		case "bottleReceivedE": case "bottleReceivedBigE": if (status) ConveyorState.startRightTravel(); break;
 		// each of these fires once per actual model tick spent travelling,
 		// so the animation can be driven by real ticks instead of a guessed
 		// real-time duration - see ConveyorState/ConveyorCanvas.
-		case "leftMovingE":     if (status) ConveyorState.advanceLeftStep(); break;
-		case "rightMovingE":    if (status) ConveyorState.advanceRightStep(); break;
+		case "leftMovingE": case "leftMovingBigE":     if (status) ConveyorState.advanceLeftStep(); break;
+		case "rightMovingE": case "rightMovingBigE":   if (status) ConveyorState.advanceRightStep(); break;
 		case "bottlesOnTableE": break; // value arrives via setIntSignal
 		default:
 			System.err.println("Wrong sig name : " + signame);
@@ -36,9 +39,10 @@ public class ConveyorVizWorker extends Worker {
 
 	@Override
 	public void setIntSignal(int value) {
-		if (signame.equals("bottlesOnTableE")) {
-			ConveyorState.BOTTLES_ON_TABLE = value;
-		} else {
+		switch (signame) {
+		case "bottlesOnTableE":                             ConveyorState.BOTTLES_ON_TABLE = value; break;
+		case "bottleReceivedE": case "bottleReceivedBigE":  ConveyorState.RIGHT_RATIO_A = value; break;
+		default:
 			System.err.println("Wrong sig name : " + signame);
 			System.exit(1);
 		}
@@ -46,7 +50,9 @@ public class ConveyorVizWorker extends Worker {
 
 	static final List<String> signames = Arrays.asList(
 			"motorOnE", "bottleAtPos1E", "bottleLeftPos5E", "bottleEnteredE", "bottleReceivedE",
-			"leftMovingE", "rightMovingE", "bottlesOnTableE");
+			"leftMovingE", "rightMovingE", "bottlesOnTableE",
+			"motorOnBigE", "bottleAtPos1BigE", "bottleLeftPos5BigE", "bottleEnteredBigE",
+			"bottleReceivedBigE", "leftMovingBigE", "rightMovingBigE");
 
 	@Override
 	public boolean hasSignal(String sn) {

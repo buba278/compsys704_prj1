@@ -18,8 +18,15 @@ Coordinator(
     output signal bottleAtPos2P;                                // coordinator -> fillerPlant (same event, 2nd socket)
     output Integer signal bottlesNeeded;                        // coordinator -> conveyorPlant (auto-loads one bottle per unit ordered)
     output Integer signal liquidARatioL, targetVolumeMlL;       // coordinator -> labellerPlant (same recipe, 3rd socket, so the label matches what's actually in the bottle)
+    output Integer signal liquidARatioC;                        // coordinator -> conveyorPlant (same recipe, 4th socket, so the exiting bottle's colour split matches what's actually in it)
 
     output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
+
+    output Integer signal liquidARatioE, targetVolumeMlE, bottlesNeededE; // coordinator -> BigPicture viz (active recipe)
+    output Integer signal bottlesFilledE;                       // coordinator -> BigPicture viz (progress within current batch)
+    output signal bottleFaultedE;                               // coordinator -> BigPicture viz (last attempt faulted)
+    output signal batchDoneE;                                   // coordinator -> BigPicture viz
+    output Integer signal batchElapsedE;                        // coordinator -> BigPicture viz (mirrors batchDone's payload)
 )
 ->
 {
@@ -62,13 +69,17 @@ Coordinator(
         // whole hold window before the loop's first condition check ever
         // ran true, so bottlesNeeded (and the other recipe signals) never
         // actually got emitted at all.
+        int filled = 0;
         long tEmit = System.currentTimeMillis();
         while (System.currentTimeMillis() - tEmit < 300) {
             emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
             emit bottlesNeeded(quantity);
-            emit liquidARatioL(ratioA);
-            emit targetVolumeMlL(volume);
+            emit liquidARatioC(ratioA);
+            emit liquidARatioE(ratioA);
+            emit targetVolumeMlE(volume);
+            emit bottlesNeededE(quantity);
+            emit bottlesFilledE(filled);
             pause;
         }
 
@@ -145,6 +156,8 @@ Coordinator(
         long tBatch = System.currentTimeMillis();
         while (System.currentTimeMillis() - tBatch < 50) {
             emit batchDone(elapsed);
+            emit batchDoneE;
+            emit batchElapsedE(elapsed);
             pause;
         }
         System.out.printf("[Coordinator] batch complete in %d ms - %d/%d sorted good, %d attempts total%n", elapsed, CoordinatorBatchState.getGoodSorted(), quantity, attempt);

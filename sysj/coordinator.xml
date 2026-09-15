@@ -21,8 +21,23 @@
 
                       <oSignal Name="batchDone" To="PosCD.batchDone" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10005" />
                       <oSignal Name="bottlesNeeded" To="ConveyorPlantCD.bottlesNeeded" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10007" />
+<<<<<<< HEAD
                       <oSignal Name="liquidARatioL"   To="LabellerPlantCD.liquidARatio"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
                       <oSignal Name="targetVolumeMlL" To="LabellerPlantCD.targetVolumeMl" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
+<<<<<<< Updated upstream
+=======
+>>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
+=======
+                      <oSignal Name="liquidARatioC"   To="ConveyorPlantCD.liquidARatioC"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10007" />
+
+                      <oSignal Name="liquidARatioE"   To="UI.liquidARatioE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20005" />
+                      <oSignal Name="targetVolumeMlE" To="UI.targetVolumeMlE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20005" />
+                      <oSignal Name="bottlesNeededE"  To="UI.bottlesNeededE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20005" />
+                      <oSignal Name="bottlesFilledE"  To="UI.bottlesFilledE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20005" />
+                      <oSignal Name="bottleFaultedE"  To="UI.bottleFaultedE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20005" />
+                      <oSignal Name="batchDoneE"      To="UI.batchDoneE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20005" />
+                      <oSignal Name="batchElapsedE"   To="UI.batchElapsedE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20005" />
+>>>>>>> Stashed changes
               </ClockDomain>
       </SubSystem>
 </System> 

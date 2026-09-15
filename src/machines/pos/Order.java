@@ -1,9 +1,15 @@
 package machines.pos;
 
-public class Order {
+import java.io.Serializable;
+
+// Serializable so OrderQueue can mirror it as-is between the individual Pos window
+// (the hub) and the Big-Picture window (a client) - see OrderQueue/OrderSyncMessage.
+public class Order implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public enum Status { QUEUED, IN_PROGRESS, DONE }
 
-    public int number; // set by PosPanel on enqueue
+    public int number; // assigned by OrderQueue's hub on enqueue, not by the submitting window
     public final int ratioA;
     public final int volume;
     public final int quantity;

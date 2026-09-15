@@ -29,6 +29,7 @@ public class RotaryTableCanvas extends JPanel {
 	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // light blue, matches FillerCanvas
 	private static final Color LIQUID_B_COLOR = new Color(255, 195, 130);  // light orange, matches FillerCanvas
 	private static final Color STATION_BLUE = new Color(30, 40, 60);       // matches StationHeader's banner colour
+	private static final Color STATION_BLUE = new Color(30, 40, 60);       // matches StationHeader's banner colour
 
 	@Override
 	protected void paintComponent(Graphics gOrig) {
@@ -134,17 +135,6 @@ public class RotaryTableCanvas extends JPanel {
 			g.setStroke(new java.awt.BasicStroke(justMoved ? 5f : (isCurrentStage ? 3f : 1f)));
 			g.draw(slot);
 			g.setStroke(new java.awt.BasicStroke(1f));
-
-			// A second lane briefly sharing this slot gets a small coloured
-			// ring offset to the side, rather than fully overlapping the
-			// first lane's fill and the position number.
-			if (occupyingLanes.size() > 1) {
-				int ringR = SLOT_RADIUS / 2;
-				g.setColor(RotaryTableState.LANE_COLORS[occupyingLanes.get(1)]);
-				g.fillOval(slotX + SLOT_RADIUS / 2, slotY - ringR, ringR * 2, ringR * 2);
-				g.setColor(Color.BLACK);
-				g.drawOval(slotX + SLOT_RADIUS / 2, slotY - ringR, ringR * 2, ringR * 2);
-			}
 
 			g.setFont(g.getFont().deriveFont(java.awt.Font.BOLD, 20f));
 			g.setColor(isCurrentStage ? Color.WHITE : STATION_BLUE);
