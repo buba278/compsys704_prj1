@@ -29,7 +29,6 @@ public class RotaryTableCanvas extends JPanel {
 	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // light blue, matches FillerCanvas
 	private static final Color LIQUID_B_COLOR = new Color(255, 195, 130);  // light orange, matches FillerCanvas
 	private static final Color STATION_BLUE = new Color(30, 40, 60);       // matches StationHeader's banner colour
-	private static final Color STATION_BLUE = new Color(30, 40, 60);       // matches StationHeader's banner colour
 
 	@Override
 	protected void paintComponent(Graphics gOrig) {

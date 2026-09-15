@@ -17,14 +17,8 @@ Coordinator(
     output signal bottleAtPos2;                                 // coordinator -> fillerController
     output signal bottleAtPos2P;                                // coordinator -> fillerPlant (same event, 2nd socket)
     output Integer signal bottlesNeeded;                        // coordinator -> conveyorPlant (auto-loads one bottle per unit ordered)
-<<<<<<< HEAD
     output Integer signal liquidARatioL, targetVolumeMlL;       // coordinator -> labellerPlant (same recipe, 3rd socket, so the label matches what's actually in the bottle)
-<<<<<<< Updated upstream
-=======
->>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
-=======
     output Integer signal liquidARatioC;                        // coordinator -> conveyorPlant (same recipe, 4th socket, so the exiting bottle's colour split matches what's actually in it)
->>>>>>> Stashed changes
 
     output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
 
@@ -81,27 +75,18 @@ Coordinator(
             emit liquidARatio(ratioA);
             emit targetVolumeMl(volume);
             emit bottlesNeeded(quantity);
-<<<<<<< HEAD
             emit liquidARatioL(ratioA);
             emit targetVolumeMlL(volume);
-<<<<<<< Updated upstream
-=======
->>>>>>> 66f4fec (Added automatic bottle loading driven by purchase orders)
-=======
             emit liquidARatioC(ratioA);
             emit liquidARatioE(ratioA);
             emit targetVolumeMlE(volume);
             emit bottlesNeededE(quantity);
             emit bottlesFilledE(filled);
->>>>>>> Stashed changes
             pause;
         }
 
         long start = System.currentTimeMillis();
-<<<<<<< Updated upstream
         CoordinatorBatchState.startOrder(quantity);
-=======
->>>>>>> Stashed changes
         int attempt = 0;
 
         // Driven by abort(orderSatisfied){ loop{...} } rather than a Java
@@ -138,14 +123,24 @@ Coordinator(
                     } else {
                         System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
                     }
+                    if (!bottleFaulted) {
+                        filled = filled + 1;
+                    }
                     // Tell the Rotary Table this bottle's filling stage is done (whether
                     // filled or faulted) so it can hand the bottle on to Pos 5. Ack-or-
                     // timeout hold, not a bare single-tick emit, since this crosses the
                     // socket to RotaryTablePlantCD and repeats once per bottle - see
-                    // CLAUDE.md.
+                    // CLAUDE.md. Also carries this bottle's outcome to the BigPicture
+                    // viz (bottleFaultedE/bottlesFilledE) on the same hold, rather than
+                    // a separate ack loop, to avoid double-acking fillerTakenAck.
                     long tFillerAck = System.currentTimeMillis();
                     while (System.currentTimeMillis() - tFillerAck < 200) {
                         RotaryFillerBridge.setFillerTakenAck(true);
+                        if (bottleFaulted) {
+                            emit bottleFaultedE;
+                        } else {
+                            emit bottlesFilledE(filled);
+                        }
                         pause;
                     }
                     RotaryFillerBridge.setFillerTakenAck(false);
@@ -164,36 +159,6 @@ Coordinator(
                 } else if (CoordinatorBatchState.getGoodSorted() >= quantity) {
                     emit orderSatisfied;
                 }
-<<<<<<< Updated upstream
-=======
-            }
-            present (fillFaultOut) {
-                bottleFaulted = true;
-                System.out.printf("[Coordinator] fillFaultOut received on attempt %d - station faulted, awaiting recovery%n", attempt);
-            } else {
-                System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
-            }
-            // Tell the Rotary Table this bottle's filling stage is done (whether
-            // filled or faulted) so it can hand the bottle on to Pos 5. Ack-or-
-            // timeout hold, not a bare single-tick emit, since this crosses the
-            // socket to RotaryTablePlantCD and repeats once per bottle - see
-            // CLAUDE.md. Placed here (right after the outcome is known) rather
-            // than after await(fillReady) below - sjc's JavaPrettyPrinter
-            // throws "TerminateNode can have only one child" when a bounded
-            // while/pause loop sits directly between an await(...) and a
-            // following if statement; this position also makes more semantic
-            // sense, since fillReady is about the Filler being ready for the
-            // *next* bottle, not about *this* bottle being finished.
-            int displayFilled = bottleFaulted ? filled : filled + 1;
-            long tFillerAck = System.currentTimeMillis();
-            while (System.currentTimeMillis() - tFillerAck < 200) {
-                RotaryFillerBridge.setFillerTakenAck(true);
-                if (bottleFaulted) {
-                    emit bottleFaultedE;
-                } else {
-                    emit bottlesFilledE(displayFilled);
-                }
->>>>>>> Stashed changes
                 pause;
             }
         }
