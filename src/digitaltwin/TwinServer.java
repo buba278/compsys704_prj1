@@ -51,6 +51,8 @@ public class TwinServer {
         FillerPlantTwin.getInstance();
         LidPlacingPlantTwin.getInstance();
         SorterPlantTwin.getInstance();
+        RotaryPlantTwin.getInstance();
+        LoadingConveyorPlantTwin.getInstance();
  
         startVisualiserSocket(visualiserPort);
         startControlSocket(controlPort);
@@ -172,6 +174,12 @@ public class TwinServer {
             	    int position = Integer.parseInt(parts[1]);
             	    String productId = SystemTwin.getInstance().getProductIdAtPosition(position);
             	    return productId != null ? productId : "ERR no product at position " + position;
+            	}
+            	
+            	case "ROTARY_TURN": {
+            	    System.out.println("TwinServer: Received ROTARY_TURN command from client.");
+            	    SystemTwin.getInstance().onRotaryTurn();
+            	    return "OK";
             	}
             	
                 case "PLANT_UPDATE": {

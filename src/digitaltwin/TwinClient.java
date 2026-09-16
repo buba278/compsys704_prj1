@@ -76,6 +76,10 @@ public final class TwinClient {
         sendCommand("BATCH_START|" + safe(batchId) + "|" + targetCount);
     }
     
+    public synchronized void reportRotaryTurn() {
+        sendCommand("ROTARY_TURN");
+    }
+    
 
     public synchronized void reportBatchElapsed(long elapsedMs) {
     	sendCommand("BATCH_ELAPSED|" + elapsedMs);

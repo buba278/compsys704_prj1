@@ -1,4 +1,6 @@
 import run.RotaryConveyorBridge;
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
 
 rotaryTableController(
 		input signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1, readyToRotate;
@@ -45,6 +47,7 @@ rotaryTableController(
 	}
 	||
 	{ 	// auto mode
+	TwinClient twin = new TwinClient("rotary-table", "127.0.0.1", 9090);
 
 		loop {
 
@@ -62,12 +65,15 @@ rotaryTableController(
 
 				await(readyToRotate);
 
+
 				abort(tableAlignedWithSensor) {
 					loop {
 						emit rotaryTableTrigger;
+						twin.reportRotaryTurn();
 						pause;
 					}
 				}
+				
 
 				// Only now - once the Plant has actually dispatched the
 				// bottle onto the table (tableAlignedWithSensor), not just
@@ -94,17 +100,24 @@ rotaryTableController(
 	}
 	||
 	{	// manual mode
+	TwinClient twin = new TwinClient("rotary", "127.0.0.1", 9090);
 		loop {
 			await(manualMode);
 
 			abort(autoMode) {
+			
 				loop {
 					present(rotateM) {
 						emit rotaryTableTrigger;
+						twin.reportRotaryTurn();
+						pause;
+						
 					}
 					pause;
 				}
 			}
+			
+   			}
 		}
 	}
 

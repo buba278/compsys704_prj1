@@ -30,7 +30,7 @@ public class ProductTwin {
     }
  
     synchronized void advancePosition() {
-        if (status == Status.ON_LINE) {
+        if (status == Status.ON_LINE && currentPosition <8) {
             currentPosition++;
         }
     }

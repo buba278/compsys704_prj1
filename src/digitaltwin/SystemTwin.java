@@ -28,6 +28,8 @@ public class SystemTwin {
     private int rotaryTurnCount = 0;
     private int productSequence = 0;
     private long lastBatchElapsedMs = 0;
+    private long lastRotaryTurnMs = 0;
+    private static final long MIN_ROTARY_TURN_INTERVAL_MS = 500;
  
     private SystemTwin() {
     }
@@ -59,6 +61,14 @@ public class SystemTwin {
     }
  
     public synchronized void onRotaryTurn() {
+        long now = System.currentTimeMillis();
+        if (now - lastRotaryTurnMs < MIN_ROTARY_TURN_INTERVAL_MS) {
+            System.out.println("SystemTwin: ignoring duplicate ROTARY_TURN " 
+                    + (now - lastRotaryTurnMs) + "ms after the last one");
+            return;
+        }
+        lastRotaryTurnMs = now;
+
         rotaryTurnCount++;
         for (ProductTwin product : activeProducts.values()) {
             product.advancePosition();
