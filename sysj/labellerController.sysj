@@ -10,7 +10,6 @@ LabellerController(
     output signal printLabel;
     output signal clampBottle;
     output signal applyLabel;			
-    output String signal productIdSig;	
 )
 ->
 {
@@ -43,7 +42,6 @@ LabellerController(
 		long tClamp = System.currentTimeMillis();
 		while (System.currentTimeMillis() - tClamp < 1000) {
 			emit clampBottle;
-			emit productIdSig(productId);
 			pause;
 		}
 		// FIX: Deleted await(bottleClamped) here
@@ -54,7 +52,6 @@ LabellerController(
 		while (System.currentTimeMillis() - tApply < 1500) {
 			emit clampBottle;
 			emit applyLabel;
-			emit productIdSig(productId);
 			pause;
 		}
 		// FIX: Deleted await(labelApplied) here

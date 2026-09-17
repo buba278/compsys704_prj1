@@ -158,7 +158,6 @@ LabellerPlant(
         while(true){
             present(liquidARatio){ emit liquidARatioE((Integer)#liquidARatio); emit liquidARatioBigE((Integer)#liquidARatio); }
             present(targetVolumeMl){ emit targetVolumeMlE((Integer)#targetVolumeMl); emit targetVolumeMlBigE((Integer)#targetVolumeMl); }
-            present(productIdSig){ emit productIdE((String)#productIdSig); }
             pause;
         }
     }

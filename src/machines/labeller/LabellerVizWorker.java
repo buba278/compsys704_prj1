@@ -82,7 +82,7 @@ public class LabellerVizWorker extends Worker {
 
     static final List<String> signames = Arrays.asList(
         "bottleAtLabellerE", "bottleGoneE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
-        "liquidARatioE", "targetVolumeMlE", "productIdE",
+        "liquidARatioE", "targetVolumeMlE",
         "bottleAtLabellerBigE", "bottleClampedBigE", "labelPrintedBigE", "labelAppliedBigE",
         "liquidARatioBigE", "targetVolumeMlBigE"
     );
