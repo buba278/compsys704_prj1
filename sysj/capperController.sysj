@@ -40,7 +40,7 @@ CapperController(
 
         System.out.println("CapperController: Waiting for bottle at Position 4...");
         await (bottleAtPos4);
-        String productId = twin.getProductIdAtPosition(4);
+        String productId = twin.getProductIdAtPosition(3);
         System.out.println("CapperController: Bottle detected. Starting capping sequence.");
         twin.update(PlantTwin.State.IN_PROGRESS);
 

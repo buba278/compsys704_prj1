@@ -22,6 +22,7 @@ public class SystemTwin {
     private final List<ProductTwin> archivedProducts = new CopyOnWriteArrayList<>();
  
     private String batchId = null;
+    private int batchIdnum = 0;
     private int batchTargetCount = 0;
     private int batchCompletedCount = 0;
     private int rejectedCount = 0;
@@ -44,8 +45,9 @@ public class SystemTwin {
         }
     }
  
-    public synchronized void startBatch(String batchId, int targetCount) {
-        this.batchId = batchId;
+    public synchronized void startBatch(int targetCount) {
+    	this.batchIdnum ++;
+        this.batchId = "BATCH" + batchIdnum;
         this.batchTargetCount = targetCount;
         this.batchCompletedCount = 0;
         this.rejectedCount = 0;
@@ -74,6 +76,7 @@ public class SystemTwin {
             product.advancePosition();
         }
     }
+   
  
     synchronized String createProductTwin(double volumeMl, double liquidRatio) {
         productSequence++;

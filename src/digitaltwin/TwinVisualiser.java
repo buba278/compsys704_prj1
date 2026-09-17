@@ -105,7 +105,7 @@ public class TwinVisualiser extends JFrame {
     }
 
     private void initProductTable() {
-        String[] columns = {"Product ID", "Position", "Volume", "Ratio", "Status", "Last Outcome"};
+        String[] columns = {"Product ID", "Workstation", "Volume", "Ratio", "Status", "Last Outcome"};
         tableModel = new DefaultTableModel(columns, 0);
         productTable = new JTable(tableModel);
         productTable.setRowHeight(24);
@@ -158,8 +158,10 @@ public class TwinVisualiser extends JFrame {
             for (JsonElement element : activeProducts) {
                 JsonObject prod = element.getAsJsonObject();
                 
-                String pId = prod.get("productId").getAsString().substring(0, 8); // Short ID
-                String pos = prod.get("currentPosition").getAsString() + " / 7";
+                String pId = prod.get("productId").getAsString(); // Short ID
+                String pos = (prod.has("currentWorkstation") && !prod.get("currentWorkstation").isJsonNull())
+                        ? prod.get("currentWorkstation").getAsString()
+                        : "—";
                 String vol = prod.has("volumeMl") ? prod.get("volumeMl").getAsString() + " ml" : "—";
                 String ratio = prod.has("liquidRatio") ? prod.get("liquidRatio").getAsString() : "—";
                 String status = prod.get("status").getAsString();

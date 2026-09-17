@@ -72,19 +72,14 @@ public final class TwinClient {
         sendCommand("PRODUCT_ARCHIVE|" + productId + "|" + rejected);
     }
     
-    public synchronized void startBatch(String batchId, int targetCount) {
-        sendCommand("BATCH_START|" + safe(batchId) + "|" + targetCount);
+    public synchronized void startBatch(int targetCount) {
+        sendCommand("BATCH_START|" + "|" + targetCount);
     }
     
     public synchronized void reportRotaryTurn() {
         sendCommand("ROTARY_TURN");
     }
-    
-
-    public synchronized void reportBatchElapsed(long elapsedMs) {
-    	sendCommand("BATCH_ELAPSED|" + elapsedMs);
-    }
-    
+  
     public synchronized void reportProgress(int completedCount) {
         sendCommand("BATCH_PROGRESS|" + completedCount);
     }
@@ -95,6 +90,18 @@ public final class TwinClient {
     
     public synchronized String getProductIdAtPosition(int position) {
         return sendCommand("PRODUCT_AT_POSITION|" + position);
+    }
+
+    /**
+     * True if any station has recorded a fault against this bottle so far
+     * (per ProductTwin.hasFault()). False on any communication failure with
+     * the twin server (fail-open: a monitoring outage doesn't start
+     * rejecting good bottles) -- flip the fallback in the caller if you'd
+     * rather fail closed for this line.
+     */
+    public synchronized boolean hasFault(String productId) {
+        String reply = sendCommand("PRODUCT_HAS_FAULT|" + productId);
+        return "true".equalsIgnoreCase(reply);
     }
 
     /** Returns the full SystemTwin JSON feed, or null if the server is unreachable. */

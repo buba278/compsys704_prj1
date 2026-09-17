@@ -61,7 +61,7 @@ Coordinator(
         System.out.printf("[Coordinator] order ratioA=%d vol=%d qty=%d%n", ratioA, volume, quantity);
 		
         long tRecipe = System.currentTimeMillis();
-        twin.startBatch("batch" + tRecipe, quantity);
+        twin.startBatch(quantity);
         // Timer for the widened hold below starts only now, after the twin
         // call has already returned - startBatch() can block for a while
         // establishing (or failing to establish) its socket to the twin
@@ -153,7 +153,6 @@ Coordinator(
                         int nowNeeded = CoordinatorBatchState.addNeeded(1);
                         System.out.printf("[Coordinator] attempt %d abandoned due to fault, queuing a replacement (now need %d total)%n", attempt, nowNeeded);
                     } else {
-                        twin.reportProgress(startedNow);
                         System.out.printf("[Coordinator] bottle from attempt %d filled, travelling to sorting%n", attempt);
                     }
                 } else if (CoordinatorBatchState.getGoodSorted() >= quantity) {
@@ -162,9 +161,11 @@ Coordinator(
                 pause;
             }
         }
+        
+        
 
         int elapsed = (int)(System.currentTimeMillis() - start);
-        twin.reportBatchElapsed(elapsed);
+        twin.reportBatchDone(elapsed);
         long tBatch = System.currentTimeMillis();
         while (System.currentTimeMillis() - tBatch < 50) {
             emit batchDone(elapsed);
@@ -183,6 +184,7 @@ Coordinator(
 	// clock domain (see CLAUDE.md), so edge-guarded here - without that, a
 	// single reject/sort event held present for its whole hold window would
 	// be double (or triple) counted.
+	TwinClient twin = new TwinClient("coordinator", "127.0.0.1", 9090);
 	boolean sawSortedOk = false;
 	boolean sawSortRejected = false;
 	loop {
@@ -191,6 +193,7 @@ Coordinator(
 				sawSortedOk = true;
 				int nowGood = CoordinatorBatchState.incrementGoodSorted();
 				System.out.printf("[Coordinator] sortedOkE received - %d sorted good so far%n", nowGood);
+				twin.reportProgress(nowGood);
 			}
 		} else {
 			sawSortedOk = false;
