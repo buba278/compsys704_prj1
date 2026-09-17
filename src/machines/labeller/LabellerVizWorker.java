@@ -1,5 +1,6 @@
 package machines.labeller;
 
+import digitaltwin.TwinClient;
 import java.util.Arrays;
 import java.util.List;
 import org.compsys704.Worker;
@@ -8,7 +9,8 @@ public class LabellerVizWorker extends Worker {
     // *BigE names are the same events mirrored to the Big-Picture window's own socket
     // (see labellerPlant.sysj/xml) - handled identically to their *E counterpart since
     // both just drive this same LabellerState.
-    @Override
+	private final TwinClient twin = new TwinClient("labeller-viz", "127.0.0.1", 9090);
+	@Override
     public void setSignal(boolean status) {
         switch (signame) {
             case "bottleAtLabellerE": case "bottleAtLabellerBigE":
@@ -19,6 +21,9 @@ public class LabellerVizWorker extends Worker {
                         LabellerState.LABEL_PRINTED = false;
                     }
                     LabellerState.BOTTLE_PRESENT = true;
+                 // Fetch live ID for Position 4 (Labeller) directly from Digital Twin
+                    String id = twin.getProductIdAtPosition(4);
+                    LabellerState.CURRENT_LABEL_ID = (id != null && !id.isEmpty()) ? id : "UNKNOWN";
                 }
                 break;
 
@@ -42,8 +47,6 @@ public class LabellerVizWorker extends Worker {
             case "labelPrintedE": case "labelPrintedBigE":
                 // Latch print state ON when the pulse arrives
                 if (status && !LabellerState.LABEL_PRINTED) {
-                    LabellerState.LABEL_COUNTER++;
-                    LabellerState.CURRENT_LABEL_ID = String.format("#%04d", LabellerState.LABEL_COUNTER);
                     LabellerState.LABEL_PRINTED = true;
                 }
                 break;
@@ -79,7 +82,7 @@ public class LabellerVizWorker extends Worker {
 
     static final List<String> signames = Arrays.asList(
         "bottleAtLabellerE", "bottleGoneE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
-        "liquidARatioE", "targetVolumeMlE",
+        "liquidARatioE", "targetVolumeMlE", "productIdE",
         "bottleAtLabellerBigE", "bottleClampedBigE", "labelPrintedBigE", "labelAppliedBigE",
         "liquidARatioBigE", "targetVolumeMlBigE"
     );

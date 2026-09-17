@@ -15,6 +15,7 @@ LabellerPlant(
     input signal bottleFromConveyor;
     input signal bottleDefectiveFromConveyor;
     input signal sorterTakenAck;
+    input String signal productIdSig;
 
     output signal bottleAtLabellerE;
 	output signal bottleGoneE;
@@ -22,6 +23,7 @@ LabellerPlant(
 	output signal bottleClampedE;
 	output signal labelAppliedE;
 	output Integer signal liquidARatioE, targetVolumeMlE;
+	output String signal productIdE;
 
 	// Same events as the *E signals above, mirrored to a second socket for the
 	// Big-Picture view (a different process from the Labeller's own GUI, so it
@@ -156,6 +158,7 @@ LabellerPlant(
         while(true){
             present(liquidARatio){ emit liquidARatioE((Integer)#liquidARatio); emit liquidARatioBigE((Integer)#liquidARatio); }
             present(targetVolumeMl){ emit targetVolumeMlE((Integer)#targetVolumeMl); emit targetVolumeMlBigE((Integer)#targetVolumeMl); }
+            present(productIdSig){ emit productIdE((String)#productIdSig); }
             pause;
         }
     }

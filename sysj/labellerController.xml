@@ -11,6 +11,7 @@
                       <oSignal Name="printLabel"       To="LabellerPlantCD.printLabel"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
                       <oSignal Name="clampBottle"      To="LabellerPlantCD.clampBottle"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
                       <oSignal Name="applyLabel"       To="LabellerPlantCD.applyLabel"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
+                      <oSignal Name="productIdSig" To="LabellerPlantCD.productIdSig" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />
               </ClockDomain>
       </SubSystem>
 </System>

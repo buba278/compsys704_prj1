@@ -10,6 +10,7 @@
                       <iSignal Name="sorterTakenAck"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="liquidARatio"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
                       <iSignal Name="targetVolumeMl"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
+                      <iSignal Name="productIdSig" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10009" />
 
                       <!-- Outputs to Controller -->
                       <oSignal Name="bottleAtLabeller" To="LabellerControllerCD.bottleAtLabeller" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10008" />
@@ -24,6 +25,7 @@
 					<oSignal Name="labelAppliedE"     To="UI.labelAppliedE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
 					<oSignal Name="liquidARatioE"     To="UI.liquidARatioE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
 					<oSignal Name="targetVolumeMlE"   To="UI.targetVolumeMlE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+					<oSignal Name="productIdE" To="UI.productIdE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
 
 					<oSignal Name="bottleAtLabellerBigE" To="BigPicture.bottleAtLabellerBigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
 					<oSignal Name="labelPrintedBigE"     To="BigPicture.labelPrintedBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />

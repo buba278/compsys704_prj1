@@ -116,7 +116,7 @@ public class SystemTwin {
         }
         twin.archive(rejected);
         archivedProducts.add(twin);
-        batchCompletedCount++;
+        //batchCompletedCount++;
         if (rejected) {
             rejectedCount++;
         }
