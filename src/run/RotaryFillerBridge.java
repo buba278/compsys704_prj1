@@ -16,7 +16,10 @@ public class RotaryFillerBridge {
 			new SignalLevelClient(Ports.PORT_COORDINATOR, Ports.COORDINATOR_BOTTLE_READY_FOR_FILLER);
 	private static final SignalLevelClient FILLER_TAKEN_ACK =
 			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_FILLER_TAKEN_ACK);
+	private static final SignalLevelClient FILLER_FAULTED =
+			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_FILLER_FAULTED);
 
 	public static void setBottleReadyForFiller(boolean state) { BOTTLE_READY_FOR_FILLER.send(state); }
 	public static void setFillerTakenAck(boolean state) { FILLER_TAKEN_ACK.send(state); }
+	public static void setFillerFaulted(boolean state) { FILLER_FAULTED.send(state); }
 }

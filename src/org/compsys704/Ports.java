@@ -50,6 +50,19 @@ public class Ports {
 	// Coordinator acks once it's genuinely filled.
 	public static final String ROTARYTABLE_FILLER_TAKEN_ACK       = "RotaryTablePlantCD.fillerTakenAck";
 	public static final String COORDINATOR_BOTTLE_READY_FOR_FILLER = "CoordinatorCD.bottleReadyForFiller";
+	// Carries the real outcome alongside each station's ack - the ack alone only means
+	// "this station is done with the bottle", not "it succeeded", so the Rotary Table
+	// needs this to know whether to mark the slot defective for downstream sorting.
+	public static final String ROTARYTABLE_FILLER_FAULTED = "RotaryTablePlantCD.fillerFaulted";
+	public static final String ROTARYTABLE_LID_FAULTED    = "RotaryTablePlantCD.lidFaulted";
+	public static final String ROTARYTABLE_CAPPER_FAULTED = "RotaryTablePlantCD.capperFaulted";
+
+	// Conveyor acks the Coordinator's per-order bottlesNeeded broadcast once
+	// it has genuinely latched the count into LoaderState, turning what used
+	// to be a fire-and-forget widened hold into a proper ack-or-timeout (see
+	// coordinator.sysj / conveyorPlant.sysj) - the only recipe-broadcast
+	// signal that previously had no receipt confirmation at all.
+	public static final String COORDINATOR_BOTTLES_NEEDED_ACK = "CoordinatorCD.bottlesNeededAck";
 
 	// Conveyor acks the Rotary Table's Pos 5 handoff immediately on receipt,
 	// rather than the Rotary Table guessing a fixed wait - the Conveyor's own
@@ -102,11 +115,11 @@ public class Ports {
 	public static final String LID_PLACED_ACK = "RotaryTablePlantCD.lidPlacedAck";
 
 	// fault tolerance: manual fault injection / clear from the Capper GUI.
-	// "Jam Twist" (like the Filler's Overfill/Stall) goes to the PLANT -
-	// it simulates the physical cause (a cap knocked loose before the
-	// twist completes) so the controller's own retry/timeout detection is
-	// what actually raises the fault, not the GUI faking the end state.
-	public static final String CAPPER_JAM_M         = "CapperPlantCD.capperJamM";
+	// "Stall" (like the Filler's Overfill/Stall) goes to the PLANT - it
+	// simulates the physical cause (the twist motor stalling before
+	// completion) so the controller's own timeout detection is what
+	// actually raises the fault, not the GUI faking the end state.
+	public static final String CAPPER_STALL_M       = "CapperPlantCD.capperStallM";
 	public static final String CAPPER_CLEAR_FAULT_M = "CapperControllerCD.clearCapperFaultM";
 
 	// fault tolerance: manual fault injection / clear from the Lid Placer GUI.

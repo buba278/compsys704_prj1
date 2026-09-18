@@ -3,7 +3,6 @@
 		<ClockDomain Name="RotaryTableControllerCD" Class="rotaryTableController">
 			<iSignal Name="tableAlignedWithSensor" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="bottleAtPos5"           Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
-			<iSignal Name="capOnBottleAtPos1"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="tableBusy"              Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="tableHasFreeSlot"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="readyToRotate"          Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />

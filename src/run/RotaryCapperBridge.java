@@ -23,10 +23,13 @@ public class RotaryCapperBridge {
 			new SignalLevelClient(Ports.PORT_CAPPER_CONTROLLER, Ports.CAPPER_BOTTLE_AT_POS4_CONTROLLER);
 	private static final SignalLevelClient CAPPER_TAKEN_ACK =
 			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_CAPPER_TAKEN_ACK);
+	private static final SignalLevelClient CAPPER_FAULTED =
+			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_CAPPER_FAULTED);
 
 	public static void setBottleAtPos4(boolean state) {
 		BOTTLE_AT_POS4_PLANT.send(state);
 		BOTTLE_AT_POS4_CONTROLLER.send(state);
 	}
 	public static void setCapperTakenAck(boolean state) { CAPPER_TAKEN_ACK.send(state); }
+	public static void setCapperFaulted(boolean state) { CAPPER_FAULTED.send(state); }
 }

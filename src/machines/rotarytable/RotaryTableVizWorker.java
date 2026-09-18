@@ -12,9 +12,8 @@ public class RotaryTableVizWorker extends Worker {
 		switch (signame) {
 		case "tableAlignedWithSensorE": RotaryTableState.TABLE_ALIGNED = status; break;
 		case "bottleAtPos5E":           RotaryTableState.BOTTLE_AT_POS5 = status; break;
-		case "capOnBottleAtPos1E":      RotaryTableState.CAP_ON_BOTTLE_AT_POS1 = status; break;
-		case "rotaryTableTriggerE":     if (status) RotaryTableState.triggerStep(); break;
-		case "bottleStage1E": case "bottleStage2E": case "bottleStage3E":
+		case "rotaryTableTriggerE":     break; // no visual effect of its own - see per-slot highlights
+		case "slot0BottleIdE": case "slot1BottleIdE": case "slot2BottleIdE": case "slot3BottleIdE": case "slot4BottleIdE":
 			break; // value arrives via setIntSignal
 		default:
 			System.err.println("Wrong sig name : " + signame);
@@ -25,9 +24,11 @@ public class RotaryTableVizWorker extends Worker {
 	@Override
 	public void setIntSignal(int value) {
 		switch (signame) {
-		case "bottleStage1E": RotaryTableState.recordLaneStage(0, value); break;
-		case "bottleStage2E": RotaryTableState.recordLaneStage(1, value); break;
-		case "bottleStage3E": RotaryTableState.recordLaneStage(2, value); break;
+		case "slot0BottleIdE": RotaryTableState.recordSlotBottleId(0, value); break;
+		case "slot1BottleIdE": RotaryTableState.recordSlotBottleId(1, value); break;
+		case "slot2BottleIdE": RotaryTableState.recordSlotBottleId(2, value); break;
+		case "slot3BottleIdE": RotaryTableState.recordSlotBottleId(3, value); break;
+		case "slot4BottleIdE": RotaryTableState.recordSlotBottleId(4, value); break;
 		default:
 			System.err.println("Wrong sig name : " + signame);
 			System.exit(1);
@@ -35,8 +36,8 @@ public class RotaryTableVizWorker extends Worker {
 	}
 
 	static final List<String> signames = Arrays.asList(
-			"tableAlignedWithSensorE", "bottleAtPos5E", "capOnBottleAtPos1E", "rotaryTableTriggerE",
-			"bottleStage1E", "bottleStage2E", "bottleStage3E");
+			"tableAlignedWithSensorE", "bottleAtPos5E", "rotaryTableTriggerE",
+			"slot0BottleIdE", "slot1BottleIdE", "slot2BottleIdE", "slot3BottleIdE", "slot4BottleIdE");
 
 	@Override
 	public boolean hasSignal(String sn) {
