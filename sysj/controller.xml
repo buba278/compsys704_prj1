@@ -22,6 +22,7 @@
 
 			<iSignal Name="clearLidFaultM" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10000" />
 			<oSignal Name="lidFaultE"   To="UI.lidFaultE"              Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20000" />
+			<oSignal Name="lidBackupE" To="UI.lidBackupE"             Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20000" />
 			<oSignal Name="lidFaultOut" To="CoordinatorCD.lidFaultOut" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
 		</ClockDomain>
 	</SubSystem>

@@ -15,8 +15,7 @@ public class Canvas extends JPanel {
 	BufferedImage p1;
 	BufferedImage p2;
 	BufferedImage loader;
-	BufferedImage cap;
-	
+
 	public Canvas(){
 		try {
 			BufferedImage bi = ImageIO.read(new File("res/arm.png"));
@@ -26,7 +25,6 @@ public class Canvas extends JPanel {
 			bi = ImageIO.read(new File("res/pusher.png"));
 			p1 = bi.getSubimage(0, 0, 238, 68);
 			p2 = bi.getSubimage(238, 0, 172, 68);
-			cap = ImageIO.read(new File("res/cap.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);;
@@ -77,8 +75,21 @@ public class Canvas extends JPanel {
 			g.drawImage(p2, 90, 225, null);
 		}
 		
-		if(!States.MAG_EMPTY){
-			g.drawImage(cap, 152, 155, null);
+		// Magazine puck stack: cap.png was a single flat image showing a fixed
+		// 4-puck stack with no way to remove pucks individually, so it's
+		// drawn programmatically instead - one puck per remaining cap. The
+		// loader.png tube's actual white interior runs y=116-232 (measured
+		// directly from the image, loader.png is drawn at (0,100)); 5 slots
+		// pitched at 22px fit that with margin. Slots are numbered top (0) to
+		// bottom (4), and only the bottom CAP_COUNT slots are drawn - the
+		// magazine empties top-down, feeding from the bottom pickup end, so
+		// the slot closest to the pickup point is the last to disappear.
+		int puckW = 32, puckH = 18, slotPitch = 22, tubeTop = 118;
+		for (int i = 0; i < 5; i++) {
+			if (i >= 5 - States.CAP_COUNT) {
+				g.setColor(Color.black);
+				g.fillRect(152, tubeTop + i * slotPitch, puckW, puckH);
+			}
 		}
 
 		// Fault indicator - always drawn (grey when off), matching FillerCanvas
@@ -87,10 +98,11 @@ public class Canvas extends JPanel {
 		g.setColor(Color.black);
 		g.drawString("FAULT", 30, 22);
 
-		// Placeholder for the redundant-line rerouting from the IP report
-		// (section 6) - not wired to any real backup instance yet, just
-		// lights up alongside a fault so the idea can be narrated.
-		g.setColor(States.FAULTED ? Color.orange : Color.lightGray);
+		// Redundant-line rerouting from the IP report (section 6): lit once
+		// the station has faulted out and handed off to its physical backup
+		// unit, and stays lit across subsequent bottles until Clear Fault
+		// returns the station to its primary unit.
+		g.setColor(States.BACKUP_ACTIVE ? Color.orange : Color.lightGray);
 		g.fillOval(10, 32, 16, 16);
 		g.setColor(Color.black);
 		g.drawString("BACKUP MODE", 30, 44);

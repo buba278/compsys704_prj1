@@ -22,6 +22,7 @@
 			<oSignal Name="armAtSourceE"     To="UI.armAtSourceE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20000" />
 			<oSignal Name="armAtDestE"       To="UI.armAtDestE"       Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20000" />
 			<oSignal Name="emptyE"           To="UI.emptyE"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20000" />
+			<oSignal Name="capCountE"        To="UI.capCountE"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20000" />
 		</ClockDomain>
 	</SubSystem>
 </System>

@@ -7,6 +7,7 @@ Plant(
 		input signal dropLidM;										// GUI -> plant (manual fault injection: lid slips out of grip, never gripped)
 		output signal pusherRetracted,pusherExtended,WPgripped,armAtSource,armAtDest,empty;
 		output signal pusherRetractedE,pusherExtendedE,WPgrippedE,armAtSourceE,armAtDestE,emptyE;
+		output Integer signal capCountE;								// plant -> UI viz (remaining caps in the magazine, for a real per-cap depiction)
 		)
 ->
 {
@@ -116,6 +117,10 @@ Plant(
 				if(capcount == 0)
 					emit empty;
 //			}
+			// Re-broadcast every tick (not gated), same reliability pattern as
+			// emptyE below - the receiver always gets the current count even
+			// if a single packet is dropped.
+			emit capCountE(capcount);
 			pause;
 		}
 	}
