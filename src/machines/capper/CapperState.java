@@ -19,4 +19,7 @@ public class CapperState {
     // Fault indicator (see run.CapperFaultState / the IP report)
     public static volatile boolean FAULTED = false;
 
+    // Persistent backup-unit-active indicator (see run.CapperFaultState)
+    public static volatile boolean BACKUP_ACTIVE = false;
+
 }

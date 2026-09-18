@@ -50,6 +50,9 @@ public class CapperVizWorker extends Worker {
             case "capperFaultE":
                 if (status) CapperState.FAULTED = true;
                 break;
+            case "capperBackupE":
+                if (status) CapperState.BACKUP_ACTIVE = true;
+                break;
             default:
                 System.err.println("Wrong sig name : " + signame);
                 System.exit(1);
@@ -63,7 +66,7 @@ public class CapperVizWorker extends Worker {
 
     static final List<String> signames = Arrays.asList(
         "bottleAtPos4E", "bottleGoneE", "gripperMaxLowerE", "gripperMaxLiftE",
-        "gripperInitPosE", "gripperFullTwistE", "capperFaultE"
+        "gripperInitPosE", "gripperFullTwistE", "capperFaultE", "capperBackupE"
     );
 
     @Override
