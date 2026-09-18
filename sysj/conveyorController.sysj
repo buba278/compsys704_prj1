@@ -1,4 +1,6 @@
 import run.RotaryConveyorBridge;
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
 
 conveyorController(
 		input signal bottleAtPos1, bottleLeftPos5, pos1TakenAck;

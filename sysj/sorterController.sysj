@@ -49,8 +49,8 @@ SorterController(
             LabellerSorterBridge.setSorterTakenAck(false);
         }
 
-        // 1. Fetch live product ID at Position 6 (Sorter)
-        String productId = twin.getProductIdAtPosition(6);  
+        // 1. Fetch live product ID at Position 5 (Sorter)
+        String productId = twin.getProductIdAtPosition(5);
         if (productId == null || productId.isEmpty()) {
             productId = "UNKNOWN";
         }
@@ -64,7 +64,13 @@ SorterController(
             while (System.currentTimeMillis() - tInspect < 400) { pause; }
         }
 
-        if (defective) {
+        // Belt-and-braces check against the digital twin's own recorded fault history
+        // (per ProductTwin.hasFault()) - a second, independent source of truth alongside
+        // the live bottleDefective signal above, in case a station's fault event made it
+        // into this product's twin record without the physical signal chain reflecting it.
+        boolean upstreamFault = twin.hasFault(productId);
+
+        if (defective || upstreamFault) {
             System.out.println("SorterController: Defect detected - diverting bottle.");
 
             // Guard: ensure pusher is fully retracted before issuing extend command

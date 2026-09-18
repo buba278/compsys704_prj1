@@ -19,8 +19,15 @@ Coordinator(
     output signal bottleAtPos2P;                                // coordinator -> fillerPlant (same event, 2nd socket)
     output Integer signal bottlesNeeded;                        // coordinator -> conveyorPlant (auto-loads one bottle per unit ordered)
     output Integer signal liquidARatioL, targetVolumeMlL;       // coordinator -> labellerPlant (same recipe, 3rd socket, so the label matches what's actually in the bottle)
+    output Integer signal liquidARatioC;                        // coordinator -> conveyorPlant (same recipe, 4th socket, so the exiting bottle's colour split matches what's actually in it)
 
     output Integer signal batchDone;                            // coordinator -> POS (carries elapsed ms)
+
+    output Integer signal liquidARatioE, targetVolumeMlE, bottlesNeededE; // coordinator -> BigPicture viz (active recipe)
+    output Integer signal bottlesFilledE;                       // coordinator -> BigPicture viz (progress within current batch)
+    output signal bottleFaultedE;                               // coordinator -> BigPicture viz (last attempt faulted)
+    output signal batchDoneE;                                   // coordinator -> BigPicture viz
+    output Integer signal batchElapsedE;                        // coordinator -> BigPicture viz (mirrors batchDone's payload)
 )
 ->
 {
@@ -43,7 +50,9 @@ Coordinator(
         System.out.printf("[Coordinator] order ratioA=%d vol=%d qty=%d%n", ratioA, volume, quantity);
 		
         long tRecipe = System.currentTimeMillis();
-        twin.startBatch("batch" + tRecipe, quantity);
+        twin.startBatch(quantity);
+
+        int filled = 0;
 
         // Ack-or-timeout broadcast; await(!bottlesNeededAck) first guards against a stale ack still lingering from the previous order's hold.
         await (!bottlesNeededAck);
@@ -55,6 +64,11 @@ Coordinator(
                 emit bottlesNeeded(quantity);
                 emit liquidARatioL(ratioA);
                 emit targetVolumeMlL(volume);
+                emit liquidARatioC(ratioA);
+                emit liquidARatioE(ratioA);
+                emit targetVolumeMlE(volume);
+                emit bottlesNeededE(quantity);
+                emit bottlesFilledE(filled);
                 pause;
             }
         }
@@ -86,10 +100,18 @@ Coordinator(
                         System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
                     }
 
+                    if (!bottleFaulted) {
+                        filled = filled + 1;
+                    }
                     long tFillerAck = System.currentTimeMillis();
                     while (System.currentTimeMillis() - tFillerAck < 100) {
                         RotaryFillerBridge.setFillerTakenAck(true);
                         RotaryFillerBridge.setFillerFaulted(bottleFaulted);
+                        if (bottleFaulted) {
+                            emit bottleFaultedE;
+                        } else {
+                            emit bottlesFilledE(filled);
+                        }
                         pause;
                     }
                     RotaryFillerBridge.setFillerTakenAck(false);
@@ -99,7 +121,6 @@ Coordinator(
                         int nowNeeded = CoordinatorBatchState.addNeeded(1);
                         System.out.printf("[Coordinator] attempt %d abandoned due to fault, queuing a replacement (now need %d total)%n", attempt, nowNeeded);
                     } else {
-                        twin.reportProgress(startedNow);
                         System.out.printf("[Coordinator] bottle from attempt %d filled, travelling to sorting%n", attempt);
                     }
                 } else if (CoordinatorBatchState.getGoodSorted() >= quantity) {
@@ -110,10 +131,12 @@ Coordinator(
         }
 
         int elapsed = (int)(System.currentTimeMillis() - start);
-        twin.reportBatchElapsed(elapsed);
+        twin.reportBatchDone(elapsed);
         long tBatch = System.currentTimeMillis();
         while (System.currentTimeMillis() - tBatch < 50) {
             emit batchDone(elapsed);
+            emit batchDoneE;
+            emit batchElapsedE(elapsed);
             pause;
         }
         System.out.printf("[Coordinator] batch complete in %d ms - %d/%d sorted good, %d attempts total%n", elapsed, CoordinatorBatchState.getGoodSorted(), quantity, attempt);
@@ -121,6 +144,7 @@ Coordinator(
 }
 ||
 {
+	TwinClient twin = new TwinClient("coordinator", "127.0.0.1", 9090);
 	boolean sawSortedOk = false;
 	boolean sawSortRejected = false;
 	loop {
@@ -129,6 +153,7 @@ Coordinator(
 				sawSortedOk = true;
 				int nowGood = CoordinatorBatchState.incrementGoodSorted();
 				System.out.printf("[Coordinator] sortedOkE received - %d sorted good so far%n", nowGood);
+				twin.reportProgress(nowGood);
 			}
 		} else {
 			sawSortedOk = false;

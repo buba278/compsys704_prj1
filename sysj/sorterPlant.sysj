@@ -22,6 +22,16 @@ SorterPlant(
     output signal pusherExtendedE;
     output signal pusherRetractedE;
     output Integer signal sortedCountE, rejectedCountE;
+
+    // Same events as the *E signals above, mirrored to a second socket for the
+    // Big-Picture view (a different process from the Sorter's own GUI, so it
+    // needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket, see
+    // CLAUDE.md).
+    output signal bottleAtSorterBigE;
+    output signal bottleDefectiveBigE;
+    output signal pusherExtendedBigE;
+    output signal pusherRetractedBigE;
+    output Integer signal sortedCountBigE, rejectedCountBigE;
 )
 ->
 {
@@ -75,14 +85,14 @@ SorterPlant(
                     // Widened hold, not a bare single-tick emit - this crosses the socket to the UI process.
                     {
                         long tCount = System.currentTimeMillis();
-                        while (System.currentTimeMillis() - tCount < 100) { emit rejectedCountE(rejectedCount); pause; }
+                        while (System.currentTimeMillis() - tCount < 100) { emit rejectedCountE(rejectedCount); emit rejectedCountBigE(rejectedCount); pause; }
                     }
                 } else {
                     await (!bottleAtSorter || manualMode);
                     sortedCount = sortedCount + 1;
                     {
                         long tCount = System.currentTimeMillis();
-                        while (System.currentTimeMillis() - tCount < 100) { emit sortedCountE(sortedCount); pause; }
+                        while (System.currentTimeMillis() - tCount < 100) { emit sortedCountE(sortedCount); emit sortedCountBigE(sortedCount); pause; }
                     }
                 }
             }
@@ -116,12 +126,12 @@ SorterPlant(
     ||
     // Viz Mirror Outputs
     {
-        {while(true){present(bottleAtSorter){emit bottleAtSorterE;} pause;}}
+        {while(true){present(bottleAtSorter){emit bottleAtSorterE; emit bottleAtSorterBigE;} pause;}}
         ||
-        {while(true){present(bottleDefective){emit bottleDefectiveE;} pause;}}
+        {while(true){present(bottleDefective){emit bottleDefectiveE; emit bottleDefectiveBigE;} pause;}}
         ||
-        {while(true){present(pusherExtended){emit pusherExtendedE;} pause;}}
+        {while(true){present(pusherExtended){emit pusherExtendedE; emit pusherExtendedBigE;} pause;}}
         ||
-        {while(true){present(pusherRetracted){emit pusherRetractedE;} pause;}}
+        {while(true){present(pusherRetracted){emit pusherRetractedE; emit pusherRetractedBigE;} pause;}}
     }
 }

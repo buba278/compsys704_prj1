@@ -24,6 +24,14 @@
 					<oSignal Name="labelAppliedE"     To="UI.labelAppliedE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
 					<oSignal Name="liquidARatioE"     To="UI.liquidARatioE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
 					<oSignal Name="targetVolumeMlE"   To="UI.targetVolumeMlE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10020" />
+					
+
+					<oSignal Name="bottleAtLabellerBigE" To="BigPicture.bottleAtLabellerBigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
+					<oSignal Name="labelPrintedBigE"     To="BigPicture.labelPrintedBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
+					<oSignal Name="bottleClampedBigE"    To="BigPicture.bottleClampedBigE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
+					<oSignal Name="labelAppliedBigE"     To="BigPicture.labelAppliedBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
+					<oSignal Name="liquidARatioBigE"     To="BigPicture.liquidARatioBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
+					<oSignal Name="targetVolumeMlBigE"   To="BigPicture.targetVolumeMlBigE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
               
               </ClockDomain>
       </SubSystem>

@@ -22,12 +22,15 @@ public class SystemTwin {
     private final List<ProductTwin> archivedProducts = new CopyOnWriteArrayList<>();
  
     private String batchId = null;
+    private int batchIdnum = 0;
     private int batchTargetCount = 0;
     private int batchCompletedCount = 0;
     private int rejectedCount = 0;
     private int rotaryTurnCount = 0;
     private int productSequence = 0;
     private long lastBatchElapsedMs = 0;
+    private long lastRotaryTurnMs = 0;
+    private static final long MIN_ROTARY_TURN_INTERVAL_MS = 500;
  
     private SystemTwin() {
     }
@@ -42,8 +45,9 @@ public class SystemTwin {
         }
     }
  
-    public synchronized void startBatch(String batchId, int targetCount) {
-        this.batchId = batchId;
+    public synchronized void startBatch(int targetCount) {
+    	this.batchIdnum ++;
+        this.batchId = "BATCH" + batchIdnum;
         this.batchTargetCount = targetCount;
         this.batchCompletedCount = 0;
         this.rejectedCount = 0;
@@ -59,11 +63,20 @@ public class SystemTwin {
     }
  
     public synchronized void onRotaryTurn() {
+        long now = System.currentTimeMillis();
+        if (now - lastRotaryTurnMs < MIN_ROTARY_TURN_INTERVAL_MS) {
+            System.out.println("SystemTwin: ignoring duplicate ROTARY_TURN " 
+                    + (now - lastRotaryTurnMs) + "ms after the last one");
+            return;
+        }
+        lastRotaryTurnMs = now;
+
         rotaryTurnCount++;
         for (ProductTwin product : activeProducts.values()) {
             product.advancePosition();
         }
     }
+   
  
     synchronized String createProductTwin(double volumeMl, double liquidRatio) {
         productSequence++;
@@ -103,7 +116,7 @@ public class SystemTwin {
         }
         twin.archive(rejected);
         archivedProducts.add(twin);
-        batchCompletedCount++;
+        //batchCompletedCount++;
         if (rejected) {
             rejectedCount++;
         }

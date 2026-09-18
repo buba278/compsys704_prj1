@@ -4,6 +4,7 @@ import run.RotaryConveyorBridge;
 import run.ConveyorCoordinatorBridge;
 import run.LoaderState;
 import run.TableOccupancy;
+import run.ConveyorRecipe;
 
 conveyorPlant(
 		input signal motConveyorOnOff;
@@ -11,11 +12,28 @@ conveyorPlant(
 		input signal labellerTakenAck;
 		input signal bottleDefectiveFromTable;
 		input Integer signal bottlesNeeded;
+		input Integer signal liquidARatioC;                    // coordinator -> conveyorPlant (active batch's Liquid A ratio)
 		output signal bottleAtPos1, bottleLeftPos5;
 		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
-		output signal bottleEnteredE, bottleReceivedE;
+		// bottleReceivedE carries the exiting bottle's Liquid A ratio (see
+		// ConveyorRecipe) alongside its presence, so the collection-side viz can
+		// colour-split it the same way FillerCanvas does, without a second signal
+		// racing it for ordering (Worker.run() applies the boolean and the int
+		// payload from a single message, in that order - see org.compsys704.Worker).
+		output signal bottleEnteredE;
+		output Integer signal bottleReceivedE;
 		output signal leftMovingE, rightMovingE;
 		output Integer signal bottlesOnTableE;
+
+		// Same events as the *E signals above, mirrored to a second socket for the
+		// Big-Picture view (a different process from the Conveyor's own GUI, so it
+		// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket).
+		// Emitted at the exact same point as their *E counterpart so the
+		// Big-Picture bottle animation stays in lockstep with the Conveyor's own.
+		output signal bottleAtPos1BigE, bottleLeftPos5BigE, motorOnBigE;
+		output signal bottleEnteredBigE;
+		output Integer signal bottleReceivedBigE;
+		output signal leftMovingBigE, rightMovingBigE;
 		)
 ->
 {
@@ -33,9 +51,9 @@ conveyorPlant(
 	{ // Motor status echo to GUI: the belt visibly runs whenever it is
 	  // actually transporting a bottle (auto) or being jogged manually
 		while(true){
-			present(motConveyorOnOff){ emit motorOnE; }
-			present(leftMoving){ emit motorOnE; }
-			present(rightMoving){ emit motorOnE; }
+			present(motConveyorOnOff){ emit motorOnE; emit motorOnBigE; }
+			present(leftMoving){ emit motorOnE; emit motorOnBigE; }
+			present(rightMoving){ emit motorOnE; emit motorOnBigE; }
 			pause;
 		}
 	}
@@ -54,6 +72,18 @@ conveyorPlant(
 			} else {
 				sawBottlesNeeded = false;
 				ConveyorCoordinatorBridge.setBottlesNeededAck(false);
+			}
+			pause;
+		}
+	}
+	||
+	{ // Latches the Coordinator's liquidARatioC into ConveyorRecipe - a plain Java
+	  // field is safe here for the same reason as LoaderState above (only this
+	  // process touches it). No rising-edge guard needed, unlike bottlesNeeded:
+	  // setting it repeatedly to the same value is harmless.
+		while(true){
+			present(liquidARatioC){
+				ConveyorRecipe.setRatio((Integer)#liquidARatioC);
 			}
 			pause;
 		}
@@ -92,19 +122,27 @@ conveyorPlant(
 			// Bounded hold, not a single-tick emit, since this crosses the socket to the UI and a one-tick emit can race past its single-slot buffer.
 			{
 				long tEnter = System.currentTimeMillis();
-				while (System.currentTimeMillis() - tEnter < 50) { emit bottleEnteredE; pause; }
+				while (System.currentTimeMillis() - tEnter < 50) { emit bottleEnteredE; emit bottleEnteredBigE; pause; }
+			}
+
+			// Brief pause after loading, before the belt visibly starts moving - gives
+			// the loaded bottle a moment to be seen sitting at the loading end before
+			// travel begins, rather than starting to move the instant it's loaded.
+			{
+				long tSettle = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tSettle < 900) { pause; }
 			}
 
 			// Each travel step briefly holds leftMovingE (survives the socket race) with a genuine absent gap after, so SimpleClient sends a distinct edge per step instead of collapsing them.
 			// Each step's timer var is uniquely named (tL1..tL8) - sjc flattens block scopes within one thread, so reused names would collide.
-			emit leftMoving; { long tL1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL1 < 45) { emit leftMovingE; pause; } } pause;
-			emit leftMoving; { long tL2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL2 < 45) { emit leftMovingE; pause; } } pause;
-			emit leftMoving; { long tL3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL3 < 45) { emit leftMovingE; pause; } } pause;
-			emit leftMoving; { long tL4 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL4 < 45) { emit leftMovingE; pause; } } pause;
-			emit leftMoving; { long tL5 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL5 < 45) { emit leftMovingE; pause; } } pause;
-			emit leftMoving; { long tL6 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL6 < 45) { emit leftMovingE; pause; } } pause;
-			emit leftMoving; { long tL7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL7 < 45) { emit leftMovingE; pause; } } pause;
-			emit leftMoving; { long tL8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL8 < 45) { emit leftMovingE; pause; } } pause;
+			emit leftMoving; { long tL1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL1 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
+			emit leftMoving; { long tL2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL2 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
+			emit leftMoving; { long tL3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL3 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
+			emit leftMoving; { long tL4 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL4 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
+			emit leftMoving; { long tL5 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL5 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
+			emit leftMoving; { long tL6 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL6 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
+			emit leftMoving; { long tL7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL7 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
+			emit leftMoving; { long tL8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL8 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
 
 			// Hold at Pos 1 until the Rotary Table actually acks (pos1TakenAck), not a fixed tick guess - keeps the two independently-clocked domains synchronised.
 			abort(pos1TakenAck) {
@@ -144,19 +182,20 @@ conveyorPlant(
 
 			// Bounded hold, same reason as bottleEnteredE above.
 			{
+				int exitRatio = ConveyorRecipe.getRatio();
 				long tReceived = System.currentTimeMillis();
-				while (System.currentTimeMillis() - tReceived < 50) { emit bottleReceivedE; pause; }
+				while (System.currentTimeMillis() - tReceived < 50) { emit bottleReceivedE(exitRatio); emit bottleReceivedBigE(exitRatio); pause; }
 			}
 
 			// Same step-hold-with-gap pattern as leftMovingE above; timer vars (tR1..tR8) each need a unique name.
-			emit rightMoving; { long tR1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR1 < 45) { emit rightMovingE; pause; } } pause;
-			emit rightMoving; { long tR2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR2 < 45) { emit rightMovingE; pause; } } pause;
-			emit rightMoving; { long tR3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR3 < 45) { emit rightMovingE; pause; } } pause;
-			emit rightMoving; { long tR4 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR4 < 45) { emit rightMovingE; pause; } } pause;
-			emit rightMoving; { long tR5 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR5 < 45) { emit rightMovingE; pause; } } pause;
-			emit rightMoving; { long tR6 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR6 < 45) { emit rightMovingE; pause; } } pause;
-			emit rightMoving; { long tR7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR7 < 45) { emit rightMovingE; pause; } } pause;
-			emit rightMoving; { long tR8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR8 < 45) { emit rightMovingE; pause; } } pause;
+			emit rightMoving; { long tR1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR1 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
+			emit rightMoving; { long tR2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR2 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
+			emit rightMoving; { long tR3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR3 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
+			emit rightMoving; { long tR4 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR4 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
+			emit rightMoving; { long tR5 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR5 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
+			emit rightMoving; { long tR6 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR6 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
+			emit rightMoving; { long tR7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR7 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
+			emit rightMoving; { long tR8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR8 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
 
 			// Hand off to the Labeller via ConveyorLabellerBridge (run-package class - sjc crashes resolving multi-segment package types inline).
 			// 30s timeout, not an unbounded hold: an unresponsive Labeller would otherwise strand this plant, unable to accept the next bottle.
@@ -189,8 +228,8 @@ conveyorPlant(
 	}
 	||
 	{ // Forward events to the GUI
-		{while(true){present(bottleAtPos1){emit bottleAtPos1E;} pause;}}
+		{while(true){present(bottleAtPos1){emit bottleAtPos1E; emit bottleAtPos1BigE;} pause;}}
 		||
-		{while(true){present(bottleLeftPos5){emit bottleLeftPos5E;} pause;}}
+		{while(true){present(bottleLeftPos5){emit bottleLeftPos5E; emit bottleLeftPos5BigE;} pause;}}
 	}
 }

@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
  *      PLANT_EVENT|<stationId>|<eventLabel>|<productIdOrDash>                  -> OK / ERR ...
  *      PRODUCT_CREATE|<volumeMl>|<liquidRatio>                                 -> <productId> / ERR ...
  *      PRODUCT_ARCHIVE|<productId>|<true|false rejected>                       -> OK / ERR ...
+ *      PRODUCT_HAS_FAULT|<productId>                                           -> true / false / ERR ...
  *      QUERY_SYSTEM                                                            -> <one-line JSON>
  *
  * Run with: java -cp bin digitaltwin.TwinServer [visualiserPort] [controlPort]
@@ -51,6 +52,8 @@ public class TwinServer {
         FillerPlantTwin.getInstance();
         LidPlacingPlantTwin.getInstance();
         SorterPlantTwin.getInstance();
+        RotaryPlantTwin.getInstance();
+        LoadingConveyorPlantTwin.getInstance();
  
         startVisualiserSocket(visualiserPort);
         startControlSocket(controlPort);
@@ -152,7 +155,7 @@ public class TwinServer {
             	case "BATCH_START": {
             		String batchId = parts[1];
             		int targetCount = Integer.parseInt(parts[2]);
-            		SystemTwin.getInstance().startBatch(batchId, targetCount);
+            		SystemTwin.getInstance().startBatch(targetCount);
             		return "OK";
             	}
             	
@@ -172,6 +175,12 @@ public class TwinServer {
             	    int position = Integer.parseInt(parts[1]);
             	    String productId = SystemTwin.getInstance().getProductIdAtPosition(position);
             	    return productId != null ? productId : "ERR no product at position " + position;
+            	}
+            	
+            	case "ROTARY_TURN": {
+            	    System.out.println("TwinServer: Received ROTARY_TURN command from client.");
+            	    SystemTwin.getInstance().onRotaryTurn();
+            	    return "OK";
             	}
             	
                 case "PLANT_UPDATE": {
@@ -203,6 +212,14 @@ public class TwinServer {
                     boolean rejected = Boolean.parseBoolean(parts[2]);
                     SystemTwin.getInstance().archiveProductTwin(productId, rejected);
                     return "OK";
+                }
+                case "PRODUCT_HAS_FAULT": {
+                    String productId = parts[1];
+                    ProductTwin product = SystemTwin.getInstance().getProductTwin(productId);
+                    if (product == null) {
+                        return "ERR unknown productId: " + productId;
+                    }
+                    return String.valueOf(product.hasFault());
                 }
                 case "QUERY_SYSTEM":
                     return SystemTwin.getInstance().toJson();

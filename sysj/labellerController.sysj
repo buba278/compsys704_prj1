@@ -9,7 +9,7 @@ LabellerController(
  
     output signal printLabel;
     output signal clampBottle;
-    output signal applyLabel;				
+    output signal applyLabel;			
 )
 ->
 {
@@ -21,7 +21,7 @@ LabellerController(
 		System.out.println("LabelController: Waiting for bottle at labeller...");
 		await (bottleAtLabeller);
 		
-		String productId = twin.getProductIdAtPosition(5);
+		String productId = twin.getProductIdAtPosition(4);
 		if (productId == null || productId.isEmpty()) {
 			productId = "UNKNOWN";
 		}

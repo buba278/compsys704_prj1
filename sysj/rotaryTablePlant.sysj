@@ -17,6 +17,12 @@ rotaryTablePlant(
 		output signal tableBusy, tableHasFreeSlot;
 		output Integer signal slot0BottleIdE, slot1BottleIdE, slot2BottleIdE, slot3BottleIdE, slot4BottleIdE;
 		output signal tableAlignedWithSensorE, bottleAtPos5E, rotaryTableTriggerE;
+
+		// Same events as the *E signals above, mirrored to a second socket for the
+		// Big-Picture view (a different process from the Rotary Table's own GUI, so it
+		// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket).
+		output Integer signal slot0BottleIdBigE, slot1BottleIdBigE, slot2BottleIdBigE, slot3BottleIdBigE, slot4BottleIdBigE;
+		output signal tableAlignedWithSensorBigE, bottleAtPos5BigE, rotaryTableTriggerBigE;
 		)
 ->
 {
@@ -284,5 +290,25 @@ rotaryTablePlant(
 		{while(true){present(bottleAtPos5){emit bottleAtPos5E;} pause;}}
 		||
 		{while(true){present(rotaryTableTrigger){emit rotaryTableTriggerE;} pause;}}
+	}
+	||
+	{ // Same events mirrored to the Big-Picture socket - read back off the *E
+	  // signals themselves (already the ground truth relayed to the Rotary
+	  // Table's own GUI above) rather than duplicating every emit site.
+		{while(true){present(tableAlignedWithSensorE){emit tableAlignedWithSensorBigE;} pause;}}
+		||
+		{while(true){present(bottleAtPos5E){emit bottleAtPos5BigE;} pause;}}
+		||
+		{while(true){present(rotaryTableTriggerE){emit rotaryTableTriggerBigE;} pause;}}
+		||
+		{while(true){present(slot0BottleIdE){emit slot0BottleIdBigE((Integer)#slot0BottleIdE);} pause;}}
+		||
+		{while(true){present(slot1BottleIdE){emit slot1BottleIdBigE((Integer)#slot1BottleIdE);} pause;}}
+		||
+		{while(true){present(slot2BottleIdE){emit slot2BottleIdBigE((Integer)#slot2BottleIdE);} pause;}}
+		||
+		{while(true){present(slot3BottleIdE){emit slot3BottleIdBigE((Integer)#slot3BottleIdE);} pause;}}
+		||
+		{while(true){present(slot4BottleIdE){emit slot4BottleIdBigE((Integer)#slot4BottleIdE);} pause;}}
 	}
 }

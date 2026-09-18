@@ -108,15 +108,44 @@ public class ConveyorCanvas extends JPanel {
 			drawBottle(g, x, EMPTY_BOTTLE_COLOR);
 		}
 
-		// the finished bottle travelling from Pos 5 to the collection end
+		// the finished bottle travelling from Pos 5 to the collection end - coloured by
+		// the ratio it was actually filled with (ConveyorState.RIGHT_RATIO_A), the same
+		// bottom-Liquid-A/top-Liquid-B split FillerCanvas draws while dosing
 		if (ConveyorState.RIGHT_BOTTLE_ACTIVE) {
 			double rightTarget = ConveyorState.RIGHT_STEP / (double) ConveyorState.TRAVEL_STEPS;
 			if (ConveyorState.MOTOR_ON) {
 				ConveyorState.RIGHT_PROGRESS += (rightTarget - ConveyorState.RIGHT_PROGRESS) * EASE_FACTOR;
 			}
 			int x = (int) (POS5_X + (BELT_RIGHT - POS5_X) * ConveyorState.RIGHT_PROGRESS);
-			drawBottle(g, x, LIQUID_B_COLOR);
+			drawFilledBottle(g, x, ConveyorState.RIGHT_RATIO_A);
 		}
+	}
+
+	// draws the exiting bottle with a bottom-Liquid-A/top-Liquid-B colour split by
+	// ratioA (0-100), matching how FillerCanvas renders the same bottle while dosing -
+	// Liquid A is poured first and settles at the bottom, Liquid B fills the rest on top
+	private void drawFilledBottle(Graphics2D g, int centerX, int ratioA) {
+		int width = 14;
+		int height = 26;
+		int baseY = BELT_Y + 4;
+		int left = centerX - width / 2;
+		int top = baseY - height;
+
+		int aHeight = (int) Math.round(height * (ratioA / 100.0));
+		g.setColor(LIQUID_A_COLOR);
+		g.fillRect(left, top + (height - aHeight), width, aHeight);
+		if (aHeight < height) {
+			g.setColor(LIQUID_B_COLOR);
+			g.fillRect(left, top, width, height - aHeight);
+		}
+		g.setColor(Color.BLACK);
+		g.drawRect(left, top, width, height);
+
+		Color capColor = ratioA < 100 ? LIQUID_B_COLOR : LIQUID_A_COLOR;
+		g.setColor(capColor);
+		g.fillRect(centerX - 3, top - 6, 6, 6);
+		g.setColor(Color.BLACK);
+		g.drawRect(centerX - 3, top - 6, 6, 6);
 	}
 
 	// draws a bottle resting on top of the belt, centered horizontally on x

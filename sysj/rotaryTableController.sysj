@@ -1,4 +1,6 @@
 import run.RotaryConveyorBridge;
+import digitaltwin.PlantTwin;
+import digitaltwin.TwinClient;
 
 rotaryTableController(
 		input signal tableAlignedWithSensor, bottleAtPos5, readyToRotate;
@@ -33,6 +35,7 @@ rotaryTableController(
 	}
 	||
 	{ 	// auto mode
+	TwinClient twin = new TwinClient("rotary-table", "127.0.0.1", 9090);
 
 		loop {
 
@@ -44,12 +47,15 @@ rotaryTableController(
 
 				await(readyToRotate);
 
+
 				abort(tableAlignedWithSensor) {
 					loop {
 						emit rotaryTableTrigger;
+						twin.reportRotaryTurn();
 						pause;
 					}
 				}
+				
 
 				// Ack only after tableAlignedWithSensor (genuine dispatch), not the instant we start trying - acking earlier lets the Conveyor release Pos 1 before the bottle has actually entered the table.
 				RotaryConveyorBridge.setPos1AckToController(true);
@@ -69,17 +75,24 @@ rotaryTableController(
 	}
 	||
 	{	// manual mode
+	TwinClient twin = new TwinClient("rotary", "127.0.0.1", 9090);
 		loop {
 			await(manualMode);
 
 			abort(autoMode) {
+			
 				loop {
 					present(rotateM) {
 						emit rotaryTableTrigger;
+						twin.reportRotaryTurn();
+						pause;
+						
 					}
 					pause;
 				}
 			}
+			
+   			
 		}
 	}
 

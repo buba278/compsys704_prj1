@@ -17,6 +17,7 @@ public abstract class PlantTwin {
     private State state = State.IDLE;
     private long lastUpdatedEpochMs = System.currentTimeMillis();
     private String lastError = null;
+    
 
     /** Generic named event counters (e.g. "Cap screwed on" -> 42). Gson picks
      *  this up automatically, same as any other field, so subclasses that

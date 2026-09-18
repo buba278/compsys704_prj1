@@ -9,6 +9,7 @@
 			<iSignal Name="labellerTakenAck" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
 			<iSignal Name="bottlesNeeded"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
 			<iSignal Name="bottleDefectiveFromTable" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
+			<iSignal Name="liquidARatioC"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10007" />
 
 			<oSignal Name="bottleAtPos1"   To="ConveyorControllerCD.bottleAtPos1"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10006" />
 			<oSignal Name="bottleLeftPos5" To="ConveyorControllerCD.bottleLeftPos5" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10006" />
@@ -21,6 +22,14 @@
 			<oSignal Name="leftMovingE"     To="UI.leftMovingE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20003" />
 			<oSignal Name="rightMovingE"    To="UI.rightMovingE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20003" />
 			<oSignal Name="bottlesOnTableE" To="UI.bottlesOnTableE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20003" />
+
+			<oSignal Name="bottleAtPos1BigE"   To="BigPicture.bottleAtPos1BigE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20006" />
+			<oSignal Name="bottleLeftPos5BigE" To="BigPicture.bottleLeftPos5BigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20006" />
+			<oSignal Name="motorOnBigE"        To="BigPicture.motorOnBigE"        Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20006" />
+			<oSignal Name="bottleEnteredBigE"  To="BigPicture.bottleEnteredBigE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20006" />
+			<oSignal Name="bottleReceivedBigE" To="BigPicture.bottleReceivedBigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20006" />
+			<oSignal Name="leftMovingBigE"     To="BigPicture.leftMovingBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20006" />
+			<oSignal Name="rightMovingBigE"    To="BigPicture.rightMovingBigE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20006" />
 		</ClockDomain>
 	</SubSystem>
 </System>

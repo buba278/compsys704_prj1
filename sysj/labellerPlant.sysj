@@ -15,6 +15,7 @@ LabellerPlant(
     input signal bottleFromConveyor;
     input signal bottleDefectiveFromConveyor;
     input signal sorterTakenAck;
+    input String signal productIdSig;
 
     output signal bottleAtLabellerE;
 	output signal bottleGoneE;
@@ -22,6 +23,17 @@ LabellerPlant(
 	output signal bottleClampedE;
 	output signal labelAppliedE;
 	output Integer signal liquidARatioE, targetVolumeMlE;
+	output String signal productIdE;
+
+	// Same events as the *E signals above, mirrored to a second socket for the
+	// Big-Picture view (a different process from the Labeller's own GUI, so it
+	// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket, see
+	// CLAUDE.md).
+	output signal bottleAtLabellerBigE;
+	output signal labelPrintedBigE;
+	output signal bottleClampedBigE;
+	output signal labelAppliedBigE;
+	output Integer signal liquidARatioBigE, targetVolumeMlBigE;
 )
 ->
 { new Thread(new LabellerGUI()).start();
@@ -120,21 +132,21 @@ LabellerPlant(
         }
 	}
 	||
-    {while(true){present(bottleAtLabeller){emit bottleAtLabellerE;} pause;}}
+    {while(true){present(bottleAtLabeller){emit bottleAtLabellerE; emit bottleAtLabellerBigE;} pause;}}
     ||
-    {while(true){present(labelPrinted){emit labelPrintedE;} pause;}}
+    {while(true){present(labelPrinted){emit labelPrintedE; emit labelPrintedBigE;} pause;}}
     ||
-    {while(true){present(bottleClamped){emit bottleClampedE;} pause;}}
+    {while(true){present(bottleClamped){emit bottleClampedE; emit bottleClampedBigE;} pause;}}
     ||
-    {while(true){present(labelApplied){emit labelAppliedE;} pause;}}
+    {while(true){present(labelApplied){emit labelAppliedE; emit labelAppliedBigE;} pause;}}
     ||
     {
         // Mirrors the Coordinator's recipe for this batch into the GUI, so
         // the bottle drawn here matches what the Filler actually put in it,
         // same shape as the other viz-mirror threads above.
         while(true){
-            present(liquidARatio){ emit liquidARatioE((Integer)#liquidARatio); }
-            present(targetVolumeMl){ emit targetVolumeMlE((Integer)#targetVolumeMl); }
+            present(liquidARatio){ emit liquidARatioE((Integer)#liquidARatio); emit liquidARatioBigE((Integer)#liquidARatio); }
+            present(targetVolumeMl){ emit targetVolumeMlE((Integer)#targetVolumeMl); emit targetVolumeMlBigE((Integer)#targetVolumeMl); }
             pause;
         }
     }

@@ -49,6 +49,14 @@ Controller(
 					// 1. The arm swivels to the position extended if a new workpiece is requested (request).
 					await (request);
 					System.out.printf("request received%n");
+					// Fetch live product ID at Position 3 (Lid Placer) -- without
+					// this, twin.recordEvent(...) below has no productId to attach
+					// to, and this station's outcomes (success AND fault) never
+					// reach the bottle's own ProductTwin history at all.
+					String productId = twin.getProductIdAtPosition(2);
+					if (productId == null || productId.isEmpty()) {
+						productId = "UNKNOWN";
+					}
 					twin.update(PlantTwin.State.IN_PROGRESS);
 					abort (armAtDest) {
 						sustain armDest;
@@ -122,7 +130,7 @@ Controller(
 						abort (armAtSource) {
 							sustain armSource;
 						}
-						twin.recordEvent("lid placed");
+						twin.recordEvent("lid placed", productId);
 						twin.update(PlantTwin.State.IDLE);
 					} else {
 						if (!LidFaultState.isStationFaulted()) {
@@ -130,7 +138,7 @@ Controller(
 						}
 						System.out.printf("FAULT - lid placement failed after %d attempts, bottle abandoned%n", attempt);
 						twin.update(PlantTwin.State.ERROR);
-						twin.recordEvent("Lid placement aborted (fault)");
+						twin.recordEvent("Lid placement aborted (fault)", productId);
 						// Safe state: arm retracted, vacuum already off (not
 						// asserted since we left the grip block above).
 						abort (armAtSource) {

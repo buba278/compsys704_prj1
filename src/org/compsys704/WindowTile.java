@@ -18,18 +18,26 @@ import javax.swing.JFrame;
  * plus the Rotary Table itself; bottom row is what comes after the table
  * (Labeller, then Sorter). See StationHeader for the matching on-panel
  * "STATION N" labels.
+ * resolution. Grouped by physical flow rather than a plain grid, so windows
+ * that are adjacent in the pipeline end up adjacent on screen too: top row
+ * is the two wide "entry point" windows (Conveyor load/collect, the Purchase
+ * Order System); middle row is the three rotary-table stations in process
+ * order (Filler = Station 2, Lid Placer = Station 3, Capper = Station 4)
+ * plus the Rotary Table itself; bottom row is what comes after the table
+ * (Labeller, then Sorter). See StationHeader for the matching on-panel
+ * "STATION N" labels.
  */
 public class WindowTile {
 	private static final java.util.Map<String, double[]> POSITIONS = new java.util.HashMap<String, double[]>();
 	static {
 		POSITIONS.put("conveyor",    new double[]{ 0.00, 0.00 });
-		POSITIONS.put("pos",         new double[]{ 0.40, 0.00 });
+		POSITIONS.put("pos",         new double[]{ 0.30, 0.00 });
 		POSITIONS.put("filler",      new double[]{ 0.00, 0.33 });
-		POSITIONS.put("loader",      new double[]{ 0.75, 0.00 });
-		POSITIONS.put("capper",      new double[]{ 0.80, 0.60 });
-		POSITIONS.put("rotarytable", new double[]{ 0.35, 0.33 });
-		POSITIONS.put("labeller",    new double[]{ 0.00, 0.70 });
-		POSITIONS.put("sorter",      new double[]{ 0.60, 0.55 });
+		POSITIONS.put("loader",      new double[]{ 0.25, 0.33 });
+		POSITIONS.put("capper",      new double[]{ 0.50, 0.33 });
+		POSITIONS.put("rotarytable", new double[]{ 0.75, 0.33 });
+		POSITIONS.put("labeller",    new double[]{ 0.00, 0.66 });
+		POSITIONS.put("sorter",      new double[]{ 0.25, 0.66 });
 	}
 
 	public static void place(JFrame frame, String key) {
