@@ -24,13 +24,25 @@ SorterController(
         System.out.println("SorterController: Waiting for bottle at sorter...");
         await (bottleAtSorter);
 
-        // Tell the Labeller the bottle's been taken, so it can widen this
-        // into a real handoff and release. Ack-or-timeout hold, not a bare
-        // single-tick emit, since this crosses the socket to
-        // LabellerPlantCD - see CLAUDE.md.
+        // Sample the defect outcome over a short window, not a single-tick snapshot -
+        // bottleAtSorter and bottleDefective are two independent signals from a separate
+        // process (SorterPlantCD), asserted together in the Plant's own reaction but with
+        // no guarantee they arrive over their separate sockets in the same tick. A single
+        // present() check right as bottleAtSorter arrives can race ahead of bottleDefective's
+        // own packet and read false even when the Plant already asserted true.
+        boolean defective = false;
+        {
+            long tSample = System.currentTimeMillis();
+            while (System.currentTimeMillis() - tSample < 100) {
+                present (bottleDefective) { defective = true; }
+                pause;
+            }
+        }
+
+        // Ack-or-timeout hold, not a bare single-tick emit, since this crosses the socket to LabellerPlantCD.
         {
             long tAck = System.currentTimeMillis();
-            while (System.currentTimeMillis() - tAck < 200) {
+            while (System.currentTimeMillis() - tAck < 100) {
                 LabellerSorterBridge.setSorterTakenAck(true);
                 pause;
             }
@@ -46,16 +58,13 @@ SorterController(
         System.out.println("SorterController: Bottle (" + productId + ") detected. Inspecting...");
         twin.update(PlantTwin.State.IN_PROGRESS);
 
-        // Simulated scan time before acting on the result - without this
-        // the inspection outcome (bottleDefective) is already known the
-        // instant the bottle arrives, so nothing visibly happens between
-        // "detected" and the pusher already moving.
+        // Simulated scan time - the inspection outcome is already known the instant the bottle arrives, so this gives the UI something to visibly show.
         {
             long tInspect = System.currentTimeMillis();
-            while (System.currentTimeMillis() - tInspect < 600) { pause; }
+            while (System.currentTimeMillis() - tInspect < 400) { pause; }
         }
 
-        present (bottleDefective) {
+        if (defective) {
             System.out.println("SorterController: Defect detected - diverting bottle.");
 
             // Guard: ensure pusher is fully retracted before issuing extend command

@@ -100,7 +100,7 @@ public class SorterPanel extends JFrame {
         this.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0; c.gridy = 0; c.fill = GridBagConstraints.HORIZONTAL;
-        this.add(org.compsys704.StationHeader.make("STATION 8 — SORTER"), c);
+        this.add(org.compsys704.StationHeader.make("STATION 8 - SORTER"), c);
         c.fill = GridBagConstraints.NONE;
         c.gridy = 1;
         this.add(canvas, c);
