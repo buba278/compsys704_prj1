@@ -105,14 +105,14 @@ public class FillerPanel extends JFrame {
               overfillButton.addActionListener(new SignalClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_OVERFILL_M));
               JButton stallButton = new JButton("Stall");
               stallButton.addActionListener(new SignalClient(Ports.PORT_FILLER_PLANT, Ports.FILLER_STALL_M));
-              // Clears plant-side state directly (same JVM) and signals the controller
-              // separately (a different process). See CLAUDE.md.
+              // Clears plant-side state directly (same JVM) and signals the controller separately (a different process).
               JButton clearFaultButton = new JButton("Clear Fault");
               clearFaultButton.addActionListener(new java.awt.event.ActionListener() {
                       public void actionPerformed(java.awt.event.ActionEvent e) {
                               FillerFaultState.clearOverfill();
                               FillerFaultState.clearStall();
                               FillerState.FAULT = false;
+                              FillerState.BACKUP_ACTIVE = false;
                       }
               });
               clearFaultButton.addActionListener(new SignalClient(Ports.PORT_FILLER_CONTROLLER, Ports.FILLER_CLEAR_FAULT_M));
@@ -154,7 +154,7 @@ public class FillerPanel extends JFrame {
               this.setLayout(new GridBagLayout());
               GridBagConstraints c = new GridBagConstraints();
               c.gridx = 0; c.gridy = 0; c.fill = GridBagConstraints.HORIZONTAL;
-              this.add(org.compsys704.StationHeader.make("STATION 2 — FILLER"), c);
+              this.add(org.compsys704.StationHeader.make("STATION 2 - FILLER"), c);
               c.fill = GridBagConstraints.NONE;
               c.gridy = 1;
               this.add(canvas, c);

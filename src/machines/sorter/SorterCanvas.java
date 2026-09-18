@@ -47,9 +47,11 @@ public class SorterCanvas extends JPanel {
         g.fillRect(rejectBoxX, rejectBoxY, boxSize, boxSize);
         g.setColor(Color.BLACK);
         g.drawRect(rejectBoxX, rejectBoxY, boxSize, boxSize);
+        g.drawString("REJECT", rejectBoxX + 2, rejectBoxY + boxSize + 14);
         g.setColor(Color.WHITE);
-        g.drawString("REJECT", rejectBoxX + 8, rejectBoxY + 35);
-        g.drawString(String.valueOf(SorterState.REJECTED_COUNT), rejectBoxX + 22, rejectBoxY + 50);
+        // Count sits in the bottom strip of the box, clear of where a
+        // resting bottle is drawn (top portion) so it never gets covered.
+        g.drawString(String.valueOf(SorterState.REJECTED_COUNT), rejectBoxX + boxSize / 2 - 4, rejectBoxY + boxSize - 6);
 
         // 3. Draw Box Directly in Front of Platform (Sorted Bin at Bottom)
         int sortedBoxX = centerX - 35;
@@ -61,9 +63,11 @@ public class SorterCanvas extends JPanel {
         g.fillRect(sortedBoxX, sortedBoxY, sortedBoxW, sortedBoxH);
         g.setColor(Color.BLACK);
         g.drawRect(sortedBoxX, sortedBoxY, sortedBoxW, sortedBoxH);
+        g.drawString("SORTED", sortedBoxX + 8, sortedBoxY + sortedBoxH + 14);
         g.setColor(Color.WHITE);
-        g.drawString("SORTED", sortedBoxX + 12, sortedBoxY + 30);
-        g.drawString(String.valueOf(SorterState.SORTED_COUNT), sortedBoxX + 27, sortedBoxY + 45);
+        // Count sits in the bottom strip of the box, clear of where a
+        // resting bottle is drawn (top portion) so it never gets covered.
+        g.drawString(String.valueOf(SorterState.SORTED_COUNT), sortedBoxX + sortedBoxW / 2 - 4, sortedBoxY + sortedBoxH - 6);
 
         // 4. Draw Rectangle Pusher Arm
         // Extends laterally from the left across the platform when active
@@ -84,13 +88,14 @@ public class SorterCanvas extends JPanel {
             int bottleY = armY - 5; // Default position on platform
 
             if (SorterState.REJECTED || (SorterState.PUSHER_EXTENDED && SorterState.BOTTLE_DEFECTIVE)) {
-                // Pushed right into the brown rejection box
+                // Pushed right into the brown rejection box, resting in the
+                // top portion so it never covers the count in the bottom strip.
                 bottleX = rejectBoxX + 15;
-                bottleY = rejectBoxY + 15;
+                bottleY = rejectBoxY + 6;
             } else if (SorterState.SORTED) {
-                // Moved forward into the sorted box
+                // Moved forward into the sorted box, same top-portion rule.
                 bottleX = sortedBoxX + 20;
-                bottleY = sortedBoxY + 10;
+                bottleY = sortedBoxY + 4;
             }
 
             // Red if defective, cyan if good bottle

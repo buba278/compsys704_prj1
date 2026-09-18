@@ -39,14 +39,25 @@ public class LoaderVizWorker extends Worker{
 		case "lidFaultE":
 			if (status) States.FAULTED = true;
 			break;
+		case "lidBackupE":
+			if (status) States.BACKUP_ACTIVE = true;
+			break;
+		case "capCountE":
+			break; // value arrives via setIntSignal
 		default:
 			System.err.println("Wrong sig name : "+signame);
 			System.exit(1);
 		}
 	}
-	
-	
-	static final List<String> signames = Arrays.asList("pusherRetractedE","pusherExtendedE","WPgrippedE","armAtSourceE","armAtDestE","emptyE","lidFaultE");
+
+	@Override
+	public void setIntSignal(int value) {
+		if (signame.equals("capCountE")) {
+			States.CAP_COUNT = value;
+		}
+	}
+
+	static final List<String> signames = Arrays.asList("pusherRetractedE","pusherExtendedE","WPgrippedE","armAtSourceE","armAtDestE","emptyE","lidFaultE","lidBackupE","capCountE");
 	
 	@Override
 	public boolean hasSignal(String sn) {

@@ -18,19 +18,13 @@ CapperController(
     output signal sendClamp;
     output signal capperFaultE;									// capperController -> UI viz (fault indicator)
     output signal capperFaultOut;								// capperController -> coordinator (station faulted)
+    output signal capperBackupE;								// capperController -> UI viz (persistent backup-unit-active indicator)
 )
 ->
 {
-	// Bridges CapperFaultState.stationFaulted into a signal the capping
-	// thread can abort on, and attemptTimedOut into a per-attempt-timeout
-	// signal - see CLAUDE.md for the Filler's identical fault architecture,
-	// which this mirrors. Unlike the Filler's continuous stall condition,
-	// a knocked-loose cap is a discrete failure a retry can recover from,
-	// so a single attempt timing out only fails THAT attempt, not the
-	// whole station - see run.CapperFaultState and the IP report.
+	// Bridges CapperFaultState into signals the capping thread can abort on.
 	signal stationFault, attemptTimedOut;
 	{
-	signal twistSucceeded, retriesExhausted;
 	TwinClient twin = new TwinClient("cap-screwer", "127.0.0.1", 9090);
 
     System.out.println("CapperController: Initialized and running.");
@@ -44,79 +38,47 @@ CapperController(
         System.out.println("CapperController: Bottle detected. Starting capping sequence.");
         twin.update(PlantTwin.State.IN_PROGRESS);
 
-        // Retries up to 3 times, driven by an abort() around a native loop
-        // rather than a Java while() - sjc's JavaPrettyPrinter crashes with
-        // "TerminateNode can have only one child" when a present/else whose
-        // branches both pause() sits directly inside a while() loop, even
-        // with nothing else nearby; wrapping the retry in abort(signal){
-        // loop{...} } instead (the same idiom the rest of this codebase
-        // already uses for bounded reactive work) avoids it entirely -
-        // confirmed by bisecting a minimal reproduction against this sjc
-        // build.
-        int attempt = 0;
-        abort (twistSucceeded || retriesExhausted) {
-            loop {
-                attempt = attempt + 1;
-                System.out.printf("CapperController: capping attempt %d/3%n", attempt);
-                CapperFaultState.beginAttempt();
-                abort(gripperFullTwist || stationFault || attemptTimedOut) {
-                    {
-                        sustain sendClamp;
-                    }
-                    ||
-                    {
-                        System.out.println("CapperController: Lowering gripper...");
-                        sustain sendGripperDown;
-                    }
-                    ||
-                    {
-                        await(gripperMaxLower);
-                        System.out.println("CapperController: Gripper reached lowest position. Gripping cap...");
-                        sustain sendGripCap;
-                    }
-                    ||
-                    {
-                        await(capGripped);
-                        System.out.println("CapperController: Cap secured. Twisting gripper...");
-                        // FIX: was `emit sendGripperTwist; pause;` - a single-tick pulse that the
-                        // Plant's independently-clocked Rotation branch could miss entirely (GALS
-                        // domains aren't guaranteed to sample on the same tick). Keep asserting it
-                        // every tick; the enclosing abort above still terminates this loop the
-                        // instant the Plant acknowledges, or the timeout/fault fires.
-                        loop {
-                            emit sendGripperTwist;
-                            pause;
-                        }
-                    }
+        // A stall is a motor fault, not a knocked-loose cap - retrying gains nothing since the same
+        // physical cause will just stall again identically every time, so this is a single attempt.
+        System.out.println("CapperController: capping attempt started.");
+        CapperFaultState.beginAttempt();
+        abort(gripperFullTwist || stationFault || attemptTimedOut) {
+            {
+                sustain sendClamp;
+            }
+            ||
+            {
+                System.out.println("CapperController: Lowering gripper...");
+                sustain sendGripperDown;
+            }
+            ||
+            {
+                await(gripperMaxLower);
+                System.out.println("CapperController: Gripper reached lowest position. Gripping cap...");
+                sustain sendGripCap;
+            }
+            ||
+            {
+                await(capGripped);
+                System.out.println("CapperController: Cap secured. Twisting gripper...");
+                // Hold the signal every tick, not a single-tick emit, since the Plant's independent clock could miss a one-tick pulse.
+                loop {
+                    emit sendGripperTwist;
+                    pause;
                 }
-                CapperFaultState.endAttempt();
-                present (gripperFullTwist) {
-                    emit twistSucceeded;
-                } else {
-                present (stationFault) {
-                    // Manually triggered (or already raised) mid-attempt -
-                    // stop retrying and go straight to the fault path below.
-                    emit retriesExhausted;
-                } else {
-                    if (attempt >= 3) {
-                        System.out.printf("CapperController: attempt %d timed out, giving up%n", attempt);
-                        emit retriesExhausted;
-                    } else {
-                        System.out.printf("CapperController: attempt %d timed out, retrying%n", attempt);
-                        abort(gripperInitPos) {
-                            sustain sendGripperUntwist;
-                        }
-                    }
-                }
-                }
-                pause;
             }
         }
+        CapperFaultState.endAttempt();
         boolean twistOk;
-        present (twistSucceeded) {
+        present (gripperFullTwist) {
             twistOk = true;
         } else {
             twistOk = false;
+            present (stationFault) {
+                System.out.println("CapperController: fault manually triggered (or already raised) mid-attempt.");
+            } else {
+                System.out.println("CapperController: stall detected - full twist never achieved.");
+            }
         }
         if (twistOk) {
             System.out.println("CapperController: Gripper full twist achieved. Releasing clamp & resetting.");
@@ -125,32 +87,29 @@ CapperController(
             if (!CapperFaultState.isStationFaulted()) {
                 CapperFaultState.raiseStationFault();
             }
-            System.out.printf("CapperController: FAULT - capping failed after %d attempts, bottle abandoned%n", attempt);
+            System.out.println("CapperController: FAULT - capping failed, bottle abandoned");
             twin.update(PlantTwin.State.ERROR);
             twin.recordEvent("Capping aborted (fault)", productId);
-            // Waited for here rather than after the safe-state reset below -
-            // sjc's JavaPrettyPrinter throws "TerminateNode can have only one
-            // child" when a bounded while/pause loop (or abort) sits directly
-            // between an await(...) and a following if statement, same as
-            // the identical issue documented in coordinator.sysj.
-            System.out.println("CapperController: awaiting fault clear before returning to rotation");
-            await (!stationFault);
-            System.out.println("CapperController: fault cleared, resuming");
+            // Backup unit takes over automatically for future bottles; hold stationFault just long enough for escalation/lamp below to see it.
+            System.out.println("CapperController: station faulted - switching to backup unit for future bottles");
+            CapperFaultState.enterBackupMode();
+            {
+                long tBackup = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tBackup < 250) { pause; }
+            }
+            CapperFaultState.clearStationFault();
         }
 
-     	// Tell the Rotary Table this station is done with the bottle
-     	// (whether capped or faulted) so it can move on to Pos 1 - same
-     	// abandon-and-continue philosophy as the Filler, see CLAUDE.md.
-     	// Ack-or-timeout hold, not a bare single-tick emit, since this
-     	// crosses the socket to RotaryTablePlantCD and repeats once per
-     	// bottle.
+     	// Tell the Rotary Table this station is done (capped or faulted); widened hold since this crosses the socket to RotaryTablePlantCD.
      	{
      		long tAck = System.currentTimeMillis();
-     		while (System.currentTimeMillis() - tAck < 200) {
+     		while (System.currentTimeMillis() - tAck < 100) {
      			RotaryCapperBridge.setCapperTakenAck(true);
+     			RotaryCapperBridge.setCapperFaulted(!twistOk);
      			pause;
      		}
      		RotaryCapperBridge.setCapperTakenAck(false);
+     		RotaryCapperBridge.setCapperFaulted(false);
      	}
 
         // Return the gripper to a safe/init position regardless of outcome.
@@ -175,17 +134,13 @@ CapperController(
 	}
 	||
 	{
-	// Bridges CapperFaultState into stationFault/attemptTimedOut and
-	// latches the GUI's Clear Fault button - mirrors the Filler's identical
-	// bridging thread. No direct "trigger fault" signal here (unlike an
-	// earlier version) - matching the Filler, the only way to demonstrate a
-	// fault is to simulate the real physical cause ("Jam Twist" on the
-	// Plant side, see capperPlant.sysj) so this controller's own retry/
-	// timeout detection is what actually raises it, not the GUI faking the
-	// end state.
+	// Bridges CapperFaultState into stationFault/attemptTimedOut signals and latches the GUI's Clear Fault button.
 	loop {
 		present (clearCapperFaultM) {
 			CapperFaultState.clearStationFault();
+			// Operator has physically swapped the backup unit back to
+			// primary - return to normal fault detection.
+			CapperFaultState.exitBackupMode();
 		}
 		if (CapperFaultState.isStationFaulted()) {
 			emit stationFault;
@@ -194,16 +149,15 @@ CapperController(
 		if (CapperFaultState.isAttemptTimedOut(8000)) {
 			emit attemptTimedOut;
 		}
+		if (CapperFaultState.isUsingBackup()) {
+			emit capperBackupE;
+		}
 		pause;
 	}
 }
 ||
 {
-	// Escalates a station fault to the Coordinator. The await(!stationFault)
-	// at the end matters: stationFault stays present for the whole fault,
-	// and await isn't edge-triggered, so without it this would restart
-	// every time the hold below expires for as long as the fault lasts -
-	// see CLAUDE.md.
+	// Escalates a station fault to the Coordinator; await(!stationFault) at the end stops this re-firing every hold expiry while the fault persists.
 	loop {
 		await (stationFault);
 		System.out.printf("CapperController: capperFaultOut -> coordinator (holding)%n");

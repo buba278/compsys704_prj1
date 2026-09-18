@@ -19,6 +19,7 @@
                       <oSignal Name="sendClamp"          To="CapperPlantCD.sendClamp"          Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10011" />
 
                       <oSignal Name="capperFaultE"       To="UI.capperFaultE"                  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
+                      <oSignal Name="capperBackupE"      To="UI.capperBackupE"                 Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10012" />
                       <oSignal Name="capperFaultOut"     To="CoordinatorCD.capperFaultOut"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
               </ClockDomain>
       </SubSystem>

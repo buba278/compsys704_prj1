@@ -28,8 +28,11 @@ public class RotaryLidBridge {
 			new SignalLevelClient(Ports.PORT_LOADER_PLANT, Ports.ENABLE_SIGNAL);
 	private static final SignalLevelClient LID_PLACED_ACK =
 			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.LID_PLACED_ACK);
+	private static final SignalLevelClient LID_FAULTED =
+			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_LID_FAULTED);
 
 	public static void setRequest(boolean state) { REQUEST.send(state); }
 	public static void setEnable(boolean state) { ENABLE.send(state); }
 	public static void setLidPlacedAck(boolean state) { LID_PLACED_ACK.send(state); }
+	public static void setLidFaulted(boolean state) { LID_FAULTED.send(state); }
 }

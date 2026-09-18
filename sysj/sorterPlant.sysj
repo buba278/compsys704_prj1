@@ -68,13 +68,7 @@ SorterPlant(
                 }
                 pause;
             } else {
-                // AUTO MODE: reject a bottle for a real reason - it was
-                // genuinely abandoned by a station somewhere upstream
-                // (unfilled, no lid, or uncapped), carried here via
-                // bottleDefectiveFromLabeller (see rotaryTablePlant.sysj /
-                // conveyorPlant.sysj / labellerPlant.sysj) - not a coin
-                // flip. Latched the instant bottleAtSorter arrives, since
-                // the Labeller asserts both in lockstep.
+                // AUTO MODE: reject based on a real upstream fault (unfilled/no lid/uncapped) carried via bottleDefectiveFromLabeller, not a coin flip; latched instantly since the Labeller asserts both in lockstep.
                 await (bottleAtSorter);
                 boolean defective;
                 present (bottleDefectiveFromLabeller) {
@@ -88,8 +82,7 @@ SorterPlant(
                         sustain bottleDefective;
                     }
                     rejectedCount = rejectedCount + 1;
-                    // Widened hold, not a bare single-tick emit - this
-                    // crosses the socket to the UI process (see CLAUDE.md).
+                    // Widened hold, not a bare single-tick emit - this crosses the socket to the UI process.
                     {
                         long tCount = System.currentTimeMillis();
                         while (System.currentTimeMillis() - tCount < 100) { emit rejectedCountE(rejectedCount); emit rejectedCountBigE(rejectedCount); pause; }
@@ -108,11 +101,7 @@ SorterPlant(
     ||
     {
         // 3. Pusher Actuator Simulation
-        // Wall-clock paced, not just a few bare ticks - at unthrottled tick
-        // speed (see CLAUDE.md) a handful of pause;s is imperceptibly fast,
-        // which made the whole sort cycle feel instant even though the
-        // controller side already paces its own inspection/hold steps
-        // properly.
+        // Wall-clock paced, not just a few bare ticks - at unthrottled tick speed a handful of pauses is imperceptibly fast.
         while (true) {
             abort (extendPusher) {
                 sustain pusherRetracted;
@@ -120,7 +109,7 @@ SorterPlant(
             System.out.println("SorterPlant [Pusher]: Extending...");
             {
                 long tExtend = System.currentTimeMillis();
-                while (System.currentTimeMillis() - tExtend < 500) { pause; }
+                while (System.currentTimeMillis() - tExtend < 350) { pause; }
             }
 
             System.out.println("SorterPlant [Pusher]: Fully extended.");
@@ -130,7 +119,7 @@ SorterPlant(
             System.out.println("SorterPlant [Pusher]: Retracting...");
             {
                 long tRetract = System.currentTimeMillis();
-                while (System.currentTimeMillis() - tRetract < 500) { pause; }
+                while (System.currentTimeMillis() - tRetract < 350) { pause; }
             }
         }
     }

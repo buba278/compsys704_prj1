@@ -8,7 +8,7 @@ CapperPlant(
     input signal sendGripCap;
     input signal sendClamp;
     input signal bottleAtPos4;
-    input signal capperJamM;								// GUI -> capperPlant (manual fault injection: cap knocked off, twist never completes)
+    input signal capperStallM;								// GUI -> capperPlant (manual fault injection: twist motor stalls, never completes)
 
     output signal gripperMaxLower;
     output signal gripperMaxLift;
@@ -36,16 +36,21 @@ CapperPlant(
                 sustain gripperMaxLift;
             }
             System.out.println("CapperPlant [Z-Axis]: Moving down...");
-            pause;
-            pause;
+            // Wall-clock paced, not just a couple of bare ticks - at unthrottled tick speed that's imperceptibly fast.
+            {
+                long tDown = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tDown < 300) { pause; }
+            }
 
             System.out.println("CapperPlant [Z-Axis]: Reached bottom sensor.");
             abort(!sendGripperDown){
                 sustain gripperMaxLower;
             }
             System.out.println("CapperPlant [Z-Axis]: Moving back up...");
-            pause;
-            pause;
+            {
+                long tUp = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tUp < 300) { pause; }
+            }
         }
     }
     ||
@@ -71,35 +76,39 @@ CapperPlant(
                 sustain gripperInitPos;
             }
             System.out.println("CapperPlant [Rotation]: Twisting cap closed...");
-            pause;
-            pause;
+            // Wall-clock paced, not just a couple of bare ticks - at unthrottled tick speed that's imperceptibly fast.
+            {
+                long tTwist = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tTwist < 300) { pause; }
+            }
 
-            if (!CapperFaultState.isJamArmed()) {
+            if (!CapperFaultState.isStallArmed()) {
                 System.out.println("CapperPlant [Rotation]: Full twist achieved.");
                 abort(sendGripperUntwist){
                     sustain gripperFullTwist;
                 }
             } else {
-                // Jammed: cap knocked loose before reaching full twist -
+                // Stalled: the twist motor never reaches full twist -
                 // gripperFullTwist never asserts, so the controller's own
-                // per-attempt timeout (not this plant) is what notices and
-                // retries - see run.CapperFaultState and the IP report.
-                System.out.println("CapperPlant [Rotation]: JAMMED - cap slipped, full twist never achieved");
+                // attempt timeout (not this plant) is what notices it.
+                System.out.println("CapperPlant [Rotation]: STALLED - full twist never achieved");
                 await(!sendGripperTwist);
             }
             System.out.println("CapperPlant [Rotation]: Untwisting back to start position...");
-            pause;
-            pause;
+            {
+                long tUntwist = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tUntwist < 300) { pause; }
+            }
         }
 
     }
     ||
     {
-        // Latches the GUI's "Jam Twist" manual fault trigger - mirrors
+        // Latches the GUI's "Stall" manual fault trigger - mirrors
         // FillerPlant's overfillM/stallM bridging thread.
         while(true){
-            present(capperJamM){
-                CapperFaultState.armJam();
+            present(capperStallM){
+                CapperFaultState.armStall();
             }
             pause;
         }

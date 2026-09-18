@@ -72,10 +72,11 @@ public class CapperCanvas extends JPanel {
         g.setColor(Color.BLACK);
         g.drawString("FAULT", 30, 22);
 
-        // Placeholder for the redundant-line rerouting from the IP report
-        // (section 6) - not wired to any real backup instance yet, just
-        // lights up alongside a fault so the idea can be narrated.
-        g.setColor(CapperState.FAULTED ? Color.ORANGE : Color.LIGHT_GRAY);
+        // Redundant-line rerouting from the IP report (section 6): lit once
+        // the station has faulted out and handed off to its physical backup
+        // unit, and stays lit across subsequent bottles until Clear Fault
+        // returns the station to its primary unit.
+        g.setColor(CapperState.BACKUP_ACTIVE ? Color.ORANGE : Color.LIGHT_GRAY);
         g.fillOval(10, 32, 16, 16);
         g.setColor(Color.BLACK);
         g.drawString("BACKUP MODE", 30, 44);

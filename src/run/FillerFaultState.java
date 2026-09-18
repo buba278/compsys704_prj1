@@ -1,11 +1,7 @@
 package run;
 
-/** Fault-injection and fault-state flags for the Filler. Plain Java fields rather than
- *  SystemJ signals/latches by design, see CLAUDE.md ("abort entry-precondition pitfall").
- *  This class is imported by both FillerPlantCD and FillerControllerCD, which are separate
- *  processes, so each gets its own independent copy of these fields (Java statics are
- *  per-JVM). overfillArmed/stallArmed (plant-side) and stationFaulted (controller-side)
- *  never collide despite living in the same source file.
+/** Fault-injection/fault-state flags for the Filler; plain Java fields, not signals, to avoid the abort entry-precondition pitfall.
+ *  Imported by both FillerPlantCD and FillerControllerCD as separate processes, so each gets its own independent copy (Java statics are per-JVM).
  */
 public class FillerFaultState {
     private static volatile boolean overfillArmed = false;
@@ -24,4 +20,11 @@ public class FillerFaultState {
     public static void raiseStationFault() { stationFaulted = true; }
     public static void clearStationFault() { stationFaulted = false; }
     public static boolean isStationFaulted() { return stationFaulted; }
+
+    // Set once recovery is exhausted and the physical backup unit takes over; stays true across bottles (only one fault is assumed to happen at a time).
+    private static volatile boolean usingBackup = false;
+
+    public static void enterBackupMode() { usingBackup = true; }
+    public static void exitBackupMode()  { usingBackup = false; }
+    public static boolean isUsingBackup() { return usingBackup; }
 }

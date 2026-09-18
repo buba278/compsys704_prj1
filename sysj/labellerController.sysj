@@ -29,27 +29,27 @@ LabellerController(
 		System.out.println("LabelController: Bottle detected. Starting sequence...");
 		twin.update(PlantTwin.State.IN_PROGRESS);
 
-		// Step 1: Print Label (Hold for 1000ms)
+		// Step 1: Print Label (Hold for 700ms)
 		long tPrint = System.currentTimeMillis();
-		while (System.currentTimeMillis() - tPrint < 1000) {
+		while (System.currentTimeMillis() - tPrint < 700) {
 			emit printLabel;
 			pause;
 		}
 		// FIX: Deleted await(labelPrinted) here
 		System.out.println("LabelController: Label printed. Clamping bottle...");
 
-		// Step 2: Clamp Bottle (Hold for 1000ms)
+		// Step 2: Clamp Bottle (Hold for 700ms)
 		long tClamp = System.currentTimeMillis();
-		while (System.currentTimeMillis() - tClamp < 1000) {
+		while (System.currentTimeMillis() - tClamp < 700) {
 			emit clampBottle;
 			pause;
 		}
 		// FIX: Deleted await(bottleClamped) here
 		System.out.println("LabelController: Bottle clamped. Applying label...");
 
-		// Step 3: Apply Label (Hold clamp & apply for 1500ms)
+		// Step 3: Apply Label (Hold clamp & apply for 1000ms)
 		long tApply = System.currentTimeMillis();
-		while (System.currentTimeMillis() - tApply < 1500) {
+		while (System.currentTimeMillis() - tApply < 1000) {
 			emit clampBottle;
 			emit applyLabel;
 			pause;
@@ -61,14 +61,7 @@ LabellerController(
 
 		twin.update(PlantTwin.State.IDLE);
 
-		// await isn't edge-triggered (CLAUDE.md): without this, if
-		// bottleAtLabeller is still present the instant this loop comes back
-		// around (very likely, since the Plant holds it present for the
-		// whole print/clamp phase and this cycle only takes as long as the
-		// commands above), the loop re-fires immediately for the same
-		// bottle instead of waiting for a fresh one - which is what made
-		// triggering look random once the Plant started gating
-		// bottleAtLabeller on a real upstream handoff instead of free-running.
+		// await isn't edge-triggered - re-check !bottleAtLabeller so this doesn't re-fire on the same still-present bottle.
 		await(!bottleAtLabeller);
 	}
 }

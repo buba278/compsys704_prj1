@@ -45,10 +45,7 @@ LabellerPlant(
 		// other side of this handshake), rather than free-running.
 		while(true){
 			await(bottleFromConveyor);
-			// Latched the instant bottleFromConveyor arrives - the Conveyor
-			// asserts bottleDefectiveFromConveyor in lockstep with it (see
-			// conveyorPlant.sysj), so this correctly reflects THIS bottle's
-			// outcome, not a stale one.
+			// Latched instantly: the Conveyor asserts bottleDefectiveFromConveyor in lockstep with bottleFromConveyor, so this is never a stale value.
 			boolean defective;
 			present (bottleDefectiveFromConveyor) {
 				defective = true;
@@ -68,11 +65,7 @@ LabellerPlant(
 			// and drop its own offer before we drop ours.
 			await(!bottleFromConveyor);
 			ConveyorLabellerBridge.setLabellerTakenAck(false);
-			// Don't re-present a bottle until the current one has actually been
-			// released - clampBottle is held high for the whole print/clamp/apply
-			// phase, so without this wait we immediately loop back around and
-			// re-trigger the abort every tick, which is what made the bottle
-			// flash on/off continuously while nothing else appeared to progress.
+			// Don't re-present until clampBottle actually clears - it's held for the whole print/clamp/apply phase.
 			await(!clampBottle);
 			System.out.println("LabellerPlant [Conveyor]: Bottle released, ready for next.");
 
@@ -91,11 +84,7 @@ LabellerPlant(
 			LabellerSorterBridge.setBottleDefectiveFromLabeller(false);
 			await(!sorterTakenAck);
 
-			// The bottle has now genuinely left - tell the UI so it stops
-			// showing the last-finished bottle's label indefinitely (see
-			// LabellerVizWorker). Widened hold since this crosses the socket
-			// to the UI process and is a discrete one-off event, not a
-			// held state - see CLAUDE.md.
+			// Tell the UI the bottle has genuinely left, so it stops showing the last label indefinitely; widened hold since this is a one-off event crossing the socket.
 			{
 				long tGone = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGone < 50) {

@@ -15,10 +15,9 @@ public class RotaryTableVizWorker extends Worker {
 		// counterpart since both just drive this same RotaryTableState.
 		case "tableAlignedWithSensorE": case "tableAlignedWithSensorBigE": RotaryTableState.TABLE_ALIGNED = status; break;
 		case "bottleAtPos5E": case "bottleAtPos5BigE":                     RotaryTableState.BOTTLE_AT_POS5 = status; break;
-		case "capOnBottleAtPos1E": case "capOnBottleAtPos1BigE":           RotaryTableState.CAP_ON_BOTTLE_AT_POS1 = status; break;
-		case "rotaryTableTriggerE": case "rotaryTableTriggerBigE":         if (status) RotaryTableState.triggerStep(); break;
-		case "bottleStage1E": case "bottleStage2E": case "bottleStage3E":
-		case "bottleStage1BigE": case "bottleStage2BigE": case "bottleStage3BigE":
+		case "rotaryTableTriggerE": case "rotaryTableTriggerBigE":         break; // no visual effect of its own - see per-slot highlights
+		case "slot0BottleIdE": case "slot1BottleIdE": case "slot2BottleIdE": case "slot3BottleIdE": case "slot4BottleIdE":
+		case "slot0BottleIdBigE": case "slot1BottleIdBigE": case "slot2BottleIdBigE": case "slot3BottleIdBigE": case "slot4BottleIdBigE":
 			break; // value arrives via setIntSignal
 		default:
 			System.err.println("Wrong sig name : " + signame);
@@ -29,9 +28,11 @@ public class RotaryTableVizWorker extends Worker {
 	@Override
 	public void setIntSignal(int value) {
 		switch (signame) {
-		case "bottleStage1E": case "bottleStage1BigE": RotaryTableState.recordLaneStage(0, value); break;
-		case "bottleStage2E": case "bottleStage2BigE": RotaryTableState.recordLaneStage(1, value); break;
-		case "bottleStage3E": case "bottleStage3BigE": RotaryTableState.recordLaneStage(2, value); break;
+		case "slot0BottleIdE": case "slot0BottleIdBigE": RotaryTableState.recordSlotBottleId(0, value); break;
+		case "slot1BottleIdE": case "slot1BottleIdBigE": RotaryTableState.recordSlotBottleId(1, value); break;
+		case "slot2BottleIdE": case "slot2BottleIdBigE": RotaryTableState.recordSlotBottleId(2, value); break;
+		case "slot3BottleIdE": case "slot3BottleIdBigE": RotaryTableState.recordSlotBottleId(3, value); break;
+		case "slot4BottleIdE": case "slot4BottleIdBigE": RotaryTableState.recordSlotBottleId(4, value); break;
 		default:
 			System.err.println("Wrong sig name : " + signame);
 			System.exit(1);
@@ -39,10 +40,10 @@ public class RotaryTableVizWorker extends Worker {
 	}
 
 	static final List<String> signames = Arrays.asList(
-			"tableAlignedWithSensorE", "bottleAtPos5E", "capOnBottleAtPos1E", "rotaryTableTriggerE",
-			"bottleStage1E", "bottleStage2E", "bottleStage3E",
-			"tableAlignedWithSensorBigE", "bottleAtPos5BigE", "capOnBottleAtPos1BigE", "rotaryTableTriggerBigE",
-			"bottleStage1BigE", "bottleStage2BigE", "bottleStage3BigE");
+			"tableAlignedWithSensorE", "bottleAtPos5E", "rotaryTableTriggerE",
+			"slot0BottleIdE", "slot1BottleIdE", "slot2BottleIdE", "slot3BottleIdE", "slot4BottleIdE",
+			"tableAlignedWithSensorBigE", "bottleAtPos5BigE", "rotaryTableTriggerBigE",
+			"slot0BottleIdBigE", "slot1BottleIdBigE", "slot2BottleIdBigE", "slot3BottleIdBigE", "slot4BottleIdBigE");
 
 	@Override
 	public boolean hasSignal(String sn) {

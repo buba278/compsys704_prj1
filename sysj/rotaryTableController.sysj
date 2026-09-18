@@ -3,7 +3,7 @@ import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
 
 rotaryTableController(
-		input signal tableAlignedWithSensor, bottleAtPos5, capOnBottleAtPos1, readyToRotate;
+		input signal tableAlignedWithSensor, bottleAtPos5, readyToRotate;
 		input signal tableBusy, tableHasFreeSlot;
 		output signal rotaryTableTrigger;
 		input Integer signal mode;
@@ -14,20 +14,8 @@ rotaryTableController(
 	signal autoMode; 	// 0
 	signal manualMode; 	// 1
 
-	// Ack side of the Pos 1 handoff handshake with the Conveyor. Pushed
-	// straight to the Conveyor Controller (so it knows to drop its request)
-	// and to the Conveyor Plant (so it knows it's safe to release
-	// bottleAtPos1) the instant this controller commits to taking the
-	// bottle. We hold the ack true and only drop it once we see the
-	// Conveyor has dropped its own request (await(!readyToRotate) below) -
-	// that's what makes this handoff correct regardless of how the two
-	// machines' independently-clocked ticks happen to line up, instead of
-	// both sides guessing a fixed number of ticks and hoping they match.
-	// Sent via RotaryConveyorBridge (a single-segment "run" package class)
-	// rather than declaring the SignalLevelClients inline here - this build
-	// of sjc crashes resolving types from multi-segment packages such as
-	// org.compsys704 when used for a local instance declaration inside a
-	// .sysj reactive body (confirmed by isolated repro).
+	// Ack side of the Pos 1 handoff with the Conveyor, held true until the Conveyor drops its own request - keeps the handoff correct regardless of either side's tick rate.
+	// Sent via RotaryConveyorBridge (run-package class) not an inline SignalLevelClient - sjc crashes resolving multi-segment package types in a reactive body.
 
 	{	// mode selection
 		int currentMode = 0; // default is auto mode
@@ -54,13 +42,7 @@ rotaryTableController(
 			await(autoMode);
 
 			abort(manualMode) {
-				// Up to three bottles can be in flight on the table at once
-				// now (see rotaryTablePlant.sysj/RotaryTableState) - wait for
-				// the Plant to report a free lane rather than the old
-				// single-bottle tableBusy/bottleAtPos5/capOnBottleAtPos1
-				// checks, which assumed only one bottle was ever on the
-				// table and would otherwise block a second one in for no
-				// reason.
+				// A new bottle can only be accepted once the Entry slot (Pos 1) is genuinely free - wait for the Plant to report that.
 				await(tableHasFreeSlot);
 
 				await(readyToRotate);
@@ -75,14 +57,7 @@ rotaryTableController(
 				}
 				
 
-				// Only now - once the Plant has actually dispatched the
-				// bottle onto the table (tableAlignedWithSensor), not just
-				// the instant this controller starts trying - commit to
-				// taking the bottle from Pos 1. Acking any earlier let the
-				// Conveyor release its Pos 1 marker and start loading the
-				// next bottle before this one had genuinely entered the
-				// table, which is what made bottles look like they were
-				// rushing straight through Pos 1 - see CLAUDE.md.
+				// Ack only after tableAlignedWithSensor (genuine dispatch), not the instant we start trying - acking earlier lets the Conveyor release Pos 1 before the bottle has actually entered the table.
 				RotaryConveyorBridge.setPos1AckToController(true);
 				RotaryConveyorBridge.setPos1AckToPlant(true);
 

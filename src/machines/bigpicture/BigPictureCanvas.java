@@ -352,22 +352,19 @@ public class BigPictureCanvas extends JPanel {
 			g.drawLine(TABLE_CENTER_X, TABLE_CENTER_Y, sx, sy);
 		}
 
+		// Slots 0-4 mirror RotaryIndexState's 5 physical positions (Entry/Filler/Lid
+		// Placer/Capper/Exit); slot 5 is the spare position and always stays empty -
+		// see RotaryTableState.SLOT_BOTTLE_ID / RotaryTableState.colorForBottle.
 		for (int i = 0; i < 6; i++) {
 			int[] p = slotPos(i);
-			boolean isPos1 = i == 0, isPos2 = i == 1, isPos3 = i == 2, isPos4 = i == 3, isPos5 = i == 4;
+			boolean isPos5 = i == 4;
+
+			int bottleId = i < 5 ? RotaryTableState.SLOT_BOTTLE_ID[i] : 0;
+			boolean isCurrentStage = bottleId != 0;
 
 			Color fill = Color.WHITE;
-			if (isPos1 && RotaryTableState.CAP_ON_BOTTLE_AT_POS1) fill = LIQUID_B_COLOR;
-			if (isPos5 && RotaryTableState.BOTTLE_AT_POS5) fill = LIQUID_A_COLOR;
-
-			int occupyingLane = -1;
-			for (int lane = 0; lane < 3; lane++) {
-				int stage = RotaryTableState.LANE_STAGE[lane];
-				boolean laneHere = (isPos2 && stage == 2) || (isPos3 && stage == 4) || (isPos4 && stage == 1);
-				if (laneHere) { occupyingLane = lane; break; }
-			}
-			boolean isCurrentStage = occupyingLane >= 0;
-			if (isCurrentStage) fill = RotaryTableState.LANE_COLORS[occupyingLane];
+			if (isCurrentStage) fill = RotaryTableState.colorForBottle(bottleId);
+			else if (isPos5 && RotaryTableState.BOTTLE_AT_POS5) fill = LIQUID_A_COLOR;
 
 			Ellipse2D slot = new Ellipse2D.Double(p[0] - SLOT_RADIUS, p[1] - SLOT_RADIUS, SLOT_RADIUS * 2, SLOT_RADIUS * 2);
 			g.setColor(fill);
@@ -385,8 +382,7 @@ public class BigPictureCanvas extends JPanel {
 		}
 
 		stationLabel(g, slotPos(1), "Filling Unit\n(Pos 2)", FillerState.FAULT, FillerState.FILL_DONE);
-		stationLabel(g, slotPos(2), "Lid Placer\n(Pos 3)", false, RotaryTableState.LANE_STAGE[0] == 4
-				|| RotaryTableState.LANE_STAGE[1] == 4 || RotaryTableState.LANE_STAGE[2] == 4);
+		stationLabel(g, slotPos(2), "Lid Placer\n(Pos 3)", false, RotaryTableState.SLOT_BOTTLE_ID[2] != 0);
 		stationLabel(g, slotPos(3), "Cap Screwing\n(Pos 4)", false, CapperState.GRIPPED);
 
 		g.setColor(STATION_BLUE);
@@ -395,13 +391,14 @@ public class BigPictureCanvas extends JPanel {
 		drawStatusDot(g, TABLE_CENTER_X - 60, TABLE_CENTER_Y + TABLE_RADIUS + 56, RotaryTableState.TABLE_ALIGNED);
 
 		g.setFont(g.getFont().deriveFont(java.awt.Font.PLAIN, 12f));
-		for (int lane = 0; lane < 3; lane++) {
-			int stage = RotaryTableState.LANE_STAGE[lane];
-			g.setColor(stage == 0 ? Color.GRAY : RotaryTableState.LANE_COLORS[lane]);
-			String text = "Bottle " + (char) ('A' + lane) + ": " + RotaryTableState.STAGE_NAMES[stage];
+		String[] slotNames = {"Entry", "Filler", "Lid Placer", "Capper", "Exit"};
+		for (int i = 0; i < 5; i++) {
+			int bottleId = RotaryTableState.SLOT_BOTTLE_ID[i];
+			g.setColor(bottleId == 0 ? Color.GRAY : RotaryTableState.colorForBottle(bottleId));
+			String text = slotNames[i] + ": " + (bottleId == 0 ? "empty" : "Bottle #" + bottleId);
 			FontMetrics fm = g.getFontMetrics();
 			g.drawString(text, TABLE_CENTER_X - fm.stringWidth(text) / 2,
-					TABLE_CENTER_Y + TABLE_RADIUS + 78 + lane * 16);
+					TABLE_CENTER_Y + TABLE_RADIUS + 78 + i * 16);
 		}
 	}
 

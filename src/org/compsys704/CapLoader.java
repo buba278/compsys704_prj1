@@ -40,7 +40,7 @@ public class CapLoader extends JFrame {
 		c.gridx = 0;
 		c.gridy = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		this.add(StationHeader.make("STATION 3 — LID PLACER"), c);
+		this.add(StationHeader.make("STATION 3 - LID PLACER"), c);
 		c.fill = GridBagConstraints.NONE;
 		c.gridx = 0;
 		c.gridy = 1;
@@ -112,6 +112,7 @@ public class CapLoader extends JFrame {
 		clearFaultButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				States.FAULTED = false;
+				States.BACKUP_ACTIVE = false;
 			}
 		});
 		clearFaultButton.addActionListener(new SignalClient(Ports.PORT_LOADER_CONTROLLER, Ports.LOADER_CLEAR_FAULT_M));

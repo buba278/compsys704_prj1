@@ -1,3 +1,4 @@
+import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
 import run.LabellerSorterBridge;
 
@@ -10,104 +11,108 @@ SorterController(
     output signal extendPusher;
     output signal sortedE;
     output signal rejectedE;
-    output signal sortedOkE;											
-    output signal sortRejectedE;										
+    output signal sortedOkE;											// sorterController -> coordinator (bottle passed, counts toward the order)
+    output signal sortRejectedE;										// sorterController -> coordinator (bottle rejected, coordinator sends a replacement)
 )
 ->
 {
-    // Rename to twin_init for the top-level scope to avoid shadowing issues
-    TwinClient twin_init = new TwinClient("sorter", "127.0.0.1", 9090);
+    TwinClient twin = new TwinClient("sorter", "127.0.0.1", 9090);
     System.out.println("SorterController: Initialized and running.");
-    twin_init.update(digitaltwin.PlantTwin.State.IDLE);
-    signal twinFault;
+    twin.update(PlantTwin.State.IDLE);
 
     loop {
         System.out.println("SorterController: Waiting for bottle at sorter...");
         await (bottleAtSorter);
 
+        // Sample the defect outcome over a short window, not a single-tick snapshot -
+        // bottleAtSorter and bottleDefective are two independent signals from a separate
+        // process (SorterPlantCD), asserted together in the Plant's own reaction but with
+        // no guarantee they arrive over their separate sockets in the same tick. A single
+        // present() check right as bottleAtSorter arrives can race ahead of bottleDefective's
+        // own packet and read false even when the Plant already asserted true.
+        boolean defective = false;
+        {
+            long tSample = System.currentTimeMillis();
+            while (System.currentTimeMillis() - tSample < 100) {
+                present (bottleDefective) { defective = true; }
+                pause;
+            }
+        }
+
+        // Ack-or-timeout hold, not a bare single-tick emit, since this crosses the socket to LabellerPlantCD.
         {
             long tAck = System.currentTimeMillis();
-            while (System.currentTimeMillis() - tAck < 200) {
+            while (System.currentTimeMillis() - tAck < 100) {
                 LabellerSorterBridge.setSorterTakenAck(true);
                 pause;
             }
             LabellerSorterBridge.setSorterTakenAck(false);
         }
 
-        { // Branch 1: Main Inspection and Sorting logic
-            // Re-declare local variables inside the parallel branch so SystemJ can resolve them
-            TwinClient twin = new TwinClient("sorter", "127.0.0.1", 9090);
-            String productId = twin.getProductIdAtPosition(5);  
-            if (productId == null || productId.isEmpty()) {
-                productId = "UNKNOWN";
-            }
-
-            System.out.println("SorterController: Bottle (" + productId + ") detected. Inspecting...");
-            
-            // Fully qualify PlantTwin to bypass SystemJ's inner-class import bugs
-            twin.update(digitaltwin.PlantTwin.State.IN_PROGRESS);
-            
-            {
-                long tInspect = System.currentTimeMillis();
-                while (System.currentTimeMillis() - tInspect < 600) { pause; }
-            }
-
-            present (bottleDefective || twinFault) {
-                System.out.println("SorterController: Defect detected - diverting bottle.");
-
-                await (!pusherExtended);
-                abort (pusherExtended) {
-                    sustain extendPusher;
-                }
-                System.out.println("SorterController: Pusher confirmed extended. Holding to divert...");
-
-                long t0 = System.currentTimeMillis();
-                while (System.currentTimeMillis() - t0 < 300) {
-                    emit extendPusher;
-                    emit rejectedE;
-                    emit sortRejectedE;
-                    pause;
-                }
-
-                twin.recordEvent("Rejected", productId);
-                twin.archiveProduct(productId, true);
-
-                System.out.println("SorterController: Releasing pusher.");
-                await (!bottleAtSorter);
-            } else {
-                System.out.println("SorterController: Bottle OK - passing through.");
-
-                long t0 = System.currentTimeMillis();
-                while (System.currentTimeMillis() - t0 < 300) {
-                    emit sortedE;
-                    emit sortedOkE;
-                    pause;
-                }
-
-                twin.recordEvent("Sorted OK", productId);
-                twin.archiveProduct(productId, false);
-
-                await (!bottleAtSorter);
-                System.out.println("SorterController: Cycle complete. Returning to idle.");
-                twin.update(digitaltwin.PlantTwin.State.IDLE);
-            }
+        // 1. Fetch live product ID at Position 5 (Sorter)
+        String productId = twin.getProductIdAtPosition(5);
+        if (productId == null || productId.isEmpty()) {
+            productId = "UNKNOWN";
         }
-        ||
-        { // Branch 2: Fault checking logic
-            // Re-declare local variables inside the parallel branch so SystemJ can resolve them
-            TwinClient twin = new TwinClient("sorter", "127.0.0.1", 9090);
-            String productId = twin.getProductIdAtPosition(5);  
-            if (productId == null || productId.isEmpty()) {
-                productId = "UNKNOWN";
-            }
-            
-            boolean upstreamFault = twin.hasFault(productId);
-            
-            if (upstreamFault) {
-                abort (!bottleAtSorter) {
-                    sustain twinFault;
-                }
-            }
+
+        System.out.println("SorterController: Bottle (" + productId + ") detected. Inspecting...");
+        twin.update(PlantTwin.State.IN_PROGRESS);
+
+        // Simulated scan time - the inspection outcome is already known the instant the bottle arrives, so this gives the UI something to visibly show.
+        {
+            long tInspect = System.currentTimeMillis();
+            while (System.currentTimeMillis() - tInspect < 400) { pause; }
         }
-    }       
+
+        // Belt-and-braces check against the digital twin's own recorded fault history
+        // (per ProductTwin.hasFault()) - a second, independent source of truth alongside
+        // the live bottleDefective signal above, in case a station's fault event made it
+        // into this product's twin record without the physical signal chain reflecting it.
+        boolean upstreamFault = twin.hasFault(productId);
+
+        if (defective || upstreamFault) {
+            System.out.println("SorterController: Defect detected - diverting bottle.");
+
+            // Guard: ensure pusher is fully retracted before issuing extend command
+            await (!pusherExtended);
+            abort (pusherExtended) {
+                sustain extendPusher;
+            }
+            System.out.println("SorterController: Pusher confirmed extended. Holding to divert...");
+
+            // Time-bounded hold for cross-clock-domain reliability
+            long t0 = System.currentTimeMillis();
+            while (System.currentTimeMillis() - t0 < 300) {
+                emit extendPusher;
+                emit rejectedE;
+                emit sortRejectedE;
+                pause;
+            }
+
+            // Digital Twin Updates: record rejection event and archive product as rejected
+            twin.recordEvent("Rejected", productId);
+            twin.archiveProduct(productId, true);
+
+            System.out.println("SorterController: Releasing pusher.");
+            await (!bottleAtSorter);
+        } else {
+            System.out.println("SorterController: Bottle OK - passing through.");
+
+            long t0 = System.currentTimeMillis();
+            while (System.currentTimeMillis() - t0 < 300) {
+                emit sortedE;
+                emit sortedOkE;
+                pause;
+            }
+
+            // Digital Twin Updates: record pass event and archive product as non-defective
+            twin.recordEvent("Sorted OK", productId);
+            twin.archiveProduct(productId, false);
+
+            await (!bottleAtSorter);
+        }
+
+        System.out.println("SorterController: Cycle complete. Returning to idle.");
+        twin.update(PlantTwin.State.IDLE);
+    }
 }
