@@ -54,7 +54,7 @@ public class TwinVisualiser extends JFrame {
         headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         headerPanel.setOpaque(false);
 
-        batchLabel = createStatPanel(headerPanel, "Batch", "—");
+        batchLabel = createStatPanel(headerPanel, "Batch", "-");
         progressLabel = createStatPanel(headerPanel, "Completed", "0 / 0");
         rejectedLabel = createStatPanel(headerPanel, "Rejected", "0");
         activeLabel = createStatPanel(headerPanel, "On Line", "0");
@@ -126,7 +126,7 @@ public class TwinVisualiser extends JFrame {
             JsonObject root = GSON.fromJson(jsonString, JsonObject.class); 
 
             // 1. Update Header Stats
-            String batchId = root.has("batchId") && !root.get("batchId").isJsonNull() ? root.get("batchId").getAsString() : "—";
+            String batchId = root.has("batchId") && !root.get("batchId").isJsonNull() ? root.get("batchId").getAsString() : "-";
             int completed = root.get("batchCompletedCount").getAsInt();
             int target = root.get("batchTargetCount").getAsInt();
             int rejected = root.get("rejectedCount").getAsInt();
@@ -160,12 +160,12 @@ public class TwinVisualiser extends JFrame {
                 
                 String pId = prod.get("productId").getAsString().substring(0, 8); // Short ID
                 String pos = prod.get("currentPosition").getAsString() + " / 7";
-                String vol = prod.has("volumeMl") ? prod.get("volumeMl").getAsString() + " ml" : "—";
-                String ratio = prod.has("liquidRatio") ? prod.get("liquidRatio").getAsString() : "—";
+                String vol = prod.has("volumeMl") ? prod.get("volumeMl").getAsString() + " ml" : "-";
+                String ratio = prod.has("liquidRatio") ? prod.get("liquidRatio").getAsString() : "-";
                 String status = prod.get("status").getAsString();
                 
                 // Extract last outcome from the Map
-                String lastOutcome = "—";
+                String lastOutcome = "-";
                 if (prod.has("stationOutcomes")) {
                     JsonObject outcomes = prod.getAsJsonObject("stationOutcomes");
                     for (String key : outcomes.keySet()) {

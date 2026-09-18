@@ -175,7 +175,7 @@ public class PosPanel extends JFrame {
         @Override
         public Component getListCellRendererComponent(JList<? extends Order> list,
                 Order order, int index, boolean isSelected, boolean hasFocus) {
-            String base = String.format("#%d  %d%% A  %d ml  ×%d",
+            String base = String.format("#%d  %d%% A  %d ml  x%d",
                     order.number, order.ratioA, order.volume, order.quantity);
 
             switch (order.status) {
