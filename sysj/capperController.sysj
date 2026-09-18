@@ -10,6 +10,8 @@ CapperController(
     input signal gripperInitPos;
     input signal gripperFullTwist;
     input signal clearCapperFaultM;								// GUI -> capperController (operator clears an active fault)
+    input Integer signal mode;
+    input signal sendGripperDownM, sendGripperTwistM, sendGripperUntwistM, sendGripCapM, sendClampM;
 
     output signal sendGripperDown;
     output signal sendGripperTwist;
@@ -24,12 +26,32 @@ CapperController(
 {
 	// Bridges CapperFaultState into signals the capping thread can abort on.
 	signal stationFault, attemptTimedOut;
+	signal auto, manual;
+	{
+		int modeVal = 0;
+		loop {
+			present (mode) {
+				modeVal = (Integer)#mode;
+			}
+			if (modeVal == 1) {
+				emit manual;
+			}
+			else {
+				emit auto;
+			}
+			pause;
+		}
+	}
+	||
 	{
 	TwinClient twin = new TwinClient("cap-screwer", "127.0.0.1", 9090);
 
     System.out.println("CapperController: Initialized and running.");
     twin.update(PlantTwin.State.IDLE);
 
+    loop {
+    abort (manual) {
+    // Nest in its own loop so it keeps handling bottles in auto mode without needing a manual-mode round trip to re-arm.
     loop {
 
         System.out.println("CapperController: Waiting for bottle at Position 4...");
@@ -130,6 +152,31 @@ CapperController(
         System.out.println("CapperController: Gripper returned to initial position.");
         System.out.println("CapperController: Cycle complete.");
         twin.update(PlantTwin.State.IDLE);
+    }
+    }
+    await (manual);
+    System.out.println("CapperController: Manual mode");
+    abort (auto) {
+        while (true) {
+            present (sendGripperDownM) {
+                emit sendGripperDown;
+            }
+            present (sendGripperTwistM) {
+                emit sendGripperTwist;
+            }
+            present (sendGripperUntwistM) {
+                emit sendGripperUntwist;
+            }
+            present (sendGripCapM) {
+                emit sendGripCap;
+            }
+            present (sendClampM) {
+                emit sendClamp;
+            }
+            pause;
+        }
+    }
+    await (auto);
     }
 	}
 	||

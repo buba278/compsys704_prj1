@@ -9,6 +9,12 @@
                       <iSignal Name="gripperInitPos"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
                       <iSignal Name="gripperFullTwist"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
                       <iSignal Name="clearCapperFaultM" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="mode"                    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="sendGripperDownM"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="sendGripperTwistM"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="sendGripperUntwistM"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="sendGripCapM"            Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="sendClampM"              Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
 
 
                       <!-- Output Signals mapped to a Client transmitter (assumed targeting CapperPlantCD) -->

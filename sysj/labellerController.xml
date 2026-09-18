@@ -6,6 +6,10 @@
                       <iSignal Name="labelPrinted"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10008" />
                       <iSignal Name="bottleClamped"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10008" />
                       <iSignal Name="labelApplied"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10008" />
+                      <iSignal Name="mode"             Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10008" />
+                      <iSignal Name="printLabelM"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10008" />
+                      <iSignal Name="clampBottleM"     Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10008" />
+                      <iSignal Name="applyLabelM"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10008" />
 
                       <!-- Outputs to Plant -->
                       <oSignal Name="printLabel"       To="LabellerPlantCD.printLabel"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10009" />

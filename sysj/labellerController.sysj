@@ -2,30 +2,53 @@ import digitaltwin.PlantTwin;
 import digitaltwin.TwinClient;
 
 LabellerController(
-    input signal bottleAtLabeller; 								
+    input signal bottleAtLabeller;
     input signal labelPrinted;
     input signal bottleClamped;
     input signal labelApplied;
- 
+    input Integer signal mode;
+    input signal printLabelM, clampBottleM, applyLabelM;
+
     output signal printLabel;
     output signal clampBottle;
-    output signal applyLabel;			
+    output signal applyLabel;
 )
 ->
 {
+	signal auto, manual;
+	{
+		int modeVal = 0;
+		loop {
+			present (mode) {
+				modeVal = (Integer)#mode;
+			}
+			if (modeVal == 1) {
+				emit manual;
+			}
+			else {
+				emit auto;
+			}
+			pause;
+		}
+	}
+	||
+	{
 	TwinClient twin = new TwinClient("labeller", "127.0.0.1", 9090);
 	System.out.println("LabelController: Initialized and running.");
 
 	loop {
+	abort (manual) {
+	// Nest in its own loop so it keeps handling bottles in auto mode without needing a manual-mode round trip to re-arm.
+	loop {
 		twin.update(PlantTwin.State.IDLE);
 		System.out.println("LabelController: Waiting for bottle at labeller...");
 		await (bottleAtLabeller);
-		
+
 		String productId = twin.getProductIdAtPosition(4);
 		if (productId == null || productId.isEmpty()) {
 			productId = "UNKNOWN";
 		}
-		
+
 		System.out.println("LabelController: Bottle detected. Starting sequence...");
 		twin.update(PlantTwin.State.IN_PROGRESS);
 
@@ -35,7 +58,6 @@ LabellerController(
 			emit printLabel;
 			pause;
 		}
-		// FIX: Deleted await(labelPrinted) here
 		System.out.println("LabelController: Label printed. Clamping bottle...");
 
 		// Step 2: Clamp Bottle (Hold for 700ms)
@@ -44,7 +66,6 @@ LabellerController(
 			emit clampBottle;
 			pause;
 		}
-		// FIX: Deleted await(bottleClamped) here
 		System.out.println("LabelController: Bottle clamped. Applying label...");
 
 		// Step 3: Apply Label (Hold clamp & apply for 1000ms)
@@ -54,7 +75,6 @@ LabellerController(
 			emit applyLabel;
 			pause;
 		}
-		// FIX: Deleted await(labelApplied) here
 
 		twin.recordEvent("Label applied", productId);
 		System.out.println("LabelController: Label applied, Release complete.");
@@ -63,5 +83,25 @@ LabellerController(
 
 		// await isn't edge-triggered - re-check !bottleAtLabeller so this doesn't re-fire on the same still-present bottle.
 		await(!bottleAtLabeller);
+	}
+	}
+	await (manual);
+	System.out.println("LabelController: Manual mode");
+	abort (auto) {
+		while (true) {
+			present (printLabelM) {
+				emit printLabel;
+			}
+			present (clampBottleM) {
+				emit clampBottle;
+			}
+			present (applyLabelM) {
+				emit applyLabel;
+			}
+			pause;
+		}
+	}
+	await (auto);
+	}
 	}
 }

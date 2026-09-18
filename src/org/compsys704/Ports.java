@@ -129,6 +129,14 @@ public class Ports {
 	public static final String CAPPER_STALL_M       = "CapperPlantCD.capperStallM";
 	public static final String CAPPER_CLEAR_FAULT_M = "CapperControllerCD.clearCapperFaultM";
 
+	// Manual mode - same Auto/Manual + per-actuator checkbox pattern as the Lid Placer.
+	public static final String CAPPER_MODE                   = "CapperControllerCD.mode";
+	public static final String CAPPER_SEND_GRIPPER_DOWN_M    = "CapperControllerCD.sendGripperDownM";
+	public static final String CAPPER_SEND_GRIPPER_TWIST_M   = "CapperControllerCD.sendGripperTwistM";
+	public static final String CAPPER_SEND_GRIPPER_UNTWIST_M = "CapperControllerCD.sendGripperUntwistM";
+	public static final String CAPPER_SEND_GRIP_CAP_M        = "CapperControllerCD.sendGripCapM";
+	public static final String CAPPER_SEND_CLAMP_M           = "CapperControllerCD.sendClampM";
+
 	// fault tolerance: manual fault injection / clear from the Lid Placer GUI.
 	// "Drop Lid" (like the Filler's Overfill/Stall) goes to the PLANT - it
 	// simulates the physical cause (a lid slipping out of the grip before
@@ -157,6 +165,12 @@ public class Ports {
 	public static final String SORTER_BOTTLE_FROM_LABELLER = "SorterPlantCD.bottleFromLabeller";
 	public static final String LABELLER_SORTER_TAKEN_ACK   = "LabellerPlantCD.sorterTakenAck";
 	public static final String SORTER_BOTTLE_DEFECTIVE_FROM_LABELLER = "SorterPlantCD.bottleDefectiveFromLabeller";
+
+	// Manual mode - same Auto/Manual + per-actuator checkbox pattern as the Lid Placer.
+	public static final String LABELLER_MODE            = "LabellerControllerCD.mode";
+	public static final String LABELLER_PRINT_LABEL_M   = "LabellerControllerCD.printLabelM";
+	public static final String LABELLER_CLAMP_BOTTLE_M  = "LabellerControllerCD.clampBottleM";
+	public static final String LABELLER_APPLY_LABEL_M   = "LabellerControllerCD.applyLabelM";
 
 	// === SORTER ===
 	public static final int PORT_SORTER_CONTROLLER = 10025;
