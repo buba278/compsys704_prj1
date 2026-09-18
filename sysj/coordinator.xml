@@ -13,6 +13,7 @@
                       <iSignal Name="bottleReadyForFiller" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
                       <iSignal Name="capperFaultOut"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
                       <iSignal Name="lidFaultOut"       Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
+                      <iSignal Name="bottlesNeededAck"  Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10004" />
 
                       <oSignal Name="liquidARatio"   To="FillerControllerCD.liquidARatio"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />
                       <oSignal Name="targetVolumeMl" To="FillerControllerCD.targetVolumeMl" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10002" />
