@@ -80,8 +80,7 @@ FillerPlant(
 	}
 	||
 	{
-		// Widens the one-tick "at target" edge into a reliably-delivered hold. See CLAUDE.md
-		// for why this is a flat time-bounded hold, not an abort().
+		// Widens the one-tick "at target" edge into a reliably-delivered hold; flat time-bounded, not abort() - doseTargetMl never goes absent between phases so an abort on it would fire for one tick only.
 		loop {
 			await (levelAtTargetPulse);
 			long t0 = System.currentTimeMillis();

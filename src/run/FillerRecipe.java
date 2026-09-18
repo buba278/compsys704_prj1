@@ -1,8 +1,6 @@
 package run;
 
-/** Holds the current fill recipe (ratio and volume) set by the coordinator. Plain Java
- *  fields rather than SystemJ signals, see CLAUDE.md (local-signal retention).
- */
+/** Holds the current fill recipe (ratio and volume) set by the coordinator - a plain Java field, not a SystemJ signal, since it must persist across ticks/threads. */
 public class FillerRecipe {
     private static volatile int ratio  = 50;
     private static volatile int volume = 330;
