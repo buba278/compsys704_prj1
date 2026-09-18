@@ -268,32 +268,50 @@ public class OrderQueue {
                 order.ratioA, order.volume, order.quantity);
     }
 
+    // The Coordinator's SimpleServer only ever has one connection in flight at a time,
+    // so a connect landing the instant it's tearing down the previous one shows up
+    // client-side as a clean "Connection reset" (or the handshake byte read returning
+    // -1) rather than a refused connect - retrying a few times absorbs that instead of
+    // silently dropping the whole order.
+    private static final int SEND_RETRIES = 3;
+    private static final long SEND_RETRY_DELAY_MS = 150;
+
     /** Sends an integer-valued signal pulse: {true, value} then {false}, then closes. */
     private static void sendIntPulse(int port, String dest, int value) {
-        try (Socket s = new Socket()) {
-            s.connect(new InetSocketAddress("127.0.0.1", port), 500);
-            ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-            oos.writeObject(dest);
-            if (s.getInputStream().read() < 0) return;
-            oos.writeObject(new Object[]{Boolean.TRUE, Integer.valueOf(value)});
-            Thread.sleep(60);
-            oos.writeObject(new Object[]{Boolean.FALSE});
-        } catch (Exception e) {
-            System.err.println("[OrderQueue] sendIntPulse failed (" + dest + "): " + e);
+        for (int attempt = 1; attempt <= SEND_RETRIES; attempt++) {
+            try (Socket s = new Socket()) {
+                s.connect(new InetSocketAddress("127.0.0.1", port), 500);
+                ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+                oos.writeObject(dest);
+                if (s.getInputStream().read() < 0) throw new IOException("no handshake byte from " + dest);
+                oos.writeObject(new Object[]{Boolean.TRUE, Integer.valueOf(value)});
+                Thread.sleep(60);
+                oos.writeObject(new Object[]{Boolean.FALSE});
+                return;
+            } catch (Exception e) {
+                System.err.println("[OrderQueue] sendIntPulse attempt " + attempt + " failed (" + dest + "): " + e);
+                if (attempt == SEND_RETRIES) return;
+                try { Thread.sleep(SEND_RETRY_DELAY_MS); } catch (InterruptedException ignored) { return; }
+            }
         }
     }
 
     private static void sendPulse(int port, String dest) {
-        try (Socket s = new Socket()) {
-            s.connect(new InetSocketAddress("127.0.0.1", port), 500);
-            ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-            oos.writeObject(dest);
-            if (s.getInputStream().read() < 0) return;
-            oos.writeObject(new Object[]{Boolean.TRUE});
-            Thread.sleep(60);
-            oos.writeObject(new Object[]{Boolean.FALSE});
-        } catch (Exception e) {
-            System.err.println("[OrderQueue] sendPulse failed (" + dest + "): " + e);
+        for (int attempt = 1; attempt <= SEND_RETRIES; attempt++) {
+            try (Socket s = new Socket()) {
+                s.connect(new InetSocketAddress("127.0.0.1", port), 500);
+                ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+                oos.writeObject(dest);
+                if (s.getInputStream().read() < 0) throw new IOException("no handshake byte from " + dest);
+                oos.writeObject(new Object[]{Boolean.TRUE});
+                Thread.sleep(60);
+                oos.writeObject(new Object[]{Boolean.FALSE});
+                return;
+            } catch (Exception e) {
+                System.err.println("[OrderQueue] sendPulse attempt " + attempt + " failed (" + dest + "): " + e);
+                if (attempt == SEND_RETRIES) return;
+                try { Thread.sleep(SEND_RETRY_DELAY_MS); } catch (InterruptedException ignored) { return; }
+            }
         }
     }
 }
