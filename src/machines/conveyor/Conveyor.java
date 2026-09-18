@@ -129,7 +129,7 @@ public class Conveyor extends JFrame {
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 0; c.fill = GridBagConstraints.HORIZONTAL;
-		this.add(org.compsys704.StationHeader.make("STATIONS 1 & 5 — CONVEYOR (LOAD / COLLECT)"), c);
+		this.add(org.compsys704.StationHeader.make("STATIONS 1 & 5 - CONVEYOR (LOAD / COLLECT)"), c);
 		c.fill = GridBagConstraints.NONE;
 		c.gridy = 1;
 		this.add(canvas, c);

@@ -10,20 +10,8 @@ conveyorController(
 {
 	signal autoMode, manualMode;
 
-	// Direct controller-to-controller handoff with the Rotary Table
-	// Controller. This replaces the old approach of piggy-backing the
-	// handoff on the bottleAtPos1E *visualisation* event inside
-	// ConveyorVizWorker, which tied a physical handoff to whatever fixed
-	// number of ticks the plant happened to hold that GUI event for.
-	// readyToRotate (the request) is held true for as long as there is a
-	// bottle waiting at Pos 1, and is only dropped once the Rotary Table
-	// has acknowledged it via pos1TakenAck - see rotaryTableController.sysj
-	// and conveyorPlant.sysj for the other two legs of this handshake.
-	// Sent via RotaryConveyorBridge (a single-segment "run" package class)
-	// rather than declaring the SignalLevelClient inline here - this build
-	// of sjc crashes resolving types from multi-segment packages such as
-	// org.compsys704 when used for a local instance declaration inside a
-	// .sysj reactive body (confirmed by isolated repro).
+	// Direct handoff to the Rotary Table Controller via RotaryConveyorBridge; readyToRotate stays held until pos1TakenAck clears it.
+	// Uses the "run" package bridge class, not an inline SignalLevelClient - sjc crashes resolving multi-segment package types in a reactive body.
 
 	{ // mode selection
 		int currentMode = 0; // default is auto mode
@@ -45,29 +33,15 @@ conveyorController(
 		loop {
 			await(autoMode);
 			abort(manualMode) {
-				// Two INDEPENDENT edge guards, not one shared "pending" flag -
-				// a previous version reset a single handoffPending flag from
-				// both present() blocks, which meant the ack block (even
-				// edge-guarded on pos1TakenAck) could still clear it while
-				// bottleAtPos1 was itself still transiently present, letting
-				// the arrival block below see "!handoffPending" as true again
-				// and fire a second, phantom readyToRotate for a bottle
-				// that's already been taken. sawBottleAtPos1 now edge-guards
-				// purely on bottleAtPos1's own presence, with no dependency
-				// on the ack's timing at all - confirmed by a live log still
-				// showing two full handoff cycles for a single real bottle
-				// after the first fix. See CLAUDE.md.
+				// Each present() block needs its own independent edge guard on its own signal - sharing one "pending" flag between blocks lets a phantom second handoff slip through.
 				boolean sawBottleAtPos1 = false;
 				boolean sawTakenAck = false;
+				boolean sawBottleLeftPos5 = false;
 				loop {
 					present(bottleAtPos1) {
 						if (!sawBottleAtPos1) {
 							sawBottleAtPos1 = true;
-							// Don't tell the Rotary Table it's safe to rotate
-							// the instant the model signals arrival - the
-							// on-screen bottle (eased toward this same model
-							// progress in ConveyorCanvas) needs a little
-							// longer to visually settle at the Pos 1 marker.
+							// Delay so the on-screen bottle visually settles at the Pos 1 marker before signalling ready-to-rotate.
 							long tArrive = System.currentTimeMillis();
 							while (System.currentTimeMillis() - tArrive < 200) { pause; }
 							RotaryConveyorBridge.setReadyToRotate(true);
@@ -77,13 +51,7 @@ conveyorController(
 						sawBottleAtPos1 = false;
 					}
 					present(pos1TakenAck) {
-						// Rotary Table has committed to taking the bottle -
-						// safe to drop our request now. The plant is
-						// watching the same ack independently to release
-						// bottleAtPos1 on its side. Only act on the rising
-						// edge - pos1TakenAck stays present for the whole
-						// cross-process round trip, and present() isn't
-						// edge-triggered - see CLAUDE.md.
+						// Edge-guarded: pos1TakenAck stays present for the whole round trip and present() isn't edge-triggered.
 						if (!sawTakenAck) {
 							sawTakenAck = true;
 							RotaryConveyorBridge.setReadyToRotate(false);
@@ -93,7 +61,13 @@ conveyorController(
 						sawTakenAck = false;
 					}
 					present(bottleLeftPos5) {
-						System.out.printf("Conveyor: bottle travelling to collection point%n");
+						// Edge-guarded: held present for up to 30s, and unguarded logging here would busy-spin the process at unthrottled tick speed.
+						if (!sawBottleLeftPos5) {
+							sawBottleLeftPos5 = true;
+							System.out.printf("Conveyor: bottle travelling to collection point%n");
+						}
+					} else {
+						sawBottleLeftPos5 = false;
 					}
 					pause;
 				}
