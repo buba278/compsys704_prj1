@@ -1,44 +1,15 @@
-# Automatic Bottling System
+# Extended Automatic Bottling System and Purchase Order System (EABS + POS)
 
-COMPSYS704 project. Each intelligent machine is an independent SystemJ clock domain (paired `<name>.sysj` decision logic + `<name>Plant.sysj` physical simulation, same pattern as the Lab 3 lid loader), each a separate Java process communicating over TCP.
+COMPSYS704 project. Each intelligent machine is an independent SystemJ clock domain (paired `<name>Controller.sysj` decision logic + `<name>Plant.sysj` physical simulation), each a separate Java process communicating over TCP. Stations: cap loader, filler, conveyor, rotary table, capper, labeller, sorter, plus a POS front end and a Coordinator that drives batches.
 
-## Implemented so far
+## Running instructions
 
-```
-sysj/
-  controller.sysj / plant.sysj              # Lab 3 cap loader (pick-and-place cell)
-  coordinator.sysj / coordinator.xml        # recipe + batch/bottle-count orchestration, POS-facing
-  fillerController.sysj / fillerController.xml   # dual-phase liquid dosing logic, pos 2
-  fillerPlant.sysj / fillerPlant.xml        # fill-level simulation for the filler
-  pos.sysj / pos.xml                        # accepts orders, hands off to Coordinator, reports completion
+IDE used is Eclipse (with `.project`/`.classpath`/`.settings` included).
 
-src/
-  Controller.java, Plant.java                       # generated from controller.sysj / plant.sysj
-  Coordinator.java                                  # generated from coordinator.sysj
-  FillerController.java, FillerPlant.java           # generated from fillerController.sysj / fillerPlant.sysj
-  Pos.java                                          # generated from pos.sysj
-  machines/pos/     Order.java, OrderQueue.java, PosPanel.java, PosState.java, PosVizWorker.java
-  machines/filler/  FillerCanvas.java, FillerPanel.java, FillerState.java, FillerVizWorker.java
-  org/compsys704/   Ports.java, SignalServer.java, SignalClient.java, SignalRadioClient.java,
-                    SignalCheckBoxClient.java, SignalLevelClient.java, Canvas.java, Worker.java,
-                    States.java, CapLoader.java, LoaderVizWorker.java
-  run/              GUI.java, FillerGUI.java, PosGUI.java, FillerRecipe.java
-```
-
-Remaining stations from the assignment brief (loader, conveyor, rotary table, cap placer, capper, unloader, labeler) are not yet built.
-
-## Coordination model
-
-- **Local signals** (station to station, no coordinator involved): direct handoff signals between physically adjacent stations, e.g. `bottleAtPos2`. Keeps stations working even if the coordinator stalls.
-- **Coordinator signals**: recipe (ratio/volume), bottle quantity, batch progress, `batchDone`. The Coordinator pushes recipe parameters to the filler at batch start; it does not micromanage a station's internal sequencing.
-- **POS → Coordinator**: `OrderQueue` (Java side) serializes submitted orders, sending ratio/volume/quantity directly to the Coordinator (not relayed through the POS clock domain — an earlier design that routed data through POS was a source of GALS timing races). POS only handles the submit trigger and reporting batch completion back to the GUI.
-- **GALS signal reliability**: every cross-clock-domain signal in the fill pipeline must be held/sustained, never a bare single-tick `emit` — see CLAUDE.md's "Cross-clock-domain signal reliability" section before adding a new signal.
-
-## Conventions
-
-- Each station's `.sysj` file is the source of truth; the paired `.java` file is generated output — regenerate via `sjc`, never hand-edit.
-- Signal naming: `<ClockDomain>.<signalName>` (e.g. `FillerControllerCD.bottleAtPos2`, `CoordinatorCD.batchDone`) — see `Ports.java` and the `.xml` module descriptors for the full registry and TCP ports.
-- Each station has its own Swing viz panel talking to the running process over plain TCP (`SignalServer`/`SignalClient`/`Worker`), not through the SystemJ runtime directly.
+1. Import the project into Eclipse.
+2. Run **`BuildAll`** (`launches/BuildAll.launch`) once to regenerate all `src/*.java` from all `sysj/*.sysj` - top-level `src/*.java` is not tracked.
+3. Run **`RunAll`** (`launches/RunAll.launch`) - a launch group that starts every station process plus the digital twin server (`RunTwinServer`) and the big-picture viewer (`RunBigPicture`) together. `RunAll_Live` is the same set but with console logs instead of file logs. Individual `Run<Station>.launch` configs exist if you want to start/restart one process on its own (useful after touching a single `.sysj` file).
+4. Use either the POS GUI or the big picture GUI to submit an order and watch the big-picture viewer showing the batch moving through the stations. Click on stations within the big picture GUI to focus on their individual window.
 
 ## IP assignments
 
