@@ -12,9 +12,6 @@ rotaryTableController(
 	signal autoMode; 	// 0
 	signal manualMode; 	// 1
 
-	// Ack side of the Pos 1 handoff with the Conveyor, held true until the Conveyor drops its own request - keeps the handoff correct regardless of either side's tick rate.
-	// Sent via RotaryConveyorBridge (run-package class) not an inline SignalLevelClient - sjc crashes resolving multi-segment package types in a reactive body.
-
 	{	// mode selection
 		int currentMode = 0; // default is auto mode
 
@@ -38,11 +35,8 @@ rotaryTableController(
 			await(autoMode);
 
 			abort(manualMode) {
-				// A new bottle can only be accepted once the Entry slot (Pos 1) is genuinely free - wait for the Plant to report that.
 				await(tableHasFreeSlot);
-
 				await(readyToRotate);
-
 
 				abort(tableAlignedWithSensor) {
 					loop {
@@ -52,14 +46,9 @@ rotaryTableController(
 				}
 				
 
-				// Ack only after tableAlignedWithSensor (genuine dispatch), not the instant we start trying - acking earlier lets the Conveyor release Pos 1 before the bottle has actually entered the table.
 				RotaryConveyorBridge.setPos1AckToController(true);
 				RotaryConveyorBridge.setPos1AckToPlant(true);
 
-				// complete the handshake: wait for the Conveyor Controller
-				// to see our ack and drop its request before we drop ours,
-				// so the ack can't be missed and this is safely re-armed
-				// for the next bottle.
 				await(!readyToRotate);
 				RotaryConveyorBridge.setPos1AckToController(false);
 				RotaryConveyorBridge.setPos1AckToPlant(false);

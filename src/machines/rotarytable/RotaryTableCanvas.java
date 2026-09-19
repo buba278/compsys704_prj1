@@ -20,12 +20,7 @@ public class RotaryTableCanvas extends JPanel {
 	private static final int ALIGNED_Y = 10;
 	private static final int POS5_Y = 35;
 
-	// How long a slot stays highlighted after its bottle id last changed
-	// (see RotaryTableState.SLOT_LAST_MOVE_MS) - long enough to catch the
-	// eye, short enough that it reads as "just moved" rather than a steady
-	// state. Every slot that moved on the same index event lights up
-	// together, which is what actually shows true synchronized indexing.
-	private static final long MOVE_HIGHLIGHT_MS = 500;
+	private static final long MOVE_HIGHLIGHT_MS = 500; // how long a slot flashes orange after its bottle changes
 
 	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255);  // light blue, matches FillerCanvas
 	private static final Color STATION_BLUE = new Color(30, 40, 60);       // matches StationHeader's banner colour
@@ -50,9 +45,7 @@ public class RotaryTableCanvas extends JPanel {
 		g.setColor(Color.BLACK);
 		g.drawString("Bottle at Pos 5", LABEL_X, POS5_Y + 12);
 
-		// List every bottle currently on the table and which slot it occupies -
-		// with true synchronized indexing there's exactly one bottle per
-		// occupied slot, so this is a direct readout of RotaryTableState.SLOT_BOTTLE_ID.
+		// one bottle per occupied slot, so this is a direct readout of SLOT_BOTTLE_ID
 		int row = 0;
 		for (int slot = 0; slot < 5; slot++) {
 			int bottleId = RotaryTableState.SLOT_BOTTLE_ID[slot];
@@ -66,11 +59,11 @@ public class RotaryTableCanvas extends JPanel {
 			g.drawString("Table empty", LABEL_X, POS5_Y + 30);
 		}
 
-		// the turntable itself, with 6 slots spaced 60 degrees apart (5 active + 1 spare)
+		// 6 slots spaced 60 degrees apart (5 active + 1 spare)
 		g.setColor(Color.DARK_GRAY);
 		g.drawOval(TABLE_CENTER_X - TABLE_RADIUS, TABLE_CENTER_Y - TABLE_RADIUS, TABLE_RADIUS * 2, TABLE_RADIUS * 2);
 
-		final int TOP_POSITION_INDEX = 2; // Pos3 (i == 2) is drawn at the top
+		final int TOP_POSITION_INDEX = 2; // pos3 (i == 2) is drawn at the top
 
 		g.setColor(new Color(225, 225, 225));
 		for (int i = 0; i < 6; i++) {
@@ -87,9 +80,7 @@ public class RotaryTableCanvas extends JPanel {
 			int slotX = (int) (TABLE_CENTER_X + TABLE_RADIUS * Math.cos(angleRad));
 			int slotY = (int) (TABLE_CENTER_Y + TABLE_RADIUS * Math.sin(angleRad));
 
-			// Positions 0-4 (i == slot index) are the 5 active physical slots
-			// (Entry/Filler/Lid Placer/Capper/Exit, in that real order); Pos 6
-			// (i == 5) is the spare slot, always empty for now.
+			// i 0-4 are the 5 active slots (Entry/Filler/Lid Placer/Capper/Exit); i 5 is the spare
 			boolean isActiveSlot = i < 5;
 			int bottleId = isActiveSlot ? RotaryTableState.SLOT_BOTTLE_ID[i] : 0;
 			boolean occupied = bottleId > 0;

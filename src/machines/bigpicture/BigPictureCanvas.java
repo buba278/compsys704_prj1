@@ -6,15 +6,20 @@ import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import digitaltwin.BigPictureTwinState;
 import machines.capper.CapperState;
 import machines.conveyor.ConveyorState;
 import machines.coordinator.CoordinatorState;
@@ -37,7 +42,7 @@ public class BigPictureCanvas extends JPanel {
 	private static final int TABLE_CENTER_Y = 430;
 	private static final int TABLE_RADIUS = 130;
 	private static final int SLOT_RADIUS = 18;
-	private static final int TOP_POSITION_INDEX = 2;
+	private static final int TOP_POSITION_INDEX = 2; // slot index drawn at the top of the dial (pos3)
 
 	private static final double EASE_FACTOR = 0.12; 
 
@@ -56,10 +61,20 @@ public class BigPictureCanvas extends JPanel {
 	private static final String TITLE_LABELLER = "Labeller Visualizer";
 	private static final String TITLE_SORTER = "Sorter Visualizer";
 
+	// recomputed each paint by drawBottleProductionList(); parallel lists (not a
+	// map) since draw order also determines display order
+	private final List<Rectangle> bottleListHitboxes = new ArrayList<>();
+	private final List<String> bottleListProductIds = new ArrayList<>();
+
 	public BigPictureCanvas() {
 		MouseAdapter clickHandler = new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				String clickedProduct = bottleListProductIdAt(e.getX(), e.getY());
+				if (clickedProduct != null) {
+					showBottleDetail(clickedProduct);
+					return;
+				}
 				String title = stationTitleAt(e.getX(), e.getY());
 				if (title != null) WindowFocuser.focus(title);
 			}
@@ -68,10 +83,18 @@ public class BigPictureCanvas extends JPanel {
 		addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				boolean overStation = stationTitleAt(e.getX(), e.getY()) != null;
+				boolean overStation = bottleListProductIdAt(e.getX(), e.getY()) != null
+						|| stationTitleAt(e.getX(), e.getY()) != null;
 				setCursor(Cursor.getPredefinedCursor(overStation ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
 			}
 		});
+	}
+
+	private String bottleListProductIdAt(int x, int y) {
+		for (int i = 0; i < bottleListHitboxes.size(); i++) {
+			if (bottleListHitboxes.get(i).contains(x, y)) return bottleListProductIds.get(i);
+		}
+		return null;
 	}
 
 	private String stationTitleAt(int x, int y) {
@@ -112,8 +135,12 @@ public class BigPictureCanvas extends JPanel {
 		Graphics2D g = (Graphics2D) gOrig;
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+		bottleListHitboxes.clear();
+		bottleListProductIds.clear();
+
 		drawHeader(g);
 		drawFaultBanner(g);
+		drawBottleProductionList(g);
 		drawLegend(g);
 
 		if (ConveyorState.MOTOR_ON) {
@@ -231,6 +258,96 @@ public class BigPictureCanvas extends JPanel {
 		return null;
 	}
 
+	// --- digital twin: "Bottles in Production" panel + per-bottle detail popup --------
+
+	private void drawBottleProductionList(Graphics2D g) {
+		List<BigPictureTwinState.ProductInfo> products = BigPictureTwinState.getActiveProducts();
+
+		int x = 20, y = 94;
+		int lineHeight = 16;
+		int maxLines = 6;
+		int shown = Math.min(products.size(), maxLines);
+		int boxW = 230;
+		// title row + one line per shown bottle, plus an extra line for "+N more" if truncated
+		int boxH = 20 + Math.max(shown, 1) * lineHeight + (products.size() > maxLines ? lineHeight : 0) + 6;
+
+		g.setColor(new Color(245, 245, 245));
+		g.fillRoundRect(x, y, boxW, boxH, 8, 8);
+		g.setColor(Color.DARK_GRAY);
+		g.drawRoundRect(x, y, boxW, boxH, 8, 8);
+
+		g.setColor(STATION_BLUE);
+		g.setFont(g.getFont().deriveFont(java.awt.Font.BOLD, 12f));
+		g.drawString("Bottles in Production:", x + 8, y + 16);
+
+		g.setFont(g.getFont().deriveFont(java.awt.Font.PLAIN, 11f));
+		if (products.isEmpty()) {
+			g.setColor(Color.GRAY);
+			g.drawString("(none)", x + 8, y + 16 + lineHeight);
+			return;
+		}
+
+		FontMetrics fm = g.getFontMetrics();
+		for (int i = 0; i < shown; i++) {
+			BigPictureTwinState.ProductInfo p = products.get(i);
+			int ly = y + 16 + (i + 1) * lineHeight;
+			g.setColor(colorForProduct(p.productId));
+			String line = p.productId + " — " + capitalize(p.currentWorkstation);
+			g.drawString(line, x + 8, ly);
+
+			bottleListHitboxes.add(new Rectangle(x + 6, ly - 11, fm.stringWidth(line) + 4, 14));
+			bottleListProductIds.add(p.productId);
+		}
+		if (products.size() > maxLines) {
+			g.setColor(Color.GRAY);
+			g.drawString("+" + (products.size() - maxLines) + " more", x + 8, y + 16 + (shown + 1) * lineHeight);
+		}
+	}
+
+	// deterministic per-productId colour, since the twin has no native colour of its
+	// own (unlike RotaryTableState.colorForBottle, keyed by the viz-side bottleId)
+	private Color colorForProduct(String productId) {
+		int hash = productId.hashCode();
+		float hue = ((hash % 360) + 360) % 360 / 360f;
+		return Color.getHSBColor(hue, 0.55f, 0.7f);
+	}
+
+	private String capitalize(String s) {
+		if (s == null || s.isEmpty()) return s;
+		return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+	}
+
+	private void showBottleDetail(String productId) {
+		BigPictureTwinState.ProductInfo p = null;
+		for (BigPictureTwinState.ProductInfo info : BigPictureTwinState.getActiveProducts()) {
+			if (info.productId.equals(productId)) {
+				p = info;
+				break;
+			}
+		}
+		if (p == null) return; // bottle moved on (archived/sorted) since the list was drawn
+
+		StringBuilder sb = new StringBuilder("<html>");
+		sb.append("<b>").append(p.productId).append("</b><br>");
+		sb.append("Volume: ").append((int) p.volumeMl).append(" ml<br>");
+		int ratioA = (int) p.liquidRatio;
+		sb.append("Ratio: ").append(ratioA).append(":").append(100 - ratioA).append("<br>");
+		sb.append("Workstation: ").append(capitalize(p.currentWorkstation)).append("<br>");
+		sb.append("Status: ").append(p.status).append("<br>");
+		sb.append("Fault: ").append(p.hasFault ? "Yes" : "No").append("<br><br>");
+		sb.append("<b>Outcomes so far:</b><br>");
+		if (p.stationOutcomes.isEmpty()) {
+			sb.append("(none yet)");
+		} else {
+			for (Map.Entry<String, String> entry : p.stationOutcomes.entrySet()) {
+				sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("<br>");
+			}
+		}
+		sb.append("</html>");
+
+		JOptionPane.showMessageDialog(this, sb.toString(), "Bottle " + productId, JOptionPane.INFORMATION_MESSAGE);
+	}
+
 	private void drawLegend(Graphics2D g) {
 		int x = 20, y = CANVAS_H - 50;
 		g.setFont(g.getFont().deriveFont(java.awt.Font.PLAIN, 11f));
@@ -238,7 +355,7 @@ public class BigPictureCanvas extends JPanel {
 		legendDot(g, x + 110, y, WAITING_YELLOW, "Idle");
 		legendDot(g, x + 210, y, FAULT_RED, "Fault");
 		g.setColor(Color.GRAY);
-		g.drawString("Click a station above to bring its own detailed window to the front.", x, y + 20);
+		g.drawString("Click a station to bring its window forward, or a bottle in the list above for its digital twin.", x, y + 20);
 	}
 
 	private void legendDot(Graphics2D g, int x, int y, Color c, String label) {
@@ -420,8 +537,7 @@ public class BigPictureCanvas extends JPanel {
 		drawStatusDot(g, lx, ly - 16, statusColor);
 	}
 
-	// green = active, yellow = idle
-	// fault stations use the colour overload directly with FAULT_RED
+	// green = active, yellow = idle; fault stations call the colour overload with FAULT_RED directly
 	private void drawStatusDot(Graphics2D g, int x, int y, boolean active) {
 		drawStatusDot(g, x, y, active ? IDLE_GREEN : WAITING_YELLOW);
 	}
@@ -453,19 +569,32 @@ public class BigPictureCanvas extends JPanel {
 		g.drawString("Labelled: " + LabellerState.LABEL_COUNTER, cx - 48, cy + 6);
 
 		if (LabellerState.BOTTLE_PRESENT) {
-
-			int w = 16, h = 24;
-			int left = cx - w / 2, top = cy + 15;
-			int aHeight = (int) Math.round(h * (LabellerState.LIQUID_RATIO / 100.0));
-			g.setColor(LIQUID_A_COLOR);
-			g.fillRect(left, top + (h - aHeight), w, aHeight);
-			if (aHeight < h) {
-				g.setColor(LIQUID_B_COLOR);
-				g.fillRect(left, top, w, h - aHeight);
-			}
-			g.setColor(Color.BLACK);
-			g.drawRect(left, top, w, h);
+			drawFilledBottleRect(g, cx, cy + 15, 16, 24, LabellerState.LIQUID_RATIO, Color.BLACK);
 		}
+	}
+
+	// top-anchored filled bottle (labeller/sorter style); drawFilledBottleOnBelt
+	// is the centre-anchored, always-black-bordered equivalent for the belt
+	private void drawFilledBottleRect(Graphics2D g, int centerX, int top, int w, int h, int ratioA, Color borderColor) {
+		int left = centerX - w / 2;
+		int aHeight = (int) Math.round(h * (ratioA / 100.0));
+		g.setColor(LIQUID_A_COLOR);
+		g.fillRect(left, top + (h - aHeight), w, aHeight);
+		if (aHeight < h) {
+			g.setColor(LIQUID_B_COLOR);
+			g.fillRect(left, top, w, h - aHeight);
+		}
+		g.setColor(borderColor);
+		g.drawRect(left, top, w, h);
+	}
+
+	// the sorter has no ratio signal of its own, so borrow it from the twin's product
+	// list by workstation; falls back to 50:50 if there's no match (e.g. no twin server)
+	private int sorterBottleRatio() {
+		for (BigPictureTwinState.ProductInfo p : BigPictureTwinState.getActiveProducts()) {
+			if ("sorter".equalsIgnoreCase(p.currentWorkstation)) return (int) p.liquidRatio;
+		}
+		return 50;
 	}
 
 	private void drawSorter(Graphics2D g) {
@@ -498,10 +627,8 @@ public class BigPictureCanvas extends JPanel {
 		g.drawString(String.valueOf(SorterState.REJECTED_COUNT), cx + 45, cy + 48);
 
 		if (SorterState.BOTTLE_PRESENT) {
-			g.setColor(SorterState.BOTTLE_DEFECTIVE ? FAULT_RED : new Color(135, 206, 250));
-			g.fillOval(cx - 10, cy - 45, 20, 20);
-			g.setColor(Color.BLACK);
-			g.drawOval(cx - 10, cy - 45, 20, 20);
+			Color border = SorterState.BOTTLE_DEFECTIVE ? FAULT_RED : Color.BLACK;
+			drawFilledBottleRect(g, cx, cy - 49, 16, 24, sorterBottleRatio(), border);
 		}
 	}
 

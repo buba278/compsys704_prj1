@@ -5,14 +5,12 @@ import java.util.List;
 
 import org.compsys704.Worker;
 
+// translates the controller/plant's viz signals into RotaryTableState, which the swing canvas polls
 public class RotaryTableVizWorker extends Worker {
 
 	@Override
 	public void setSignal(boolean status) {
 		switch (signame) {
-		// *BigE names are the same events mirrored to the Big-Picture window's own
-		// socket (see rotaryTablePlant.sysj/xml) - handled identically to their *E
-		// counterpart since both just drive this same RotaryTableState.
 		case "tableAlignedWithSensorE": case "tableAlignedWithSensorBigE": RotaryTableState.TABLE_ALIGNED = status; break;
 		case "bottleAtPos5E": case "bottleAtPos5BigE":                     RotaryTableState.BOTTLE_AT_POS5 = status; break;
 		case "rotaryTableTriggerE": case "rotaryTableTriggerBigE":         break; // no visual effect of its own - see per-slot highlights

@@ -18,6 +18,7 @@ import machines.sorter.SorterVizWorker;
 import org.compsys704.LoaderVizWorker;
 import org.compsys704.Ports;
 import org.compsys704.SignalServer;
+import digitaltwin.BigPictureTwinListener;
 
 public class BigPicture extends JFrame {
 
@@ -65,7 +66,7 @@ public class BigPicture extends JFrame {
 				new SignalServer<SorterVizWorker>(Ports.PORT_SORTER_BIGPICTURE_VIZ, SorterVizWorker.class);
 		new Thread(sorterServer).start();
 
-		// Fault-tolerance IP's fault/backup indicators (Filler/Capper/Lid Placer)
+		// fault/backup indicators for filler, capper, lid placer
 		SignalServer<FillerVizWorker> fillerServer =
 				new SignalServer<FillerVizWorker>(Ports.PORT_FILLER_BIGPICTURE_VIZ, FillerVizWorker.class);
 		new Thread(fillerServer).start();
@@ -77,6 +78,9 @@ public class BigPicture extends JFrame {
 		SignalServer<LoaderVizWorker> lidPlacerServer =
 				new SignalServer<LoaderVizWorker>(Ports.PORT_LOADER_BIGPICTURE_VIZ, LoaderVizWorker.class);
 		new Thread(lidPlacerServer).start();
+
+		// feeds the "Bottles in Production" panel; retries quietly if TwinServer isn't running
+		BigPictureTwinListener.start("127.0.0.1", 7070);
 
 		while (true) {
 			try {

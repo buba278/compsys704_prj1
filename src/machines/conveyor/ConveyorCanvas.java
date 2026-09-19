@@ -22,17 +22,11 @@ public class ConveyorCanvas extends JPanel {
 	private static final int MARK_SPACING = 24;
 
 	private static final int BELT_LENGTH = BELT_RIGHT - BELT_LEFT;
-	private static final int POS1_X = BELT_LEFT + BELT_LENGTH / 4;         // 1/4 in from the loading end
-	private static final int POS5_X = BELT_LEFT + (3 * BELT_LENGTH) / 4;   // 1/4 in from the collection end
+	private static final int POS1_X = BELT_LEFT + BELT_LENGTH / 4;        
+	private static final int POS5_X = BELT_LEFT + (3 * BELT_LENGTH) / 4;  
 
-	// Purely visual: how far the belt marks scroll per repaint while the motor is on.
 	private static final double SCROLL_SPEED = 1.5;
 
-	// How quickly the drawn bottle position (LEFT_PROGRESS/RIGHT_PROGRESS)
-	// eases toward the real model progress (LEFT_STEP/RIGHT_STEP, ground
-	// truth from the plant) each repaint. This is purely a smoothing factor
-	// between real ticks, not a substitute for them - matches the easing
-	// RotaryTableCanvas already uses for the turntable angle.
 	private static final double EASE_FACTOR = 0.15;
 
 	private static final Color LIQUID_A_COLOR = new Color(135, 190, 255); // matches FillerCanvas/RotaryTableCanvas
@@ -64,8 +58,6 @@ public class ConveyorCanvas extends JPanel {
 		g.setColor(Color.DARK_GRAY);
 		g.drawRect(BELT_LEFT, BELT_Y, BELT_RIGHT - BELT_LEFT, BELT_HEIGHT);
 
-		// scrolling marks give the belt a sense of motion while the motor runs -
-		// they scroll left-to-right, matching the direction bottles actually travel
 		if (ConveyorState.MOTOR_ON) {
 			ConveyorState.BELT_OFFSET = (ConveyorState.BELT_OFFSET + SCROLL_SPEED) % MARK_SPACING;
 		}
@@ -87,18 +79,12 @@ public class ConveyorCanvas extends JPanel {
 		g.drawString("Pos 5", POS5_X - 12, BELT_Y + BELT_HEIGHT + 16);
 		g.drawString("Collection end", BELT_RIGHT - 90, BELT_Y - 6);
 
-		// bottles between Pos 1 and Pos 5 are on the Rotary Table, not the
-		// belt itself, so there's nothing to draw for them here - show the
-		// count instead, centred in that gap.
 		String onTable = "On Rotary Table: " + ConveyorState.BOTTLES_ON_TABLE;
 		int midX = (POS1_X + POS5_X) / 2;
 		java.awt.FontMetrics fm = g.getFontMetrics();
 		g.drawString(onTable, midX - fm.stringWidth(onTable) / 2, BELT_Y + BELT_HEIGHT / 2 + 5);
 
-		// the bottle travelling from the loading end to Pos 1 - eased toward
-		// the model's real tick count (LEFT_STEP), not a fixed animation
-		// duration, so it visually arrives at Pos 1 exactly when the model
-		// actually gets there
+
 		if (ConveyorState.LEFT_BOTTLE_ACTIVE) {
 			double leftTarget = ConveyorState.LEFT_STEP / (double) ConveyorState.TRAVEL_STEPS;
 			if (ConveyorState.MOTOR_ON) {
@@ -108,9 +94,7 @@ public class ConveyorCanvas extends JPanel {
 			drawBottle(g, x, EMPTY_BOTTLE_COLOR);
 		}
 
-		// the finished bottle travelling from Pos 5 to the collection end - coloured by
-		// the ratio it was actually filled with (ConveyorState.RIGHT_RATIO_A), the same
-		// bottom-Liquid-A/top-Liquid-B split FillerCanvas draws while dosing
+		// bottle travelling to the collection end, coloured by its actual fill ratio
 		if (ConveyorState.RIGHT_BOTTLE_ACTIVE) {
 			double rightTarget = ConveyorState.RIGHT_STEP / (double) ConveyorState.TRAVEL_STEPS;
 			if (ConveyorState.MOTOR_ON) {
@@ -121,9 +105,6 @@ public class ConveyorCanvas extends JPanel {
 		}
 	}
 
-	// draws the exiting bottle with a bottom-Liquid-A/top-Liquid-B colour split by
-	// ratioA (0-100), matching how FillerCanvas renders the same bottle while dosing -
-	// Liquid A is poured first and settles at the bottom, Liquid B fills the rest on top
 	private void drawFilledBottle(Graphics2D g, int centerX, int ratioA) {
 		int width = 14;
 		int height = 26;
@@ -148,11 +129,10 @@ public class ConveyorCanvas extends JPanel {
 		g.drawRect(centerX - 3, top - 6, 6, 6);
 	}
 
-	// draws a bottle resting on top of the belt, centered horizontally on x
 	private void drawBottle(Graphics2D g, int centerX, Color color) {
 		int width = 14;
 		int height = 26;
-		int baseY = BELT_Y + 4; // sit slightly into the belt surface, not floating above it
+		int baseY = BELT_Y + 4;
 		int left = centerX - width / 2;
 		int top = baseY - height;
 

@@ -20,10 +20,7 @@ import org.compsys704.SignalServer;
 
 public class Conveyor extends JFrame {
 
-	// loadBottle/bottleFromTable are read with a plain await(...) in the plant,
-	// so they just need to be present for one tick, not held - this sends true
-	// and then schedules false shortly after so a button click reads as a pulse
-	// rather than getting stuck on.
+	// press-then-release pulse, for one-shot signals like a manual bottle load
 	private static void pulse(final SignalLevelClient client) {
 		client.send(true);
 		Timer resetTimer = new Timer(50, new java.awt.event.ActionListener() {
@@ -40,10 +37,6 @@ public class Conveyor extends JFrame {
 		canvas.setPreferredSize(new Dimension(650, 220));
 		canvas.setBackground(Color.WHITE);
 
-		// --- DEV stand-in for the Loader (Rotary Table and Sorter handoffs
-		// are now real - driven automatically by RotaryConveyorBridge and
-		// ConveyorLabellerBridge, no GUI buttons needed for them anymore) ---
-
 		final SignalLevelClient enableClient = new SignalLevelClient(Ports.PORT_CONVEYOR_PLANT, Ports.CONVEYOR_ENABLE);
 		JRadioButton disabled = new JRadioButton("disabled");
 		disabled.addActionListener(new java.awt.event.ActionListener() {
@@ -57,8 +50,7 @@ public class Conveyor extends JFrame {
 				enableClient.send(true);
 			}
 		});
-		// system-ready by default, so the belt works out of the box; the toggle
-		// is still there to demonstrate what happens when it's held not-ready
+
 		enabled.setSelected(true);
 		enableClient.send(true);
 		ButtonGroup enableGroup = new ButtonGroup();
@@ -97,8 +89,7 @@ public class Conveyor extends JFrame {
 		modeGroup.add(autoMode);
 		modeGroup.add(manualMode);
 
-		// conveyorM is only read by the controller's manual-mode branch, checked
-		// every tick, so the motor runs only while held: press sends true, release false.
+		// conveyorM: motor runs only while held, press sends true, release sends false
 		final SignalLevelClient conveyorMClient = new SignalLevelClient(Ports.PORT_CONVEYOR_CONTROLLER, Ports.CONVEYOR_CONVEYOR_M);
 		final JButton jogButton = new JButton("Hold to run motor");
 		jogButton.setEnabled(false);

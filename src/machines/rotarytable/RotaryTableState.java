@@ -2,17 +2,16 @@ package machines.rotarytable;
 
 // shared state written by RotaryTableVizWorker, read by RotaryTableCanvas
 public class RotaryTableState {
-	public static volatile boolean TABLE_ALIGNED = true;
-	public static volatile boolean BOTTLE_AT_POS5 = false;
+	public static volatile boolean TABLE_ALIGNED = true; // mirrors tableAlignedWithSensor
+	public static volatile boolean BOTTLE_AT_POS5 = false; // mirrors bottleAtPos5
 
-	// Mirrors run.RotaryIndexState's 5 slots (0=Entry/Pos1..4=Exit/Pos5); 0 = empty, else a per-bottle sequence number for a stable colour across slots.
+	// 0=Entry/Pos1..4=Exit/Pos5; 0 = empty, else a bottle id, for a stable colour per slot
 	public static final int[] SLOT_BOTTLE_ID = new int[5];
 
-	// Timestamp each slot's bottle id last changed (0 = never) - lets the canvas highlight every slot that moved on the same index event.
+	// timestamp of each slot's last bottle change, so the canvas can flash slots that just moved
 	public static final long[] SLOT_LAST_MOVE_MS = new long[5];
 
-	// One colour per active bottle id (cycled by id % length) so the same
-	// bottle stays visually identifiable as it advances across slots.
+	// cycled by id % length so the same bottle stays identifiable across slots
 	private static final java.awt.Color[] BOTTLE_COLORS = {
 			new java.awt.Color(220, 70, 70),   // red
 			new java.awt.Color(70, 160, 90),   // green
