@@ -4,6 +4,7 @@ import run.RotaryCapperBridge;
 import run.CapperFaultState;
 CapperController(
     input signal bottleAtPos4;
+    input signal bottleDefectiveAtPos4;							// RotaryTablePlant -> capperController (bottle already abandoned upstream, e.g. no lid - refuse to cap it)
     input signal gripperMaxLower;
     input signal gripperMaxLift;
     input signal capGripped;
@@ -21,6 +22,7 @@ CapperController(
     output signal capperFaultE;									// capperController -> UI viz (fault indicator)
     output signal capperFaultOut;								// capperController -> coordinator (station faulted)
     output signal capperBackupE;								// capperController -> UI viz (persistent backup-unit-active indicator)
+    output signal capperFaultBigE, capperBackupBigE;			// capperController -> BigPicture viz (separate socket from the station's own GUI)
 )
 ->
 {
@@ -57,6 +59,29 @@ CapperController(
         System.out.println("CapperController: Waiting for bottle at Position 4...");
         await (bottleAtPos4);
         String productId = twin.getProductIdAtPosition(3);
+
+        present (bottleDefectiveAtPos4) {
+            // Bottle was already abandoned upstream (e.g. the Lid Placer's magazine ran empty) - capping it
+            // would just waste a cap on a bottle the Sorter is going to reject anyway. Skip it outright: no
+            // physical attempt, and deliberately no fault indication of any kind on the Capper's side (no
+            // ERROR state, no backup-mode lamp, no stationFault/capperFaultOut) - the Capper didn't malfunction,
+            // the Lid Placer already raised (and owns) the one fault for this bottle. Straight back to waiting
+            // for the next bottle - nothing here needs a manual Clear Fault.
+            System.out.println("CapperController: Bottle detected but missing a lid - skipping, bottle already faulted upstream.");
+            twin.recordEvent("Capping skipped (no lid - upstream fault)", productId);
+
+            {
+                long tAck = System.currentTimeMillis();
+                while (System.currentTimeMillis() - tAck < 100) {
+                    RotaryCapperBridge.setCapperTakenAck(true);
+                    pause;
+                }
+                RotaryCapperBridge.setCapperTakenAck(false);
+            }
+
+            System.out.println("CapperController: Cycle complete.");
+            twin.update(PlantTwin.State.IDLE);
+        } else {
         System.out.println("CapperController: Bottle detected. Starting capping sequence.");
         twin.update(PlantTwin.State.IN_PROGRESS);
 
@@ -152,6 +177,7 @@ CapperController(
         System.out.println("CapperController: Gripper returned to initial position.");
         System.out.println("CapperController: Cycle complete.");
         twin.update(PlantTwin.State.IDLE);
+        }
     }
     }
     await (manual);
@@ -192,12 +218,14 @@ CapperController(
 		if (CapperFaultState.isStationFaulted()) {
 			emit stationFault;
 			emit capperFaultE;
+			emit capperFaultBigE;
 		}
 		if (CapperFaultState.isAttemptTimedOut(8000)) {
 			emit attemptTimedOut;
 		}
 		if (CapperFaultState.isUsingBackup()) {
 			emit capperBackupE;
+			emit capperBackupBigE;
 		}
 		pause;
 	}

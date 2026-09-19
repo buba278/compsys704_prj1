@@ -29,9 +29,7 @@ public class SystemTwin {
     private int rotaryTurnCount = 0;
     private int productSequence = 0;
     private long lastBatchElapsedMs = 0;
-    private long lastRotaryTurnMs = 0;
-    private static final long MIN_ROTARY_TURN_INTERVAL_MS = 500;
- 
+
     private SystemTwin() {
     }
  
@@ -62,15 +60,11 @@ public class SystemTwin {
         this.lastBatchElapsedMs = elapsedMs;
     }
  
+    // The sole caller (rotaryTablePlant.sysj's Index coordinator thread) now reports exactly once per
+    // genuine RotaryIndexState.doIndex() call, so no debounce is needed here any more - a debounce would
+    // just as easily eat a second real rotation landing within its window, permanently desyncing every
+    // active bottle's tracked position one step behind (the bug this replaced).
     public synchronized void onRotaryTurn() {
-        long now = System.currentTimeMillis();
-        if (now - lastRotaryTurnMs < MIN_ROTARY_TURN_INTERVAL_MS) {
-            System.out.println("SystemTwin: ignoring duplicate ROTARY_TURN " 
-                    + (now - lastRotaryTurnMs) + "ms after the last one");
-            return;
-        }
-        lastRotaryTurnMs = now;
-
         rotaryTurnCount++;
         for (ProductTwin product : activeProducts.values()) {
             product.advancePosition();

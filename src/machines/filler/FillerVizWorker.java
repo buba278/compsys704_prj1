@@ -15,6 +15,8 @@ public class FillerVizWorker extends Worker {
               case "fillDoneE":       if (status) FillerState.FILL_DONE = true; break;
               case "fillFaultE":      if (status) FillerState.FAULT = true; break;
               case "fillerBackupE":   if (status) FillerState.BACKUP_ACTIVE = true; break;
+              case "fillFaultBigE":    FillerState.FAULT = status; break;
+              case "fillerBackupBigE": FillerState.BACKUP_ACTIVE = status; break;
               case "fillLevelE":      break;
               case "totalVolumeMlE":  break;
               default:
@@ -34,7 +36,8 @@ public class FillerVizWorker extends Worker {
               }
       }
 
-      static final List<String> signames = Arrays.asList("valve1OpenE", "valve2OpenE", "fillDoneE", "fillFaultE", "fillerBackupE", "fillLevelE", "totalVolumeMlE");
+      static final List<String> signames = Arrays.asList("valve1OpenE", "valve2OpenE", "fillDoneE", "fillFaultE", "fillerBackupE",
+              "fillFaultBigE", "fillerBackupBigE", "fillLevelE", "totalVolumeMlE");
 
       @Override
       public boolean hasSignal(String sn) {

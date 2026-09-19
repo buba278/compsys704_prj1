@@ -42,6 +42,12 @@ public class LoaderVizWorker extends Worker{
 		case "lidBackupE":
 			if (status) States.BACKUP_ACTIVE = true;
 			break;
+		case "lidFaultBigE":
+			States.FAULTED = status;
+			break;
+		case "lidBackupBigE":
+			States.BACKUP_ACTIVE = status;
+			break;
 		case "capCountE":
 			break; // value arrives via setIntSignal
 		default:
@@ -57,7 +63,8 @@ public class LoaderVizWorker extends Worker{
 		}
 	}
 
-	static final List<String> signames = Arrays.asList("pusherRetractedE","pusherExtendedE","WPgrippedE","armAtSourceE","armAtDestE","emptyE","lidFaultE","lidBackupE","capCountE");
+	static final List<String> signames = Arrays.asList("pusherRetractedE","pusherExtendedE","WPgrippedE","armAtSourceE","armAtDestE","emptyE",
+			"lidFaultE","lidBackupE","lidFaultBigE","lidBackupBigE","capCountE");
 	
 	@Override
 	public boolean hasSignal(String sn) {

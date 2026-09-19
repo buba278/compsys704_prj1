@@ -9,9 +9,6 @@
 
 			<oSignal Name="rotaryTableTrigger"    To="RotaryTablePlantCD.rotaryTableTrigger" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10017" />
 
-			<!-- mode / rotateM come straight from the GUI, same pattern as
-			     "mode" / "pusherExtendM" going straight to ControllerCD
-			     in the Lab 3 Workpiece Loader example, rather than via the Plant. -->
 			<iSignal Name="mode"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 			<iSignal Name="rotateM" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10016" />
 		</ClockDomain>

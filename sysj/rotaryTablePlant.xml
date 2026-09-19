@@ -25,7 +25,6 @@
 			<oSignal Name="slot3BottleIdE"          To="UI.slot3BottleIdE"          Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
 			<oSignal Name="slot4BottleIdE"          To="UI.slot4BottleIdE"          Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20002" />
 
-			<!-- Same events mirrored to the Big-Picture window's own socket - a different process from the Rotary Table's own GUI, so it needs its own copy (SystemJ codegen is 1-signal-name-to-1-socket). -->
 			<oSignal Name="tableAlignedWithSensorBigE" To="BigPicture.tableAlignedWithSensorBigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
 			<oSignal Name="bottleAtPos5BigE"           To="BigPicture.bottleAtPos5BigE"           Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />
 			<oSignal Name="rotaryTableTriggerBigE"     To="BigPicture.rotaryTableTriggerBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20007" />

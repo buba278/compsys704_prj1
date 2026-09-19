@@ -21,6 +21,10 @@ public class RotaryCapperBridge {
 	// burns its full 10s ack-or-timeout window waiting for capperTakenAck.
 	private static final SignalLevelClient BOTTLE_AT_POS4_CONTROLLER =
 			new SignalLevelClient(Ports.PORT_CAPPER_CONTROLLER, Ports.CAPPER_BOTTLE_AT_POS4_CONTROLLER);
+	// Carries RotaryIndexState.isDefective(3) alongside BOTTLE_AT_POS4_CONTROLLER so the Controller
+	// can see a bottle already abandoned upstream (e.g. by the Lid Placer) before it attempts to cap it.
+	private static final SignalLevelClient BOTTLE_DEFECTIVE_AT_POS4_CONTROLLER =
+			new SignalLevelClient(Ports.PORT_CAPPER_CONTROLLER, Ports.CAPPER_BOTTLE_DEFECTIVE_AT_POS4_CONTROLLER);
 	private static final SignalLevelClient CAPPER_TAKEN_ACK =
 			new SignalLevelClient(Ports.PORT_ROTARYTABLE_PLANT, Ports.ROTARYTABLE_CAPPER_TAKEN_ACK);
 	private static final SignalLevelClient CAPPER_FAULTED =
@@ -30,6 +34,7 @@ public class RotaryCapperBridge {
 		BOTTLE_AT_POS4_PLANT.send(state);
 		BOTTLE_AT_POS4_CONTROLLER.send(state);
 	}
+	public static void setBottleDefectiveAtPos4(boolean state) { BOTTLE_DEFECTIVE_AT_POS4_CONTROLLER.send(state); }
 	public static void setCapperTakenAck(boolean state) { CAPPER_TAKEN_ACK.send(state); }
 	public static void setCapperFaulted(boolean state) { CAPPER_FAULTED.send(state); }
 }

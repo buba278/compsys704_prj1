@@ -12,9 +12,6 @@ conveyorController(
 {
 	signal autoMode, manualMode;
 
-	// Direct handoff to the Rotary Table Controller via RotaryConveyorBridge; readyToRotate stays held until pos1TakenAck clears it.
-	// Uses the "run" package bridge class, not an inline SignalLevelClient - sjc crashes resolving multi-segment package types in a reactive body.
-
 	{ // mode selection
 		int currentMode = 0; // default is auto mode
 		loop {
@@ -35,7 +32,6 @@ conveyorController(
 		loop {
 			await(autoMode);
 			abort(manualMode) {
-				// Each present() block needs its own independent edge guard on its own signal - sharing one "pending" flag between blocks lets a phantom second handoff slip through.
 				boolean sawBottleAtPos1 = false;
 				boolean sawTakenAck = false;
 				boolean sawBottleLeftPos5 = false;
@@ -43,7 +39,6 @@ conveyorController(
 					present(bottleAtPos1) {
 						if (!sawBottleAtPos1) {
 							sawBottleAtPos1 = true;
-							// Delay so the on-screen bottle visually settles at the Pos 1 marker before signalling ready-to-rotate.
 							long tArrive = System.currentTimeMillis();
 							while (System.currentTimeMillis() - tArrive < 200) { pause; }
 							RotaryConveyorBridge.setReadyToRotate(true);
@@ -53,7 +48,6 @@ conveyorController(
 						sawBottleAtPos1 = false;
 					}
 					present(pos1TakenAck) {
-						// Edge-guarded: pos1TakenAck stays present for the whole round trip and present() isn't edge-triggered.
 						if (!sawTakenAck) {
 							sawTakenAck = true;
 							RotaryConveyorBridge.setReadyToRotate(false);
@@ -63,7 +57,6 @@ conveyorController(
 						sawTakenAck = false;
 					}
 					present(bottleLeftPos5) {
-						// Edge-guarded: held present for up to 30s, and unguarded logging here would busy-spin the process at unthrottled tick speed.
 						if (!sawBottleLeftPos5) {
 							sawBottleLeftPos5 = true;
 							System.out.printf("Conveyor: bottle travelling to collection point%n");

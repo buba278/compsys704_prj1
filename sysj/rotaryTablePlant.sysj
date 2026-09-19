@@ -4,6 +4,7 @@ import run.RotaryCapperBridge;
 import run.RotaryFillerBridge;
 import run.RotaryLidBridge;
 import run.RotaryIndexState;
+import digitaltwin.TwinClient;
 
 rotaryTablePlant(
 		input signal rotaryTableTrigger;
@@ -17,10 +18,6 @@ rotaryTablePlant(
 		output signal tableBusy, tableHasFreeSlot;
 		output Integer signal slot0BottleIdE, slot1BottleIdE, slot2BottleIdE, slot3BottleIdE, slot4BottleIdE;
 		output signal tableAlignedWithSensorE, bottleAtPos5E, rotaryTableTriggerE;
-
-		// Same events as the *E signals above, mirrored to a second socket for the
-		// Big-Picture view (a different process from the Rotary Table's own GUI, so it
-		// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket).
 		output Integer signal slot0BottleIdBigE, slot1BottleIdBigE, slot2BottleIdBigE, slot3BottleIdBigE, slot4BottleIdBigE;
 		output signal tableAlignedWithSensorBigE, bottleAtPos5BigE, rotaryTableTriggerBigE;
 		)
@@ -28,11 +25,8 @@ rotaryTablePlant(
 {
 	new Thread(new RotaryTableGUI()).start();
 
-	// True synchronized indexing: 5 fixed physical slots (0=Entry/Pos1, 1=Filler/Pos2, 2=Lid Placer/Pos3, 3=Capper/Pos4, 4=Exit/Pos5) advance together atomically - no claim/release locks needed since indexing guarantees one bottle per slot.
 
-	{ // Table rotation / position sensor + entry request handling.
-	  // Must await(rotaryTableTrigger) then abort(!rotaryTableTrigger) - the reverse order asserts "aligned" from process startup.
-	  // Loading Pos 1 is a stationary conveyor push, same as unloading Pos 5 - it does NOT wait for a rotation, only the shared Index coordinator does; conflating the two starves the table of throughput.
+	{
 		await(start);
 		loop {
 			await(rotaryTableTrigger);
@@ -44,7 +38,7 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Tells the Controller whether it's worth offering a new bottle at all.
+	{
 		while(true) {
 			if (RotaryIndexState.isEntryFree()) {
 				emit tableHasFreeSlot;
@@ -53,25 +47,24 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Index coordinator: advances the whole table one slot atomically once the Exit slot is clear and every occupied working slot is done for this dwell period.
+	{
+		TwinClient twin = new TwinClient("rotary-table-plant", "127.0.0.1", 9090);
 		loop {
 			if (RotaryIndexState.canIndex()) {
 				RotaryIndexState.doIndex();
 				System.out.printf("[RT] INDEX: table advanced one slot%n");
+				twin.reportRotaryTurn();
 			}
 			pause;
 		}
 	}
 	||
-	{ // Slot 1 (Filler): offers whatever bottle is currently dwelling here to
-	  // the Filler, ack-or-timeout, then marks done and waits for the next
-	  // index event to move this bottle on before offering again.
+	{ 
 		loop {
 			while (!RotaryIndexState.isOccupied(1)) { pause; }
 			int myId = RotaryIndexState.getBottleId(1);
 			System.out.printf("[RT] slot1 (Filler): offering bottle #%d%n", myId);
 
-			// await(!fillerTakenAck) first - a previous bottle's ack could still be present, and abort() checks its condition at entry.
 			await(!fillerTakenAck);
 			long tFillStart = System.currentTimeMillis();
 			abort(fillerTakenAck) {
@@ -99,7 +92,7 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Slot 2 (Lid Placer): same shape as slot 1.
+	{
 		loop {
 			while (!RotaryIndexState.isOccupied(2)) { pause; }
 			int myId = RotaryIndexState.getBottleId(2);
@@ -113,7 +106,6 @@ rotaryTablePlant(
 				while (System.currentTimeMillis() - t5 < 14000) {
 					RotaryLidBridge.setRequest(true);
 					long sinceStart = System.currentTimeMillis() - t5;
-					// Slower duty cycle than other stations so the arm's motion reads as a deliberate placement rather than a blur.
 					boolean enableFlag = (sinceStart % 260) < 130;
 					RotaryLidBridge.setEnable(enableFlag);
 					emit tableBusy;
@@ -138,12 +130,13 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Slot 3 (Capper): same shape as slot 1/2.
+	{ 
 		loop {
 			while (!RotaryIndexState.isOccupied(3)) { pause; }
 			int myId = RotaryIndexState.getBottleId(3);
 			System.out.printf("[RT] slot3 (Capper): offering bottle #%d%n", myId);
 
+			boolean myDefective = RotaryIndexState.isDefective(3);
 			await(!capperTakenAck);
 			long tCapStart = System.currentTimeMillis();
 			abort(capperTakenAck) {
@@ -151,11 +144,14 @@ rotaryTablePlant(
 				// Must exceed the Capper's own worst-case fault detection (a single 8000ms stall check, plus backup-mode overhead) or the table gives up before the controller ever faults.
 				while (System.currentTimeMillis() - t0 < 11000) {
 					RotaryCapperBridge.setBottleAtPos4(true);
+					// Tells the Controller up front this bottle was already abandoned upstream (e.g. no lid) so it can refuse to cap it instead of wasting a cap.
+					RotaryCapperBridge.setBottleDefectiveAtPos4(myDefective);
 					emit tableBusy;
 					pause;
 				}
 			}
 			RotaryCapperBridge.setBottleAtPos4(false);
+			RotaryCapperBridge.setBottleDefectiveAtPos4(false);
 			present(capperTakenAck) {
 				System.out.printf("[RT] slot3: capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
 				present(capperFaulted) {
@@ -172,9 +168,7 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Slot 4 (Exit): hands the dwelling bottle off to the Conveyor at
-	  // Pos 5, ack-or-timeout, then clears the slot either way so the table
-	  // can never deadlock waiting on a Conveyor that never acks.
+	{ 
 		loop {
 			while (!RotaryIndexState.isOccupied(4)) { pause; }
 			int myId = RotaryIndexState.getBottleId(4);
@@ -204,7 +198,7 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Viz mirrors: forward each slot's bottle id to the UI on change, widened-held briefly for reliable delivery across the socket hop to the UI SignalServer.
+	{ 
 		int lastSeen0 = -1;
 		loop {
 			if (RotaryIndexState.getBottleId(0) != lastSeen0) {
@@ -284,7 +278,7 @@ rotaryTablePlant(
 		}
 	}
 	||
-	{ // Forward events to the GUI for the animated turntable render.
+	{
 		{while(true){present(tableAlignedWithSensor){emit tableAlignedWithSensorE;} pause;}}
 		||
 		{while(true){present(bottleAtPos5){emit bottleAtPos5E;} pause;}}
@@ -292,9 +286,7 @@ rotaryTablePlant(
 		{while(true){present(rotaryTableTrigger){emit rotaryTableTriggerE;} pause;}}
 	}
 	||
-	{ // Same events mirrored to the Big-Picture socket - read back off the *E
-	  // signals themselves (already the ground truth relayed to the Rotary
-	  // Table's own GUI above) rather than duplicating every emit site.
+	{
 		{while(true){present(tableAlignedWithSensorE){emit tableAlignedWithSensorBigE;} pause;}}
 		||
 		{while(true){present(bottleAtPos5E){emit bottleAtPos5BigE;} pause;}}

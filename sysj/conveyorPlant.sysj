@@ -12,24 +12,13 @@ conveyorPlant(
 		input signal labellerTakenAck;
 		input signal bottleDefectiveFromTable;
 		input Integer signal bottlesNeeded;
-		input Integer signal liquidARatioC;                    // coordinator -> conveyorPlant (active batch's Liquid A ratio)
+		input Integer signal liquidARatioC;                    
 		output signal bottleAtPos1, bottleLeftPos5;
 		output signal bottleAtPos1E, bottleLeftPos5E, motorOnE;
-		// bottleReceivedE carries the exiting bottle's Liquid A ratio (see
-		// ConveyorRecipe) alongside its presence, so the collection-side viz can
-		// colour-split it the same way FillerCanvas does, without a second signal
-		// racing it for ordering (Worker.run() applies the boolean and the int
-		// payload from a single message, in that order - see org.compsys704.Worker).
 		output signal bottleEnteredE;
 		output Integer signal bottleReceivedE;
 		output signal leftMovingE, rightMovingE;
 		output Integer signal bottlesOnTableE;
-
-		// Same events as the *E signals above, mirrored to a second socket for the
-		// Big-Picture view (a different process from the Conveyor's own GUI, so it
-		// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket).
-		// Emitted at the exact same point as their *E counterpart so the
-		// Big-Picture bottle animation stays in lockstep with the Conveyor's own.
 		output signal bottleAtPos1BigE, bottleLeftPos5BigE, motorOnBigE;
 		output signal bottleEnteredBigE;
 		output Integer signal bottleReceivedBigE;
@@ -39,17 +28,11 @@ conveyorPlant(
 {
 	new Thread(new ConveyorGUI()).start();
 
-	// internal only (not echoed to the GUI directly) - true while a bottle is
-	// physically translating on that segment of the belt, used purely to
-	// drive the "motor running" indicator
 	signal leftMoving, rightMoving;
 
-	// Stands in for a real Bottle Loader station reacting to the Coordinator,
-	// alongside the manual Load Bottle button - see LoaderState.
 	signal autoLoadBottle;
 
-	{ // Motor status echo to GUI: the belt visibly runs whenever it is
-	  // actually transporting a bottle (auto) or being jogged manually
+	{ 
 		while(true){
 			present(motConveyorOnOff){ emit motorOnE; emit motorOnBigE; }
 			present(leftMoving){ emit motorOnE; emit motorOnBigE; }
@@ -58,16 +41,14 @@ conveyorPlant(
 		}
 	}
 	||
-	{ // Latches the Coordinator's bottlesNeeded into LoaderState (a plain Java field, since statics don't cross clock-domain processes).
+	{
 		boolean sawBottlesNeeded = false;
 		while(true){
 			present(bottlesNeeded){
-				// Edge-guarded: bottlesNeeded is held present for a wide window, so an unguarded addPending() would overcount.
 				if (!sawBottlesNeeded) {
 					sawBottlesNeeded = true;
 					LoaderState.addPending((Integer)#bottlesNeeded);
 				}
-				// Ack back so the Coordinator's broadcast is a genuine ack-or-timeout, not fire-and-forget.
 				ConveyorCoordinatorBridge.setBottlesNeededAck(true);
 			} else {
 				sawBottlesNeeded = false;
@@ -77,10 +58,7 @@ conveyorPlant(
 		}
 	}
 	||
-	{ // Latches the Coordinator's liquidARatioC into ConveyorRecipe - a plain Java
-	  // field is safe here for the same reason as LoaderState above (only this
-	  // process touches it). No rising-edge guard needed, unlike bottlesNeeded:
-	  // setting it repeatedly to the same value is harmless.
+	{
 		while(true){
 			present(liquidARatioC){
 				ConveyorRecipe.setRatio((Integer)#liquidARatioC);
@@ -89,17 +67,15 @@ conveyorPlant(
 		}
 	}
 	||
-	{ // Auto-loader stands in for a real Bottle Loader; paced by bottleAtPos1 so it can't outrun the left segment's one-bottle-at-a-time pacing.
+	{ 
 		boolean printedWaiting = false;
 		while(true){
 			await(!bottleAtPos1);
 			if (LoaderState.tryConsumePending()) {
 				printedWaiting = false;
 				System.out.printf("[Conveyor] auto-loader pulsing autoLoadBottle%n");
-				// Hold well past the left segment's own post-handoff overhead (~100ms TableOccupancy hold) - a shorter hold can go absent before that thread rechecks, even same-domain.
 				long t0 = System.currentTimeMillis();
 				while (System.currentTimeMillis() - t0 < 300) { emit autoLoadBottle; pause; }
-				// Only wait for bottleAtPos1 after an actual pulse - waiting unconditionally would deadlock when nothing is pending yet.
 				await(bottleAtPos1);
 			} else {
 				if (!printedWaiting) {
@@ -111,30 +87,20 @@ conveyorPlant(
 		}
 	}
 	||
-	{ // Left segment: Bottle Loader -> Pos 1
-	  // loadBottle stands in for the Bottle Loader
-	  // The belt starts moving by itself the moment a bottle is queued (no
-	  // separate start button needed) provided the system is ready (enable),
-	  // and the bottle is handed to the Rotary Table once it reaches Pos 1.
+	{ 
 		while(true){
 			await(loadBottle || autoLoadBottle);
 			await(enable);
-			// Bounded hold, not a single-tick emit, since this crosses the socket to the UI and a one-tick emit can race past its single-slot buffer.
 			{
 				long tEnter = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tEnter < 50) { emit bottleEnteredE; emit bottleEnteredBigE; pause; }
 			}
 
-			// Brief pause after loading, before the belt visibly starts moving - gives
-			// the loaded bottle a moment to be seen sitting at the loading end before
-			// travel begins, rather than starting to move the instant it's loaded.
 			{
 				long tSettle = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tSettle < 900) { pause; }
 			}
 
-			// Each travel step briefly holds leftMovingE (survives the socket race) with a genuine absent gap after, so SimpleClient sends a distinct edge per step instead of collapsing them.
-			// Each step's timer var is uniquely named (tL1..tL8) - sjc flattens block scopes within one thread, so reused names would collide.
 			emit leftMoving; { long tL1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL1 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
 			emit leftMoving; { long tL2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL2 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
 			emit leftMoving; { long tL3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL3 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
@@ -144,13 +110,10 @@ conveyorPlant(
 			emit leftMoving; { long tL7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL7 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
 			emit leftMoving; { long tL8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tL8 < 45) { emit leftMovingE; emit leftMovingBigE; pause; } } pause;
 
-			// Hold at Pos 1 until the Rotary Table actually acks (pos1TakenAck), not a fixed tick guess - keeps the two independently-clocked domains synchronised.
 			abort(pos1TakenAck) {
 				sustain bottleAtPos1;
 			}
-
-			// One more bottle now on the table, from this belt's point of
-			// view - see TableOccupancy.
+			
 			{
 				int onTable = TableOccupancy.increment();
 				long tCount = System.currentTimeMillis();
@@ -159,13 +122,11 @@ conveyorPlant(
 		}
 	}
 	||
-	{ // Right segment: Rotary Table Pos 5 -> Collection point -> Labeller
-	  // bottleFromTable is the real Pos 5 unload handoff, driven by RotaryConveyorBridge.
+	{
 		while(true){
 			await(bottleFromTable);
 			await(enable);
 
-			// Latched instantly: the Rotary Table asserts bottleDefectiveFromTable in lockstep with bottleFromTable, so this is never a stale value.
 			boolean defective;
 			present (bottleDefectiveFromTable) {
 				defective = true;
@@ -173,21 +134,18 @@ conveyorPlant(
 				defective = false;
 			}
 
-			// One fewer bottle on the table now - see TableOccupancy.
 			{
 				int onTable = TableOccupancy.decrement();
 				long tCount = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tCount < 100) { emit bottlesOnTableE(onTable); pause; }
 			}
 
-			// Bounded hold, same reason as bottleEnteredE above.
 			{
 				int exitRatio = ConveyorRecipe.getRatio();
 				long tReceived = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tReceived < 50) { emit bottleReceivedE(exitRatio); emit bottleReceivedBigE(exitRatio); pause; }
 			}
 
-			// Same step-hold-with-gap pattern as leftMovingE above; timer vars (tR1..tR8) each need a unique name.
 			emit rightMoving; { long tR1 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR1 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
 			emit rightMoving; { long tR2 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR2 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
 			emit rightMoving; { long tR3 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR3 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
@@ -197,8 +155,6 @@ conveyorPlant(
 			emit rightMoving; { long tR7 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR7 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
 			emit rightMoving; { long tR8 = System.currentTimeMillis(); while (System.currentTimeMillis() - tR8 < 45) { emit rightMovingE; emit rightMovingBigE; pause; } } pause;
 
-			// Hand off to the Labeller via ConveyorLabellerBridge (run-package class - sjc crashes resolving multi-segment package types inline).
-			// 30s timeout, not an unbounded hold: an unresponsive Labeller would otherwise strand this plant, unable to accept the next bottle.
 			abort(labellerTakenAck) {
 				long tLabel = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tLabel < 30000) {
@@ -212,7 +168,6 @@ conveyorPlant(
 			ConveyorLabellerBridge.setBottleDefectiveFromConveyor(false);
 			await(!labellerTakenAck);
 
-			// Ack the Rotary Table only once genuinely ready for the next bottle - acking earlier would race this segment's own still-running sequence above.
 			{
 				long tAck = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tAck < 100) {
@@ -222,7 +177,6 @@ conveyorPlant(
 			}
 			RotaryConveyorBridge.setConveyorTakenAck(false);
 
-			// await(!bottleFromTable) first - await isn't edge-triggered, so without this the loop can re-fire on the same stale signal and double-process one bottle.
 			await(!bottleFromTable);
 		}
 	}

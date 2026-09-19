@@ -24,14 +24,6 @@ public class RotaryTable extends JFrame {
 		canvas.setPreferredSize(new Dimension(300, 400));
 		canvas.setBackground(Color.WHITE);
 
-		// readyToRotate is driven by the Conveyor (see ConveyorVizWorker,
-		// which forwards its bottleAtPos1E straight into this signal) - watch the
-		// Conveyor GUI's "Bottle at Pos 1" light for its current state.
-		// bottleAtPos5 and capOnBottleAtPos1 are now driven automatically too
-		// (RotaryCapperBridge/RotaryFillerBridge/RotaryConveyorBridge - see
-		// rotaryTablePlant.sysj), so the old manual DEV toggles for them are
-		// gone - nothing sends those signals anymore.
-
 		// --- controller inputs: mode + manual jog ---
 		
 		final SignalRadioClient modeClient = new SignalRadioClient(Ports.PORT_ROTARYTABLE_CONTROLLER, Ports.ROTARYTABLE_MODE);
@@ -47,8 +39,7 @@ public class RotaryTable extends JFrame {
 		modeGroup.add(autoMode);
 		modeGroup.add(manualMode);
 
-		// rotateM is only read by the controller's manual-mode branch, so jog only
-		// while held down: press sends true, release sends false.
+		// rotateM: jog only while held down, press sends true, release sends false
 		final SignalLevelClient rotateMClient = new SignalLevelClient(Ports.PORT_ROTARYTABLE_CONTROLLER, Ports.ROTARYTABLE_ROTATE_M);
 		final JButton rotateButton = new JButton("Hold to jog rotate");
 		rotateButton.setEnabled(false);

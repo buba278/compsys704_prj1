@@ -6,27 +6,20 @@ import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
+import machines.capper.CapperVizWorker;
 import machines.conveyor.ConveyorVizWorker;
 import machines.coordinator.CoordinatorVizWorker;
+import machines.filler.FillerVizWorker;
 import machines.labeller.LabellerVizWorker;
 import machines.pos.OrderQueue;
 import machines.pos.PosFormPanel;
 import machines.rotarytable.RotaryTableVizWorker;
 import machines.sorter.SorterVizWorker;
+import org.compsys704.LoaderVizWorker;
 import org.compsys704.Ports;
 import org.compsys704.SignalServer;
+import digitaltwin.BigPictureTwinListener;
 
-// Standalone launcher for the merged Big-Picture view (see BigPictureCanvas). Runs its
-// own SignalServers for the Coordinator's viz signals (liquidARatioE/targetVolumeMlE/
-// bottlesNeededE/bottlesFilledE/bottleFaultedE/batchDoneE/batchElapsedE - see
-// coordinator.sysj) and each other station's *BigE viz signals (mirrors of that
-// station's own *E signals - see conveyorPlant.sysj/xml, rotaryTablePlant.sysj/xml,
-// labellerPlant.sysj/xml, sorterPlant.sysj/xml) - the same pattern FillerPanel/PosPanel
-// use for their own station's viz port, so the batch/recipe/progress panel, the
-// conveyor-belt bottle animation, the rotary table dial, the labeller, and the sorter
-// are all genuinely live. The Purchase Order form/queue on the left (PosFormPanel) is
-// the exact same component the individual Pos window uses - see OrderQueue for how the
-// two windows share one queue.
 public class BigPicture extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -46,7 +39,6 @@ public class BigPicture extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		// This window is a queue mirror, not the hub - see OrderQueue's class comment.
 		OrderQueue.startAsClient();
 
 		BigPicture frame = new BigPicture();
@@ -73,6 +65,22 @@ public class BigPicture extends JFrame {
 		SignalServer<SorterVizWorker> sorterServer =
 				new SignalServer<SorterVizWorker>(Ports.PORT_SORTER_BIGPICTURE_VIZ, SorterVizWorker.class);
 		new Thread(sorterServer).start();
+
+		// fault/backup indicators for filler, capper, lid placer
+		SignalServer<FillerVizWorker> fillerServer =
+				new SignalServer<FillerVizWorker>(Ports.PORT_FILLER_BIGPICTURE_VIZ, FillerVizWorker.class);
+		new Thread(fillerServer).start();
+
+		SignalServer<CapperVizWorker> capperServer =
+				new SignalServer<CapperVizWorker>(Ports.PORT_CAPPER_BIGPICTURE_VIZ, CapperVizWorker.class);
+		new Thread(capperServer).start();
+
+		SignalServer<LoaderVizWorker> lidPlacerServer =
+				new SignalServer<LoaderVizWorker>(Ports.PORT_LOADER_BIGPICTURE_VIZ, LoaderVizWorker.class);
+		new Thread(lidPlacerServer).start();
+
+		// feeds the "Bottles in Production" panel; retries quietly if TwinServer isn't running
+		BigPictureTwinListener.start("127.0.0.1", 7070);
 
 		while (true) {
 			try {

@@ -13,6 +13,7 @@ Controller(
 		output signal lidFaultE;									// controller -> UI viz (fault indicator)
 		output signal lidFaultOut;									// controller -> coordinator (station faulted)
 		output signal lidBackupE;									// controller -> UI viz (persistent backup-unit-active indicator)
+		output signal lidFaultBigE, lidBackupBigE;					// controller -> BigPicture viz (separate socket from the station's own GUI)
 		)
 ->{
 
@@ -222,6 +223,7 @@ Controller(
 			if (LidFaultState.isStationFaulted()) {
 				emit stationFault;
 				emit lidFaultE;
+				emit lidFaultBigE;
 			}
 			// 3000ms - a normal grip completes in ~1.2-1.5s, so this still gives margin for jitter without dragging out a genuine mechanical-slip retry.
 			if (LidFaultState.isAttemptTimedOut(3000)) {
@@ -229,6 +231,7 @@ Controller(
 			}
 			if (LidFaultState.isUsingBackup()) {
 				emit lidBackupE;
+				emit lidBackupBigE;
 			}
 			pause;
 		}
