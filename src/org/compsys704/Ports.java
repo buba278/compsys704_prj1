@@ -84,6 +84,8 @@ public class Ports {
 
 	public static final String CAPPER_BOTTLE_AT_POS4            = "CapperPlantCD.bottleAtPos4";
 	public static final String CAPPER_BOTTLE_AT_POS4_CONTROLLER = "CapperControllerCD.bottleAtPos4";
+	// Travels alongside CAPPER_BOTTLE_AT_POS4_CONTROLLER so the Controller can refuse to cap a bottle the Lid Placer already abandoned.
+	public static final String CAPPER_BOTTLE_DEFECTIVE_AT_POS4_CONTROLLER = "CapperControllerCD.bottleDefectiveAtPos4";
 	public static final String ROTARYTABLE_CAPPER_TAKEN_ACK     = "RotaryTablePlantCD.capperTakenAck";
 
 	public static final String LID_PLACED_ACK = "RotaryTablePlantCD.lidPlacedAck";

@@ -4,6 +4,7 @@ import run.RotaryCapperBridge;
 import run.RotaryFillerBridge;
 import run.RotaryLidBridge;
 import run.RotaryIndexState;
+import digitaltwin.TwinClient;
 
 rotaryTablePlant(
 		input signal rotaryTableTrigger;
@@ -54,10 +55,18 @@ rotaryTablePlant(
 	}
 	||
 	{ // Index coordinator: advances the whole table one slot atomically once the Exit slot is clear and every occupied working slot is done for this dwell period.
+	  // Also the sole source of ROTARY_TURN reports to the digital twin - exactly one call per genuine
+	  // index step, not per Entry-load event and not per waiting-tick (the old call site in
+	  // rotaryTableController.sysj fired on every tick of its alignment-wait loop and relied on
+	  // SystemTwin's 500ms debounce to collapse that back to one - which silently ate any second
+	  // real rotation landing within 500ms of the last, permanently desyncing every active bottle's
+	  // tracked position one step behind. Now there's nothing to debounce: one doIndex() = one call.
+		TwinClient twin = new TwinClient("rotary-table-plant", "127.0.0.1", 9090);
 		loop {
 			if (RotaryIndexState.canIndex()) {
 				RotaryIndexState.doIndex();
 				System.out.printf("[RT] INDEX: table advanced one slot%n");
+				twin.reportRotaryTurn();
 			}
 			pause;
 		}
@@ -144,6 +153,7 @@ rotaryTablePlant(
 			int myId = RotaryIndexState.getBottleId(3);
 			System.out.printf("[RT] slot3 (Capper): offering bottle #%d%n", myId);
 
+			boolean myDefective = RotaryIndexState.isDefective(3);
 			await(!capperTakenAck);
 			long tCapStart = System.currentTimeMillis();
 			abort(capperTakenAck) {
@@ -151,11 +161,14 @@ rotaryTablePlant(
 				// Must exceed the Capper's own worst-case fault detection (a single 8000ms stall check, plus backup-mode overhead) or the table gives up before the controller ever faults.
 				while (System.currentTimeMillis() - t0 < 11000) {
 					RotaryCapperBridge.setBottleAtPos4(true);
+					// Tells the Controller up front this bottle was already abandoned upstream (e.g. no lid) so it can refuse to cap it instead of wasting a cap.
+					RotaryCapperBridge.setBottleDefectiveAtPos4(myDefective);
 					emit tableBusy;
 					pause;
 				}
 			}
 			RotaryCapperBridge.setBottleAtPos4(false);
+			RotaryCapperBridge.setBottleDefectiveAtPos4(false);
 			present(capperTakenAck) {
 				System.out.printf("[RT] slot3: capperTakenAck received after %dms%n", System.currentTimeMillis() - tCapStart);
 				present(capperFaulted) {

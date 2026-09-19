@@ -3,6 +3,7 @@
               <ClockDomain Name="CapperControllerCD" Class="CapperController">
                       <!-- Input Signals mapped to a Server receiver -->
                       <iSignal Name="bottleAtPos4"      Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
+                      <iSignal Name="bottleDefectiveAtPos4" Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
                       <iSignal Name="gripperMaxLower"   Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
                       <iSignal Name="gripperMaxLift"    Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />
                       <iSignal Name="capGripped"        Class="com.systemj.ipc.SimpleServer" IP="127.0.0.1" Port="10010" />

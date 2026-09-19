@@ -52,8 +52,6 @@ Coordinator(
         long tRecipe = System.currentTimeMillis();
         twin.startBatch(quantity);
 
-        int filled = 0;
-
         // Ack-or-timeout broadcast; await(!bottlesNeededAck) first guards against a stale ack still lingering from the previous order's hold.
         await (!bottlesNeededAck);
         abort (bottlesNeededAck) {
@@ -68,7 +66,10 @@ Coordinator(
                 emit liquidARatioE(ratioA);
                 emit targetVolumeMlE(volume);
                 emit bottlesNeededE(quantity);
-                emit bottlesFilledE(filled);
+                // Reset the Big-Picture progress bar to 0 for this new order - bottlesFilledE from here
+                // on is driven by goodSorted (see the sortedOkE thread below), not by filler success, so
+                // a bottle that's later abandoned downstream (bad lid, sorter reject) doesn't count here.
+                emit bottlesFilledE(0);
                 pause;
             }
         }
@@ -100,17 +101,12 @@ Coordinator(
                         System.out.printf("[Coordinator] fillDoneE fired on attempt %d, awaiting fillReady%n", attempt);
                     }
 
-                    if (!bottleFaulted) {
-                        filled = filled + 1;
-                    }
                     long tFillerAck = System.currentTimeMillis();
                     while (System.currentTimeMillis() - tFillerAck < 100) {
                         RotaryFillerBridge.setFillerTakenAck(true);
                         RotaryFillerBridge.setFillerFaulted(bottleFaulted);
                         if (bottleFaulted) {
                             emit bottleFaultedE;
-                        } else {
-                            emit bottlesFilledE(filled);
                         }
                         pause;
                     }
@@ -154,6 +150,13 @@ Coordinator(
 				int nowGood = CoordinatorBatchState.incrementGoodSorted();
 				System.out.printf("[Coordinator] sortedOkE received - %d sorted good so far%n", nowGood);
 				twin.reportProgress(nowGood);
+				// Big-Picture progress bar tracks goodSorted, not filler success - a bottle abandoned
+				// downstream (bad lid, sorter reject) must not count here even though it filled fine.
+				long tProgress = System.currentTimeMillis();
+				while (System.currentTimeMillis() - tProgress < 100) {
+					emit bottlesFilledE(nowGood);
+					pause;
+				}
 			}
 		} else {
 			sawSortedOk = false;

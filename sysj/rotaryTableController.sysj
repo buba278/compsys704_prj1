@@ -1,6 +1,4 @@
 import run.RotaryConveyorBridge;
-import digitaltwin.PlantTwin;
-import digitaltwin.TwinClient;
 
 rotaryTableController(
 		input signal tableAlignedWithSensor, bottleAtPos5, readyToRotate;
@@ -35,8 +33,6 @@ rotaryTableController(
 	}
 	||
 	{ 	// auto mode
-	TwinClient twin = new TwinClient("rotary-table", "127.0.0.1", 9090);
-
 		loop {
 
 			await(autoMode);
@@ -51,7 +47,6 @@ rotaryTableController(
 				abort(tableAlignedWithSensor) {
 					loop {
 						emit rotaryTableTrigger;
-						twin.reportRotaryTurn();
 						pause;
 					}
 				}
@@ -75,24 +70,22 @@ rotaryTableController(
 	}
 	||
 	{	// manual mode
-	TwinClient twin = new TwinClient("rotary", "127.0.0.1", 9090);
 		loop {
 			await(manualMode);
 
 			abort(autoMode) {
-			
+
 				loop {
 					present(rotateM) {
 						emit rotaryTableTrigger;
-						twin.reportRotaryTurn();
 						pause;
-						
+
 					}
 					pause;
 				}
 			}
-			
-   			
+
+
 		}
 	}
 

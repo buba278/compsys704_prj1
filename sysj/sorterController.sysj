@@ -72,6 +72,10 @@ SorterController(
 
         if (defective || upstreamFault) {
             System.out.println("SorterController: Defect detected - diverting bottle.");
+            // Every other station (Lid Placer, Capper, Filler) flashes its own indicator via
+            // State.ERROR when it detects a fault - the Sorter never did, so a correctly-diverted
+            // bottle looked identical (IDLE at cycle end) to a normal pass in the station UI.
+            twin.update(PlantTwin.State.ERROR);
 
             // Guard: ensure pusher is fully retracted before issuing extend command
             await (!pusherExtended);
