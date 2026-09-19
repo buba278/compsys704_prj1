@@ -27,7 +27,7 @@ public class LabellerVizWorker extends Worker {
                 }
                 break;
 
-            case "bottleGoneE":
+            case "bottleGoneE": case "bottleGoneBigE":
                 // NEW: explicit off-signal companion to bottleAtLabellerE. Without
                 // this, BOTTLE_PRESENT (and the finished label) could only ever be
                 // set true and would latch forever once the first bottle arrived,
@@ -83,7 +83,7 @@ public class LabellerVizWorker extends Worker {
     static final List<String> signames = Arrays.asList(
         "bottleAtLabellerE", "bottleGoneE", "bottleClampedE", "labelPrintedE", "labelAppliedE",
         "liquidARatioE", "targetVolumeMlE",
-        "bottleAtLabellerBigE", "bottleClampedBigE", "labelPrintedBigE", "labelAppliedBigE",
+        "bottleAtLabellerBigE", "bottleGoneBigE", "bottleClampedBigE", "labelPrintedBigE", "labelAppliedBigE",
         "liquidARatioBigE", "targetVolumeMlBigE"
     );
 

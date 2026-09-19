@@ -48,10 +48,6 @@ public class FillerCanvas extends JPanel {
               g.setColor(Color.BLACK);
               g.drawString("FAULT", LABEL_X, FAULT_Y + 12);
 
-              // Redundant-line rerouting from the IP report (section 6): lit once
-              // the station has faulted out and handed off to its physical backup
-              // unit, and stays lit across subsequent bottles until Clear Fault
-              // returns the station to its primary unit.
               g.setColor(FillerState.BACKUP_ACTIVE ? Color.ORANGE : Color.LIGHT_GRAY);
               g.fillOval(INDICATOR_X, BACKUP_Y, 15, 15);
               g.setColor(Color.BLACK);

@@ -17,6 +17,7 @@ FillerController(
     output signal fillReady;							// fillerController -> coordinator (filler reset, ready for next)
     output signal fillFaultOut;						// fillerController -> coordinator (station faulted, stop presenting this bottle)
     output signal fillerBackupE;						// fillerController -> UI viz (persistent backup-unit-active indicator)
+    output signal fillFaultBigE, fillerBackupBigE;		// fillerController -> BigPicture viz (separate socket from the station's own GUI)
 )
 ->
 {
@@ -223,9 +224,11 @@ FillerController(
 			}
 			if (FillerFaultState.isStationFaulted()) {
 				emit stationFault;
+				emit fillFaultBigE;
 			}
 			if (FillerFaultState.isUsingBackup()) {
 				emit fillerBackupE;
+				emit fillerBackupBigE;
 			}
 			pause;
 		}

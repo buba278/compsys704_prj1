@@ -16,6 +16,8 @@
                       <oSignal Name="totalVolumeMlE"  To="UI.totalVolumeMlE"  Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
                       <oSignal Name="fillFaultE"      To="UI.fillFaultE"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
                       <oSignal Name="fillerBackupE"   To="UI.fillerBackupE"   Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20001" />
+                      <oSignal Name="fillFaultBigE"    To="BigPicture.fillFaultBigE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20011" />
+                      <oSignal Name="fillerBackupBigE" To="BigPicture.fillerBackupBigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20011" />
                       <oSignal Name="fillDoneCoordE" To="CoordinatorCD.fillDoneE"         Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
                       <oSignal Name="fillReady"      To="CoordinatorCD.fillReady"         Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />
                       <oSignal Name="fillFaultOut"   To="CoordinatorCD.fillFaultOut"      Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="10004" />

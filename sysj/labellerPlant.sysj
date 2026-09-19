@@ -30,6 +30,7 @@ LabellerPlant(
 	// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket, see
 	// CLAUDE.md).
 	output signal bottleAtLabellerBigE;
+	output signal bottleGoneBigE;
 	output signal labelPrintedBigE;
 	output signal bottleClampedBigE;
 	output signal labelAppliedBigE;
@@ -85,10 +86,16 @@ LabellerPlant(
 			await(!sorterTakenAck);
 
 			// Tell the UI the bottle has genuinely left, so it stops showing the last label indefinitely; widened hold since this is a one-off event crossing the socket.
+			// Also mirrored to BigPicture (bottleGoneBigE) - without it, BigPicture's
+			// own LabellerState never learns the bottle left (it only ever gets set
+			// via bottleAtLabellerBigE on the *next* arrival), so the last bottle of a
+			// batch is shown stuck at the station forever once there's no next bottle
+			// to trigger a reset.
 			{
 				long tGone = System.currentTimeMillis();
 				while (System.currentTimeMillis() - tGone < 50) {
 					emit bottleGoneE;
+					emit bottleGoneBigE;
 					pause;
 				}
 			}

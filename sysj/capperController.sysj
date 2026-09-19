@@ -21,6 +21,7 @@ CapperController(
     output signal capperFaultE;									// capperController -> UI viz (fault indicator)
     output signal capperFaultOut;								// capperController -> coordinator (station faulted)
     output signal capperBackupE;								// capperController -> UI viz (persistent backup-unit-active indicator)
+    output signal capperFaultBigE, capperBackupBigE;			// capperController -> BigPicture viz (separate socket from the station's own GUI)
 )
 ->
 {
@@ -192,12 +193,14 @@ CapperController(
 		if (CapperFaultState.isStationFaulted()) {
 			emit stationFault;
 			emit capperFaultE;
+			emit capperFaultBigE;
 		}
 		if (CapperFaultState.isAttemptTimedOut(8000)) {
 			emit attemptTimedOut;
 		}
 		if (CapperFaultState.isUsingBackup()) {
 			emit capperBackupE;
+			emit capperBackupBigE;
 		}
 		pause;
 	}

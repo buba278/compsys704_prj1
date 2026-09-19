@@ -27,6 +27,7 @@
 					
 
 					<oSignal Name="bottleAtLabellerBigE" To="BigPicture.bottleAtLabellerBigE" Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
+					<oSignal Name="bottleGoneBigE"       To="BigPicture.bottleGoneBigE"       Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
 					<oSignal Name="labelPrintedBigE"     To="BigPicture.labelPrintedBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
 					<oSignal Name="bottleClampedBigE"    To="BigPicture.bottleClampedBigE"    Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />
 					<oSignal Name="labelAppliedBigE"     To="BigPicture.labelAppliedBigE"     Class="com.systemj.ipc.SimpleClient" IP="127.0.0.1" Port="20008" />

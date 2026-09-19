@@ -53,6 +53,16 @@ public class CapperVizWorker extends Worker {
             case "capperBackupE":
                 if (status) CapperState.BACKUP_ACTIVE = true;
                 break;
+            // BigPicture runs in its own JVM (see BigPicture.java) with its own copy of
+            // CapperState and no "Clear Fault" button of its own, so unlike the own-GUI
+            // cases above these track presence/absence exactly, clearing themselves as
+            // soon as the controller stops re-emitting them.
+            case "capperFaultBigE":
+                CapperState.FAULTED = status;
+                break;
+            case "capperBackupBigE":
+                CapperState.BACKUP_ACTIVE = status;
+                break;
             default:
                 System.err.println("Wrong sig name : " + signame);
                 System.exit(1);
@@ -66,7 +76,8 @@ public class CapperVizWorker extends Worker {
 
     static final List<String> signames = Arrays.asList(
         "bottleAtPos4E", "bottleGoneE", "gripperMaxLowerE", "gripperMaxLiftE",
-        "gripperInitPosE", "gripperFullTwistE", "capperFaultE", "capperBackupE"
+        "gripperInitPosE", "gripperFullTwistE", "capperFaultE", "capperBackupE",
+        "capperFaultBigE", "capperBackupBigE"
     );
 
     @Override
