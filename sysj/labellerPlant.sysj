@@ -25,10 +25,6 @@ LabellerPlant(
 	output Integer signal liquidARatioE, targetVolumeMlE;
 	output String signal productIdE;
 
-	// Same events as the *E signals above, mirrored to a second socket for the
-	// Big-Picture view (a different process from the Labeller's own GUI, so it
-	// needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket, see
-	// CLAUDE.md).
 	output signal bottleAtLabellerBigE;
 	output signal labelPrintedBigE;
 	output signal bottleClampedBigE;

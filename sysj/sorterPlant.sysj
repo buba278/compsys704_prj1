@@ -23,10 +23,6 @@ SorterPlant(
     output signal pusherRetractedE;
     output Integer signal sortedCountE, rejectedCountE;
 
-    // Same events as the *E signals above, mirrored to a second socket for the
-    // Big-Picture view (a different process from the Sorter's own GUI, so it
-    // needs its own copy - SystemJ codegen is 1-signal-name-to-1-socket, see
-    // CLAUDE.md).
     output signal bottleAtSorterBigE;
     output signal bottleDefectiveBigE;
     output signal pusherExtendedBigE;

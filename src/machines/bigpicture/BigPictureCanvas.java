@@ -61,9 +61,6 @@ public class BigPictureCanvas extends JPanel {
 	private static final Color FAULT_RED = new Color(210, 60, 60);
 	private static final Color OFFLINE_GRAY = new Color(170, 170, 170);
 
-	// Window titles as each station sets them with setTitle(...) (see WindowTile's key
-	// list) - WindowFocuser matches on this exact text to bring that station's already-
-	// open window (a separate JVM process - see CLAUDE.md) to the foreground.
 	private static final String TITLE_CONVEYOR = "Conveyor Belt";
 	private static final String TITLE_ROTARY_TABLE = "Rotary Table";
 	private static final String TITLE_FILLER = "Filler";
